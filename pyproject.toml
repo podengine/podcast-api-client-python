@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "podengine"
+version = "0.1.0"
+description = "Official Python SDK for the Pod Engine podcast intelligence API — search 4M+ podcasts, fetch metadata, transcripts, charts and more."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Pod Engine" }]
+requires-python = ">=3.10"
+keywords = [
+    "podcast",
+    "podengine",
+    "podcast-api",
+    "transcripts",
+    "podcast-charts",
+    "sdk",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
+]
+dependencies = ["httpx>=0.27", "pydantic>=2.7"]
+
+[project.urls]
+Homepage = "https://www.podengine.ai/api-docs"
+Repository = "https://github.com/podengine/podcast-api-client-python"
+Issues = "https://github.com/podengine/podcast-api-client-python/issues"
+
+[dependency-groups]
+# ruff is pinned exactly: `ruff format` output must be byte-identical across the monorepo
+# generator and the public-repo drift check, or CI would flag spurious drift.
+dev = ["pytest>=8", "respx>=0.21", "pyright>=1.1.380", "ruff==0.15.17"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/podengine"]
+
+[tool.hatch.build.targets.sdist]
+# Ship only the package source + the spec it was generated from. No internal code,
+# no tests, no codegen scripts leak into the published artifact.
+include = ["src/podengine", "openapi.json", "README.md", "LICENSE"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+# Generated code is allowed long lines / its own import ordering quirks; we still format it.
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"src/podengine/_generated/*" = ["E501"]
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.10"
+typeCheckingMode = "standard"
+venvPath = "."
+venv = ".venv"

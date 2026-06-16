@@ -1,0 +1,31 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: pypi
+    permissions:
+      id-token: write  # required for PyPI Trusted Publishing (OIDC)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Build sdist + wheel
+        run: uv build
+
+      # Trusted Publishing: pypi.org is configured to trust this repo + workflow, so there is
+      # no long-lived token. Attestations/provenance are attached by default.
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

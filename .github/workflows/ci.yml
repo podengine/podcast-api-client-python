@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      # The committed generated client must match the committed openapi.json.
+      - name: Regenerate client
+        run: bun run scripts/generate-python-client.ts
+
+      - name: Format generated output
+        run: uv run ruff format src
+
+      - name: Fail on generated drift
+        run: git diff --exit-code openapi.json src/podengine/_generated
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Type-check
+        run: uv run pyright
+
+      - name: Test
+        run: uv run pytest
+
+      - name: Build
+        run: uv build
