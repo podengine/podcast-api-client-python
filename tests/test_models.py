@@ -34,7 +34,9 @@ def test_enums_become_literals() -> None:
 
 def test_alias_round_trip_populate_by_name() -> None:
     # Construct by python (snake) name and by wire alias; both accepted, dumped by alias.
-    by_name = GetLatestChartResponseOptions(chart_type="apple", positions_limit=5)
+    # populate_by_name works at runtime, but type checkers only see the alias as the constructor
+    # parameter (dataclass_transform can't model "accept both"), so the by-name call is ignored.
+    by_name = GetLatestChartResponseOptions(chart_type="apple", positions_limit=5)  # pyright: ignore[reportCallIssue]
     by_alias = GetLatestChartResponseOptions.model_validate({"chartType": "apple", "positionsLimit": 5})
     assert by_name.chart_type == by_alias.chart_type == "apple"
     assert by_name.model_dump(by_alias=True)["positionsLimit"] == 5
