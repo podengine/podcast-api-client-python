@@ -1032,12 +1032,102 @@
                               "type": "string"
                             }
                           },
-                          "publishedSince": {},
+                          "publishedSince": {
+                            "description": "Only episodes published on or after this date (inclusive)"
+                          },
+                          "publishedBefore": {
+                            "description": "Only episodes published strictly before this date (exclusive). Combine with publishedSince for a bounded window, e.g. publishedSince=90 days ago + publishedBefore=30 days ago."
+                          },
                           "hasTranscript": {
                             "type": "boolean"
                           },
                           "episodeUpdatedSince": {},
-                          "episodeCreatedSince": {}
+                          "episodeCreatedSince": {},
+                          "personFilters": {
+                            "description": "Filter episodes by the people on them. Entries are ANDed together, e.g. [{ \"name\": \"Elon Musk\", \"type\": \"guest\" }, { \"name\": \"Joe Rogan\", \"type\": \"host\" }] returns only episodes where Elon Musk appeared as a guest and Joe Rogan was a host. An entry with matchMode \"not\" instead excludes episodes featuring that person.",
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "minLength": 2,
+                                  "description": "The name to match"
+                                },
+                                "matchMode": {
+                                  "description": "'must' (default) only returns episodes matching this entry; 'not' excludes episodes matching this entry",
+                                  "type": "string",
+                                  "enum": [
+                                    "must",
+                                    "not"
+                                  ]
+                                },
+                                "phraseMatch": {
+                                  "description": "Whether to match the name as a phrase (all words, in order). Defaults to true; set false for a loose per-word match.",
+                                  "type": "boolean"
+                                },
+                                "slop": {
+                                  "description": "How many words apart tokens can appear in a name to still count as a phrase match",
+                                  "type": "number"
+                                },
+                                "fuzzy": {
+                                  "description": "Whether to tolerate close spellings. Uses per-word fuzzy matching with all words required, so it ignores word order and cannot be combined with slop.",
+                                  "type": "boolean"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "guest",
+                                    "host"
+                                  ],
+                                  "description": "Whether the person must appear on the episode as a 'guest' or a 'host'"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "type"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "sponsorFilters": {
+                            "description": "Filter episodes by sponsor / advertiser name. Entries are ANDed together; an entry with matchMode \"not\" instead excludes episodes with that sponsor.",
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "minLength": 2,
+                                  "description": "The name to match"
+                                },
+                                "matchMode": {
+                                  "description": "'must' (default) only returns episodes matching this entry; 'not' excludes episodes matching this entry",
+                                  "type": "string",
+                                  "enum": [
+                                    "must",
+                                    "not"
+                                  ]
+                                },
+                                "phraseMatch": {
+                                  "description": "Whether to match the name as a phrase (all words, in order). Defaults to true; set false for a loose per-word match.",
+                                  "type": "boolean"
+                                },
+                                "slop": {
+                                  "description": "How many words apart tokens can appear in a name to still count as a phrase match",
+                                  "type": "number"
+                                },
+                                "fuzzy": {
+                                  "description": "Whether to tolerate close spellings. Uses per-word fuzzy matching with all words required, so it ignores word order and cannot be combined with slop.",
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
                         },
                         "additionalProperties": false
                       }
@@ -1361,76 +1451,81 @@
                               "type": "boolean"
                             },
                             "alertSettings": {
-                              "allOf": [
+                              "oneOf": [
                                 {
-                                  "oneOf": [
-                                    {
+                                  "type": "object",
+                                  "properties": {
+                                    "genresToSkip": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "genresToInclude": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "otherSpellings": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "otherEmails": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                                      }
+                                    },
+                                    "contextAwareQuestion": {
+                                      "type": "string"
+                                    },
+                                    "contextAwareDetails": {
                                       "type": "object",
                                       "properties": {
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "person"
-                                          ]
-                                        },
-                                        "value": {
+                                        "what": {
                                           "type": "string"
                                         },
-                                        "trackGuestAppearances": {
-                                          "type": "boolean"
+                                        "relevantClues": {
+                                          "type": "string"
                                         },
-                                        "trackHostAppearances": {
-                                          "type": "boolean"
-                                        },
-                                        "trackMentions": {
-                                          "type": "boolean"
+                                        "commonFalsePositives": {
+                                          "type": "string"
                                         }
                                       },
-                                      "required": [
-                                        "type",
-                                        "value"
-                                      ],
                                       "additionalProperties": false
                                     },
-                                    {
-                                      "type": "object",
-                                      "properties": {
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "company"
-                                          ]
-                                        },
-                                        "value": {
-                                          "type": "string"
-                                        }
-                                      },
-                                      "required": [
-                                        "type",
-                                        "value"
-                                      ],
-                                      "additionalProperties": false
+                                    "filterAdvertisements": {
+                                      "type": "boolean"
                                     },
-                                    {
-                                      "type": "object",
-                                      "properties": {
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "custom-keyword"
-                                          ]
-                                        },
-                                        "value": {
-                                          "type": "string"
-                                        }
-                                      },
-                                      "required": [
-                                        "type",
-                                        "value"
-                                      ],
-                                      "additionalProperties": false
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "person"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "string"
+                                    },
+                                    "trackGuestAppearances": {
+                                      "type": "boolean"
+                                    },
+                                    "trackHostAppearances": {
+                                      "type": "boolean"
+                                    },
+                                    "trackMentions": {
+                                      "type": "boolean"
                                     }
-                                  ]
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false
                                 },
                                 {
                                   "type": "object",
@@ -1481,8 +1576,87 @@
                                     },
                                     "filterAdvertisements": {
                                       "type": "boolean"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "company"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "string"
                                     }
                                   },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "genresToSkip": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "genresToInclude": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "otherSpellings": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "otherEmails": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                                      }
+                                    },
+                                    "contextAwareQuestion": {
+                                      "type": "string"
+                                    },
+                                    "contextAwareDetails": {
+                                      "type": "object",
+                                      "properties": {
+                                        "what": {
+                                          "type": "string"
+                                        },
+                                        "relevantClues": {
+                                          "type": "string"
+                                        },
+                                        "commonFalsePositives": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    },
+                                    "filterAdvertisements": {
+                                      "type": "boolean"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "custom-keyword"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
                                   "additionalProperties": false
                                 }
                               ]
@@ -1691,76 +1865,81 @@
                                 "type": "boolean"
                               },
                               "alertSettings": {
-                                "allOf": [
+                                "oneOf": [
                                   {
-                                    "oneOf": [
-                                      {
+                                    "type": "object",
+                                    "properties": {
+                                      "genresToSkip": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "genresToInclude": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "otherSpellings": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "otherEmails": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "format": "email",
+                                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                                        }
+                                      },
+                                      "contextAwareQuestion": {
+                                        "type": "string"
+                                      },
+                                      "contextAwareDetails": {
                                         "type": "object",
                                         "properties": {
-                                          "type": {
-                                            "type": "string",
-                                            "enum": [
-                                              "person"
-                                            ]
-                                          },
-                                          "value": {
+                                          "what": {
                                             "type": "string"
                                           },
-                                          "trackGuestAppearances": {
-                                            "type": "boolean"
+                                          "relevantClues": {
+                                            "type": "string"
                                           },
-                                          "trackHostAppearances": {
-                                            "type": "boolean"
-                                          },
-                                          "trackMentions": {
-                                            "type": "boolean"
+                                          "commonFalsePositives": {
+                                            "type": "string"
                                           }
                                         },
-                                        "required": [
-                                          "type",
-                                          "value"
-                                        ],
                                         "additionalProperties": false
                                       },
-                                      {
-                                        "type": "object",
-                                        "properties": {
-                                          "type": {
-                                            "type": "string",
-                                            "enum": [
-                                              "company"
-                                            ]
-                                          },
-                                          "value": {
-                                            "type": "string"
-                                          }
-                                        },
-                                        "required": [
-                                          "type",
-                                          "value"
-                                        ],
-                                        "additionalProperties": false
+                                      "filterAdvertisements": {
+                                        "type": "boolean"
                                       },
-                                      {
-                                        "type": "object",
-                                        "properties": {
-                                          "type": {
-                                            "type": "string",
-                                            "enum": [
-                                              "custom-keyword"
-                                            ]
-                                          },
-                                          "value": {
-                                            "type": "string"
-                                          }
-                                        },
-                                        "required": [
-                                          "type",
-                                          "value"
-                                        ],
-                                        "additionalProperties": false
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "person"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": "string"
+                                      },
+                                      "trackGuestAppearances": {
+                                        "type": "boolean"
+                                      },
+                                      "trackHostAppearances": {
+                                        "type": "boolean"
+                                      },
+                                      "trackMentions": {
+                                        "type": "boolean"
                                       }
-                                    ]
+                                    },
+                                    "required": [
+                                      "type",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
                                   },
                                   {
                                     "type": "object",
@@ -1811,8 +1990,87 @@
                                       },
                                       "filterAdvertisements": {
                                         "type": "boolean"
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "company"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": "string"
                                       }
                                     },
+                                    "required": [
+                                      "type",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "genresToSkip": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "genresToInclude": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "otherSpellings": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "otherEmails": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "format": "email",
+                                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                                        }
+                                      },
+                                      "contextAwareQuestion": {
+                                        "type": "string"
+                                      },
+                                      "contextAwareDetails": {
+                                        "type": "object",
+                                        "properties": {
+                                          "what": {
+                                            "type": "string"
+                                          },
+                                          "relevantClues": {
+                                            "type": "string"
+                                          },
+                                          "commonFalsePositives": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "additionalProperties": false
+                                      },
+                                      "filterAdvertisements": {
+                                        "type": "boolean"
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "custom-keyword"
+                                        ]
+                                      },
+                                      "value": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "value"
+                                    ],
                                     "additionalProperties": false
                                   }
                                 ]
@@ -1963,76 +2221,81 @@
                               "type": "boolean"
                             },
                             "alertSettings": {
-                              "allOf": [
+                              "oneOf": [
                                 {
-                                  "oneOf": [
-                                    {
+                                  "type": "object",
+                                  "properties": {
+                                    "genresToSkip": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "genresToInclude": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "otherSpellings": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "otherEmails": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                                      }
+                                    },
+                                    "contextAwareQuestion": {
+                                      "type": "string"
+                                    },
+                                    "contextAwareDetails": {
                                       "type": "object",
                                       "properties": {
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "person"
-                                          ]
-                                        },
-                                        "value": {
+                                        "what": {
                                           "type": "string"
                                         },
-                                        "trackGuestAppearances": {
-                                          "type": "boolean"
+                                        "relevantClues": {
+                                          "type": "string"
                                         },
-                                        "trackHostAppearances": {
-                                          "type": "boolean"
-                                        },
-                                        "trackMentions": {
-                                          "type": "boolean"
+                                        "commonFalsePositives": {
+                                          "type": "string"
                                         }
                                       },
-                                      "required": [
-                                        "type",
-                                        "value"
-                                      ],
                                       "additionalProperties": false
                                     },
-                                    {
-                                      "type": "object",
-                                      "properties": {
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "company"
-                                          ]
-                                        },
-                                        "value": {
-                                          "type": "string"
-                                        }
-                                      },
-                                      "required": [
-                                        "type",
-                                        "value"
-                                      ],
-                                      "additionalProperties": false
+                                    "filterAdvertisements": {
+                                      "type": "boolean"
                                     },
-                                    {
-                                      "type": "object",
-                                      "properties": {
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "custom-keyword"
-                                          ]
-                                        },
-                                        "value": {
-                                          "type": "string"
-                                        }
-                                      },
-                                      "required": [
-                                        "type",
-                                        "value"
-                                      ],
-                                      "additionalProperties": false
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "person"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "string"
+                                    },
+                                    "trackGuestAppearances": {
+                                      "type": "boolean"
+                                    },
+                                    "trackHostAppearances": {
+                                      "type": "boolean"
+                                    },
+                                    "trackMentions": {
+                                      "type": "boolean"
                                     }
-                                  ]
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false
                                 },
                                 {
                                   "type": "object",
@@ -2083,8 +2346,87 @@
                                     },
                                     "filterAdvertisements": {
                                       "type": "boolean"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "company"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "string"
                                     }
                                   },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "genresToSkip": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "genresToInclude": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "otherSpellings": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "otherEmails": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                                      }
+                                    },
+                                    "contextAwareQuestion": {
+                                      "type": "string"
+                                    },
+                                    "contextAwareDetails": {
+                                      "type": "object",
+                                      "properties": {
+                                        "what": {
+                                          "type": "string"
+                                        },
+                                        "relevantClues": {
+                                          "type": "string"
+                                        },
+                                        "commonFalsePositives": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    },
+                                    "filterAdvertisements": {
+                                      "type": "boolean"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "custom-keyword"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
                                   "additionalProperties": false
                                 }
                               ]
@@ -2216,76 +2558,81 @@
                         "additionalProperties": false
                       },
                       "alertSettings": {
-                        "allOf": [
+                        "oneOf": [
                           {
-                            "oneOf": [
-                              {
+                            "type": "object",
+                            "properties": {
+                              "genresToSkip": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "genresToInclude": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "otherSpellings": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "otherEmails": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "format": "email",
+                                  "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                                }
+                              },
+                              "contextAwareQuestion": {
+                                "type": "string"
+                              },
+                              "contextAwareDetails": {
                                 "type": "object",
                                 "properties": {
-                                  "type": {
-                                    "type": "string",
-                                    "enum": [
-                                      "person"
-                                    ]
-                                  },
-                                  "value": {
+                                  "what": {
                                     "type": "string"
                                   },
-                                  "trackGuestAppearances": {
-                                    "type": "boolean"
+                                  "relevantClues": {
+                                    "type": "string"
                                   },
-                                  "trackHostAppearances": {
-                                    "type": "boolean"
-                                  },
-                                  "trackMentions": {
-                                    "type": "boolean"
+                                  "commonFalsePositives": {
+                                    "type": "string"
                                   }
                                 },
-                                "required": [
-                                  "type",
-                                  "value"
-                                ],
                                 "additionalProperties": false
                               },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "type": {
-                                    "type": "string",
-                                    "enum": [
-                                      "company"
-                                    ]
-                                  },
-                                  "value": {
-                                    "type": "string"
-                                  }
-                                },
-                                "required": [
-                                  "type",
-                                  "value"
-                                ],
-                                "additionalProperties": false
+                              "filterAdvertisements": {
+                                "type": "boolean"
                               },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "type": {
-                                    "type": "string",
-                                    "enum": [
-                                      "custom-keyword"
-                                    ]
-                                  },
-                                  "value": {
-                                    "type": "string"
-                                  }
-                                },
-                                "required": [
-                                  "type",
-                                  "value"
-                                ],
-                                "additionalProperties": false
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "person"
+                                ]
+                              },
+                              "value": {
+                                "type": "string"
+                              },
+                              "trackGuestAppearances": {
+                                "type": "boolean"
+                              },
+                              "trackHostAppearances": {
+                                "type": "boolean"
+                              },
+                              "trackMentions": {
+                                "type": "boolean"
                               }
-                            ]
+                            },
+                            "required": [
+                              "type",
+                              "value"
+                            ],
+                            "additionalProperties": false
                           },
                           {
                             "type": "object",
@@ -2336,8 +2683,87 @@
                               },
                               "filterAdvertisements": {
                                 "type": "boolean"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "company"
+                                ]
+                              },
+                              "value": {
+                                "type": "string"
                               }
                             },
+                            "required": [
+                              "type",
+                              "value"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "genresToSkip": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "genresToInclude": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "otherSpellings": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "otherEmails": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "format": "email",
+                                  "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                                }
+                              },
+                              "contextAwareQuestion": {
+                                "type": "string"
+                              },
+                              "contextAwareDetails": {
+                                "type": "object",
+                                "properties": {
+                                  "what": {
+                                    "type": "string"
+                                  },
+                                  "relevantClues": {
+                                    "type": "string"
+                                  },
+                                  "commonFalsePositives": {
+                                    "type": "string"
+                                  }
+                                },
+                                "additionalProperties": false
+                              },
+                              "filterAdvertisements": {
+                                "type": "boolean"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "custom-keyword"
+                                ]
+                              },
+                              "value": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "value"
+                            ],
                             "additionalProperties": false
                           }
                         ]
@@ -2403,76 +2829,81 @@
                               "type": "boolean"
                             },
                             "alertSettings": {
-                              "allOf": [
+                              "oneOf": [
                                 {
-                                  "oneOf": [
-                                    {
+                                  "type": "object",
+                                  "properties": {
+                                    "genresToSkip": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "genresToInclude": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "otherSpellings": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "otherEmails": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                                      }
+                                    },
+                                    "contextAwareQuestion": {
+                                      "type": "string"
+                                    },
+                                    "contextAwareDetails": {
                                       "type": "object",
                                       "properties": {
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "person"
-                                          ]
-                                        },
-                                        "value": {
+                                        "what": {
                                           "type": "string"
                                         },
-                                        "trackGuestAppearances": {
-                                          "type": "boolean"
+                                        "relevantClues": {
+                                          "type": "string"
                                         },
-                                        "trackHostAppearances": {
-                                          "type": "boolean"
-                                        },
-                                        "trackMentions": {
-                                          "type": "boolean"
+                                        "commonFalsePositives": {
+                                          "type": "string"
                                         }
                                       },
-                                      "required": [
-                                        "type",
-                                        "value"
-                                      ],
                                       "additionalProperties": false
                                     },
-                                    {
-                                      "type": "object",
-                                      "properties": {
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "company"
-                                          ]
-                                        },
-                                        "value": {
-                                          "type": "string"
-                                        }
-                                      },
-                                      "required": [
-                                        "type",
-                                        "value"
-                                      ],
-                                      "additionalProperties": false
+                                    "filterAdvertisements": {
+                                      "type": "boolean"
                                     },
-                                    {
-                                      "type": "object",
-                                      "properties": {
-                                        "type": {
-                                          "type": "string",
-                                          "enum": [
-                                            "custom-keyword"
-                                          ]
-                                        },
-                                        "value": {
-                                          "type": "string"
-                                        }
-                                      },
-                                      "required": [
-                                        "type",
-                                        "value"
-                                      ],
-                                      "additionalProperties": false
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "person"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "string"
+                                    },
+                                    "trackGuestAppearances": {
+                                      "type": "boolean"
+                                    },
+                                    "trackHostAppearances": {
+                                      "type": "boolean"
+                                    },
+                                    "trackMentions": {
+                                      "type": "boolean"
                                     }
-                                  ]
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false
                                 },
                                 {
                                   "type": "object",
@@ -2523,8 +2954,87 @@
                                     },
                                     "filterAdvertisements": {
                                       "type": "boolean"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "company"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "string"
                                     }
                                   },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "genresToSkip": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "genresToInclude": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "otherSpellings": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "otherEmails": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                                      }
+                                    },
+                                    "contextAwareQuestion": {
+                                      "type": "string"
+                                    },
+                                    "contextAwareDetails": {
+                                      "type": "object",
+                                      "properties": {
+                                        "what": {
+                                          "type": "string"
+                                        },
+                                        "relevantClues": {
+                                          "type": "string"
+                                        },
+                                        "commonFalsePositives": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    },
+                                    "filterAdvertisements": {
+                                      "type": "boolean"
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "custom-keyword"
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "value"
+                                  ],
                                   "additionalProperties": false
                                 }
                               ]
@@ -2752,7 +3262,7 @@
                         "alertMatches": {
                           "type": "array",
                           "items": {
-                            "allOf": [
+                            "oneOf": [
                               {
                                 "type": "object",
                                 "properties": {
@@ -2842,6 +3352,12 @@
                                   },
                                   "text": {
                                     "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "EPISODE"
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -2861,127 +3377,147 @@
                                   "imageUrl",
                                   "podcastSlug",
                                   "podcastTitle",
-                                  "text"
+                                  "text",
+                                  "type"
                                 ],
                                 "additionalProperties": false
                               },
                               {
-                                "oneOf": [
-                                  {
+                                "type": "object",
+                                "properties": {
+                                  "advertisementLLMHistoryId": {
+                                    "type": [
+                                      "number",
+                                      "null"
+                                    ]
+                                  },
+                                  "contextLLMHistoryId": {
+                                    "type": [
+                                      "number",
+                                      "null"
+                                    ]
+                                  },
+                                  "episodeDate": {},
+                                  "episodeId": {
+                                    "type": "string"
+                                  },
+                                  "filteredOutReason": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "podcastId": {
+                                    "type": "string"
+                                  },
+                                  "processedDate": {},
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "alertConfig": {
                                     "type": "object",
                                     "properties": {
-                                      "advertisementLLMHistoryId": {
-                                        "type": [
-                                          "number",
-                                          "null"
-                                        ]
-                                      },
-                                      "contextLLMHistoryId": {
-                                        "type": [
-                                          "number",
-                                          "null"
-                                        ]
-                                      },
-                                      "episodeDate": {},
-                                      "episodeId": {
+                                      "id": {
                                         "type": "string"
                                       },
-                                      "filteredOutReason": {
-                                        "type": [
-                                          "string",
-                                          "null"
-                                        ]
-                                      },
-                                      "podcastId": {
+                                      "name": {
                                         "type": "string"
                                       },
-                                      "processedDate": {},
-                                      "type": {
-                                        "type": "string",
-                                        "enum": [
-                                          "EPISODE"
-                                        ]
+                                      "value": {
+                                        "type": "string"
+                                      },
+                                      "teamId": {
+                                        "type": "string"
+                                      },
+                                      "createdByUserId": {
+                                        "type": "string"
                                       }
                                     },
                                     "required": [
-                                      "advertisementLLMHistoryId",
-                                      "contextLLMHistoryId",
-                                      "episodeDate",
-                                      "episodeId",
-                                      "filteredOutReason",
-                                      "podcastId",
-                                      "processedDate",
-                                      "type"
+                                      "id",
+                                      "name",
+                                      "value",
+                                      "teamId",
+                                      "createdByUserId"
                                     ],
                                     "additionalProperties": false
                                   },
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "advertisementLLMHistoryId": {
-                                        "type": [
-                                          "number",
-                                          "null"
-                                        ]
-                                      },
-                                      "contextLLMHistoryId": {
-                                        "type": [
-                                          "number",
-                                          "null"
-                                        ]
-                                      },
-                                      "episodeDate": {},
-                                      "episodeId": {
-                                        "type": "string"
-                                      },
-                                      "filteredOutReason": {
-                                        "type": [
-                                          "string",
-                                          "null"
-                                        ]
-                                      },
-                                      "podcastId": {
-                                        "type": "string"
-                                      },
-                                      "processedDate": {},
-                                      "type": {
-                                        "type": "string",
-                                        "enum": [
-                                          "TRANSCRIPT"
-                                        ]
-                                      },
-                                      "endSecond": {
-                                        "type": "number"
-                                      },
-                                      "startSecond": {
-                                        "type": "number"
-                                      },
-                                      "transcriptEmbeddingId": {
-                                        "type": "string"
-                                      },
-                                      "transcriptId": {
-                                        "type": "string"
-                                      },
-                                      "transcriptionDate": {}
-                                    },
-                                    "required": [
-                                      "advertisementLLMHistoryId",
-                                      "contextLLMHistoryId",
-                                      "episodeDate",
-                                      "episodeId",
-                                      "filteredOutReason",
-                                      "podcastId",
-                                      "processedDate",
-                                      "type",
-                                      "endSecond",
-                                      "startSecond",
-                                      "transcriptEmbeddingId",
-                                      "transcriptId",
-                                      "transcriptionDate"
-                                    ],
-                                    "additionalProperties": false
-                                  }
-                                ]
+                                  "emailHistoryId": {
+                                    "type": [
+                                      "number",
+                                      "null"
+                                    ]
+                                  },
+                                  "episodeSlug": {
+                                    "type": "string"
+                                  },
+                                  "episodeTitle": {
+                                    "type": "string"
+                                  },
+                                  "filteredOut": {
+                                    "type": "boolean"
+                                  },
+                                  "imageUrl": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "podcastSlug": {
+                                    "type": "string"
+                                  },
+                                  "podcastTitle": {
+                                    "type": "string"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "TRANSCRIPT"
+                                    ]
+                                  },
+                                  "endSecond": {
+                                    "type": "number"
+                                  },
+                                  "startSecond": {
+                                    "type": "number"
+                                  },
+                                  "transcriptEmbeddingId": {
+                                    "type": "string"
+                                  },
+                                  "transcriptId": {
+                                    "type": "string"
+                                  },
+                                  "transcriptionDate": {}
+                                },
+                                "required": [
+                                  "advertisementLLMHistoryId",
+                                  "contextLLMHistoryId",
+                                  "episodeDate",
+                                  "episodeId",
+                                  "filteredOutReason",
+                                  "podcastId",
+                                  "processedDate",
+                                  "id",
+                                  "alertConfig",
+                                  "emailHistoryId",
+                                  "episodeSlug",
+                                  "episodeTitle",
+                                  "filteredOut",
+                                  "imageUrl",
+                                  "podcastSlug",
+                                  "podcastTitle",
+                                  "text",
+                                  "type",
+                                  "endSecond",
+                                  "startSecond",
+                                  "transcriptEmbeddingId",
+                                  "transcriptId",
+                                  "transcriptionDate"
+                                ],
+                                "additionalProperties": false
                               }
                             ]
                           }
@@ -4735,7 +5271,7 @@
           "episodes"
         ],
         "summary": "Episode Transcript Text",
-        "description": "Get the transcript text of an episode",
+        "description": "Get the full transcript text of an episode. Counts as one transcript download.",
         "operationId": "getEpisodeTranscriptText",
         "parameters": [
           {
@@ -4793,6 +5329,120 @@
                             "episodeId",
                             "transcriptId",
                             "text"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "episodeTranscriptText"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Forbidden — plan does not include this endpoint"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/episodes/{episodeId}/transcript-text/preview": {
+      "get": {
+        "tags": [
+          "episodes"
+        ],
+        "summary": "Episode Transcript Text Preview",
+        "description": "Get a short, free excerpt of an episode transcript. Does not count against your transcript downloads. `totalCharacters` reports the length of the full transcript.",
+        "operationId": "getEpisodeTranscriptTextPreview",
+        "parameters": [
+          {
+            "name": "episodeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "episodeTranscriptText": {
+                          "type": "object",
+                          "properties": {
+                            "podcastId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "episodeId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "transcriptId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "text": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "truncated": {
+                              "type": "boolean"
+                            },
+                            "totalCharacters": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "podcastId",
+                            "episodeId",
+                            "transcriptId",
+                            "text",
+                            "truncated",
+                            "totalCharacters"
                           ],
                           "additionalProperties": false
                         }
@@ -4989,7 +5639,7 @@
           "episodes"
         ],
         "summary": "Episode Transcript Timestamps",
-        "description": "Get the transcript of an episode with word-level timestamps in a structured JSON format",
+        "description": "Get the full transcript of an episode with word-level timestamps in a structured JSON format. Counts as one transcript download.",
         "operationId": "getEpisodeTranscriptTimestamps",
         "parameters": [
           {
@@ -5054,6 +5704,121 @@
                         "episodeId",
                         "podcastId",
                         "sentences"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Forbidden — plan does not include this endpoint"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/episodes/{episodeId}/transcript-timestamps/preview": {
+      "get": {
+        "tags": [
+          "episodes"
+        ],
+        "summary": "Episode Transcript Timestamps Preview",
+        "description": "Get the first few timestamped sentences of an episode transcript, free. Does not count against your transcript downloads. `totalSentences` reports how many sentences the full transcript has.",
+        "operationId": "getEpisodeTranscriptTimestampsPreview",
+        "parameters": [
+          {
+            "name": "episodeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "OK"
+                      ]
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "episodeId": {
+                          "type": "string"
+                        },
+                        "podcastId": {
+                          "type": "string"
+                        },
+                        "sentences": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "startSecond": {
+                                "type": "number"
+                              },
+                              "endSecond": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "startSecond",
+                              "endSecond"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "totalSentences": {
+                          "type": "number"
+                        },
+                        "truncated": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "episodeId",
+                        "podcastId",
+                        "sentences",
+                        "totalSentences",
+                        "truncated"
                       ],
                       "additionalProperties": false
                     }
@@ -6542,7 +7307,10 @@
                       "type": "object",
                       "properties": {
                         "result": {
-                          "type": "object",
+                          "type": [
+                            "object",
+                            "null"
+                          ],
                           "properties": {
                             "answer": {
                               "type": "object",
@@ -6573,6 +7341,23 @@
                             "answer"
                           ],
                           "additionalProperties": false
+                        },
+                        "failureReason": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "no-source-material",
+                            "empty-result",
+                            "generation-error"
+                          ]
+                        },
+                        "failureMessage": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
                         }
                       },
                       "required": [
@@ -7929,7 +8714,7 @@
             "in": "query",
             "required": false,
             "schema": {
-              "description": "Spotify ID",
+              "description": "The Spotify show ID of the podcast",
               "type": "string"
             }
           },
@@ -10253,7 +11038,10 @@
                                         ]
                                       },
                                       "followers": {
-                                        "type": "number"
+                                        "type": [
+                                          "number",
+                                          "null"
+                                        ]
                                       },
                                       "employeesInLinkedin": {
                                         "type": "number"
@@ -11899,7 +12687,9 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "number"
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
             }
           },
           {
@@ -11907,7 +12697,8 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "number",
+              "type": "integer",
+              "minimum": 1,
               "maximum": 100
             }
           }
@@ -11936,10 +12727,13 @@
                               "type": "boolean"
                             },
                             "skip": {
-                              "type": "number"
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
                             },
                             "limit": {
-                              "type": "number",
+                              "type": "integer",
+                              "minimum": 1,
                               "maximum": 100
                             }
                           },
@@ -14033,7 +14827,10 @@
                                     ]
                                   },
                                   "followers": {
-                                    "type": "number"
+                                    "type": [
+                                      "number",
+                                      "null"
+                                    ]
                                   },
                                   "employeesInLinkedin": {
                                     "type": "number"
@@ -15779,7 +16576,7 @@
               "description": "ISO 8601 timestamp. Return events after this point. Ignored if cursor is provided. Max lookback: 30 days.",
               "type": "string",
               "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
             }
           },
           {
@@ -15872,7 +16669,7 @@
                             "null"
                           ],
                           "format": "date-time",
-                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
                         },
                         "cursor": {
                           "description": "The cursor provided in this request, if any.",
@@ -15949,7 +16746,7 @@
                                   "occurredAt": {
                                     "type": "string",
                                     "format": "date-time",
-                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
                                     "description": "When this event occurred (ISO 8601)."
                                   },
                                   "eventType": {
@@ -15992,7 +16789,7 @@
                                       "completedAt": {
                                         "type": "string",
                                         "format": "date-time",
-                                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
                                       },
                                       "error": {
                                         "type": [
@@ -16031,7 +16828,7 @@
                                   "occurredAt": {
                                     "type": "string",
                                     "format": "date-time",
-                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
                                     "description": "When this event occurred (ISO 8601)."
                                   },
                                   "eventType": {
@@ -16067,7 +16864,7 @@
                                       "createdAt": {
                                         "type": "string",
                                         "format": "date-time",
-                                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
                                       }
                                     },
                                     "required": [
@@ -16099,7 +16896,7 @@
                                   "occurredAt": {
                                     "type": "string",
                                     "format": "date-time",
-                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
                                     "description": "When this event occurred (ISO 8601)."
                                   },
                                   "eventType": {
@@ -16134,7 +16931,7 @@
                                       "createdAt": {
                                         "type": "string",
                                         "format": "date-time",
-                                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
                                       }
                                     },
                                     "required": [
@@ -16165,7 +16962,7 @@
                                   "occurredAt": {
                                     "type": "string",
                                     "format": "date-time",
-                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
                                     "description": "When this event occurred (ISO 8601)."
                                   },
                                   "eventType": {
@@ -16202,7 +16999,7 @@
                                       "createdAt": {
                                         "type": "string",
                                         "format": "date-time",
-                                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
                                       }
                                     },
                                     "required": [
@@ -16454,6 +17251,12 @@
                                       "null"
                                     ]
                                   },
+                                  "companyName": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
                                   "appearancesCount": {
                                     "type": "number"
                                   }
@@ -16465,6 +17268,7 @@
                                   "status",
                                   "imageUrl",
                                   "linkedinUrl",
+                                  "companyName",
                                   "appearancesCount"
                                 ],
                                 "additionalProperties": false
@@ -16803,6 +17607,12 @@
                                     "null"
                                   ]
                                 },
+                                "companyName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
                                 "appearancesCount": {
                                   "type": "number"
                                 }
@@ -16814,6 +17624,7 @@
                                 "status",
                                 "imageUrl",
                                 "linkedinUrl",
+                                "companyName",
                                 "appearancesCount"
                               ],
                               "additionalProperties": false
@@ -16991,33 +17802,6 @@
                             },
                             "isPublicForTeam": {
                               "type": "boolean"
-                            },
-                            "goHighLevelIntegration": {
-                              "type": [
-                                "object",
-                                "null"
-                              ],
-                              "properties": {
-                                "locationId": {
-                                  "type": "string"
-                                },
-                                "hasApiKey": {
-                                  "type": "boolean"
-                                },
-                                "enabled": {
-                                  "type": "boolean"
-                                },
-                                "onlyPushRelevantPodcasts": {
-                                  "type": "boolean"
-                                }
-                              },
-                              "required": [
-                                "locationId",
-                                "hasApiKey",
-                                "enabled",
-                                "onlyPushRelevantPodcasts"
-                              ],
-                              "additionalProperties": false
                             }
                           },
                           "required": [
@@ -17043,8 +17827,7 @@
                             "publicSlug",
                             "isPublicListicle",
                             "publicPodcastLimit",
-                            "isPublicForTeam",
-                            "goHighLevelIntegration"
+                            "isPublicForTeam"
                           ],
                           "additionalProperties": false
                         }
@@ -17434,6 +18217,12 @@
                                     "null"
                                   ]
                                 },
+                                "companyName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
                                 "appearancesCount": {
                                   "type": "number"
                                 }
@@ -17445,6 +18234,7 @@
                                 "status",
                                 "imageUrl",
                                 "linkedinUrl",
+                                "companyName",
                                 "appearancesCount"
                               ],
                               "additionalProperties": false
@@ -19497,7 +20287,7 @@
                           },
                           "additionalProperties": false
                         },
-                        "seachResultsStats": {
+                        "searchResultsStats": {
                           "type": "object",
                           "properties": {
                             "time": {
@@ -19633,7 +20423,7 @@
                         "searchMode",
                         "searchId",
                         "searchOptions",
-                        "seachResultsStats",
+                        "searchResultsStats",
                         "result",
                         "cursor"
                       ],
@@ -19678,7 +20468,7 @@
           "search"
         ],
         "summary": "Search Episodes",
-        "description": "Search for episodes by title, description, or transcript text",
+        "description": "Search for episodes by title, description, or transcript text, with optional filters on guest, host, and sponsor names",
         "operationId": "searchEpisodes",
         "requestBody": {
           "required": true,
@@ -20163,12 +20953,102 @@
                       "type": "string"
                     }
                   },
-                  "publishedSince": {},
+                  "publishedSince": {
+                    "description": "Only episodes published on or after this date (inclusive)"
+                  },
+                  "publishedBefore": {
+                    "description": "Only episodes published strictly before this date (exclusive). Combine with publishedSince for a bounded window, e.g. publishedSince=90 days ago + publishedBefore=30 days ago."
+                  },
                   "hasTranscript": {
                     "type": "boolean"
                   },
                   "episodeUpdatedSince": {},
-                  "episodeCreatedSince": {}
+                  "episodeCreatedSince": {},
+                  "personFilters": {
+                    "description": "Filter episodes by the people on them. Entries are ANDed together, e.g. [{ \"name\": \"Elon Musk\", \"type\": \"guest\" }, { \"name\": \"Joe Rogan\", \"type\": \"host\" }] returns only episodes where Elon Musk appeared as a guest and Joe Rogan was a host. An entry with matchMode \"not\" instead excludes episodes featuring that person.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "minLength": 2,
+                          "description": "The name to match"
+                        },
+                        "matchMode": {
+                          "description": "'must' (default) only returns episodes matching this entry; 'not' excludes episodes matching this entry",
+                          "type": "string",
+                          "enum": [
+                            "must",
+                            "not"
+                          ]
+                        },
+                        "phraseMatch": {
+                          "description": "Whether to match the name as a phrase (all words, in order). Defaults to true; set false for a loose per-word match.",
+                          "type": "boolean"
+                        },
+                        "slop": {
+                          "description": "How many words apart tokens can appear in a name to still count as a phrase match",
+                          "type": "number"
+                        },
+                        "fuzzy": {
+                          "description": "Whether to tolerate close spellings. Uses per-word fuzzy matching with all words required, so it ignores word order and cannot be combined with slop.",
+                          "type": "boolean"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "guest",
+                            "host"
+                          ],
+                          "description": "Whether the person must appear on the episode as a 'guest' or a 'host'"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "type"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "sponsorFilters": {
+                    "description": "Filter episodes by sponsor / advertiser name. Entries are ANDed together; an entry with matchMode \"not\" instead excludes episodes with that sponsor.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "minLength": 2,
+                          "description": "The name to match"
+                        },
+                        "matchMode": {
+                          "description": "'must' (default) only returns episodes matching this entry; 'not' excludes episodes matching this entry",
+                          "type": "string",
+                          "enum": [
+                            "must",
+                            "not"
+                          ]
+                        },
+                        "phraseMatch": {
+                          "description": "Whether to match the name as a phrase (all words, in order). Defaults to true; set false for a loose per-word match.",
+                          "type": "boolean"
+                        },
+                        "slop": {
+                          "description": "How many words apart tokens can appear in a name to still count as a phrase match",
+                          "type": "number"
+                        },
+                        "fuzzy": {
+                          "description": "Whether to tolerate close spellings. Uses per-word fuzzy matching with all words required, so it ignores word order and cannot be combined with slop.",
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
                 },
                 "additionalProperties": false
               }
@@ -20680,16 +21560,106 @@
                                 "type": "string"
                               }
                             },
-                            "publishedSince": {},
+                            "publishedSince": {
+                              "description": "Only episodes published on or after this date (inclusive)"
+                            },
+                            "publishedBefore": {
+                              "description": "Only episodes published strictly before this date (exclusive). Combine with publishedSince for a bounded window, e.g. publishedSince=90 days ago + publishedBefore=30 days ago."
+                            },
                             "hasTranscript": {
                               "type": "boolean"
                             },
                             "episodeUpdatedSince": {},
-                            "episodeCreatedSince": {}
+                            "episodeCreatedSince": {},
+                            "personFilters": {
+                              "description": "Filter episodes by the people on them. Entries are ANDed together, e.g. [{ \"name\": \"Elon Musk\", \"type\": \"guest\" }, { \"name\": \"Joe Rogan\", \"type\": \"host\" }] returns only episodes where Elon Musk appeared as a guest and Joe Rogan was a host. An entry with matchMode \"not\" instead excludes episodes featuring that person.",
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "description": "The name to match"
+                                  },
+                                  "matchMode": {
+                                    "description": "'must' (default) only returns episodes matching this entry; 'not' excludes episodes matching this entry",
+                                    "type": "string",
+                                    "enum": [
+                                      "must",
+                                      "not"
+                                    ]
+                                  },
+                                  "phraseMatch": {
+                                    "description": "Whether to match the name as a phrase (all words, in order). Defaults to true; set false for a loose per-word match.",
+                                    "type": "boolean"
+                                  },
+                                  "slop": {
+                                    "description": "How many words apart tokens can appear in a name to still count as a phrase match",
+                                    "type": "number"
+                                  },
+                                  "fuzzy": {
+                                    "description": "Whether to tolerate close spellings. Uses per-word fuzzy matching with all words required, so it ignores word order and cannot be combined with slop.",
+                                    "type": "boolean"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "guest",
+                                      "host"
+                                    ],
+                                    "description": "Whether the person must appear on the episode as a 'guest' or a 'host'"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "type"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "sponsorFilters": {
+                              "description": "Filter episodes by sponsor / advertiser name. Entries are ANDed together; an entry with matchMode \"not\" instead excludes episodes with that sponsor.",
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "description": "The name to match"
+                                  },
+                                  "matchMode": {
+                                    "description": "'must' (default) only returns episodes matching this entry; 'not' excludes episodes matching this entry",
+                                    "type": "string",
+                                    "enum": [
+                                      "must",
+                                      "not"
+                                    ]
+                                  },
+                                  "phraseMatch": {
+                                    "description": "Whether to match the name as a phrase (all words, in order). Defaults to true; set false for a loose per-word match.",
+                                    "type": "boolean"
+                                  },
+                                  "slop": {
+                                    "description": "How many words apart tokens can appear in a name to still count as a phrase match",
+                                    "type": "number"
+                                  },
+                                  "fuzzy": {
+                                    "description": "Whether to tolerate close spellings. Uses per-word fuzzy matching with all words required, so it ignores word order and cannot be combined with slop.",
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "name"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
                           },
                           "additionalProperties": false
                         },
-                        "seachResultsStats": {
+                        "searchResultsStats": {
                           "type": "object",
                           "properties": {
                             "time": {
@@ -20825,7 +21795,7 @@
                         "searchMode",
                         "searchId",
                         "searchOptions",
-                        "seachResultsStats",
+                        "searchResultsStats",
                         "result",
                         "cursor"
                       ],
@@ -22307,10 +23277,17 @@
                     "data": {
                       "type": "object",
                       "properties": {
-                        "month": {
+                        "periodStart": {
                           "type": "string",
-                          "pattern": "^\\d{4}-\\d{2}$",
-                          "description": "Current month in YYYY-MM format"
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+                          "description": "Inclusive start of the usage period (ISO 8601, UTC)"
+                        },
+                        "periodEnd": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+                          "description": "Exclusive end of the usage period — the reset instant (ISO 8601, UTC)"
                         },
                         "plan": {
                           "type": "string",
@@ -22329,9 +23306,6 @@
                               "type": "boolean"
                             },
                             "applyPage": {
-                              "type": "boolean"
-                            },
-                            "goHighLevelIntegration": {
                               "type": "boolean"
                             }
                           },
@@ -22364,10 +23338,10 @@
                               "used": {
                                 "type": "number",
                                 "minimum": 0,
-                                "description": "Number of requests used this month"
+                                "description": "Number of requests used in the current usage period"
                               },
                               "limit": {
-                                "description": "Monthly limit (null = unlimited, 0 = disabled)",
+                                "description": "Limit per usage period (null = unlimited, 0 = disabled)",
                                 "type": [
                                   "number",
                                   "null"
@@ -22387,7 +23361,7 @@
                         },
                         "totalUsed": {
                           "type": "number",
-                          "description": "Total requests used across all categories this month"
+                          "description": "Total requests used across all categories in the current usage period"
                         },
                         "projectUsage": {
                           "description": "Monthly active project and guest profile usage",
@@ -22440,7 +23414,8 @@
                         }
                       },
                       "required": [
-                        "month",
+                        "periodStart",
+                        "periodEnd",
                         "plan",
                         "featureFlags",
                         "aliases",
@@ -22575,7 +23550,7 @@
                             "transcriptDownloadCount",
                             "transcriptionRequests"
                           ],
-                          "description": "Current monthly limits per alias"
+                          "description": "Current per-period limits per alias"
                         }
                       },
                       "required": [
@@ -22661,15 +23636,22 @@
                           "items": {
                             "type": "object",
                             "properties": {
-                              "month": {
+                              "periodStart": {
                                 "type": "string",
-                                "pattern": "^\\d{4}-\\d{2}$",
-                                "description": "Month in YYYY-MM format"
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+                                "description": "Inclusive start of the usage period (ISO 8601, UTC)"
+                              },
+                              "periodEnd": {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+                                "description": "Exclusive end of the usage period — the reset instant (ISO 8601, UTC)"
                               },
                               "totalUsage": {
                                 "type": "number",
                                 "minimum": 0,
-                                "description": "Total requests in this month"
+                                "description": "Total requests in this usage period"
                               },
                               "usageByAlias": {
                                 "type": "object",
@@ -22677,17 +23659,18 @@
                                   "type": "number",
                                   "minimum": 0
                                 },
-                                "description": "Usage count per alias for this month"
+                                "description": "Usage count per alias for this usage period"
                               }
                             },
                             "required": [
-                              "month",
+                              "periodStart",
+                              "periodEnd",
                               "totalUsage",
                               "usageByAlias"
                             ],
                             "additionalProperties": false
                           },
-                          "description": "Monthly usage entries sorted by month ascending"
+                          "description": "Usage period entries sorted by period start ascending"
                         },
                         "limits": {
                           "type": "object",
@@ -22708,7 +23691,7 @@
                             "transcriptDownloadCount",
                             "transcriptionRequests"
                           ],
-                          "description": "Current monthly limits per alias"
+                          "description": "Current per-period limits per alias"
                         }
                       },
                       "required": [

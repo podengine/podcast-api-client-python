@@ -162,9 +162,25 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         body="none",
         binary=False,
     ),
+    "getEpisodeTranscriptTextPreview": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/episodes/{episodeId}/transcript-text/preview",
+        path_params=("episodeId",),
+        query_params=(),
+        body="none",
+        binary=False,
+    ),
     "getEpisodeTranscriptTimestamps": EndpointDescriptor(
         method="GET",
         path="/api/v1/episodes/{episodeId}/transcript-timestamps",
+        path_params=("episodeId",),
+        query_params=(),
+        body="none",
+        binary=False,
+    ),
+    "getEpisodeTranscriptTimestampsPreview": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/episodes/{episodeId}/transcript-timestamps/preview",
         path_params=("episodeId",),
         query_params=(),
         body="none",
@@ -609,7 +625,11 @@ _adapter_getChart: TypeAdapter[Any] = TypeAdapter(models.GetChartResponse)
 _adapter_getLatestChart: TypeAdapter[Any] = TypeAdapter(models.GetLatestChartResponse)
 _adapter_getEpisodeDetailsById: TypeAdapter[Any] = TypeAdapter(models.GetEpisodeDetailsByIdResponse)
 _adapter_getEpisodeTranscriptText: TypeAdapter[Any] = TypeAdapter(models.GetEpisodeTranscriptTextResponse)
+_adapter_getEpisodeTranscriptTextPreview: TypeAdapter[Any] = TypeAdapter(models.GetEpisodeTranscriptTextPreviewResponse)
 _adapter_getEpisodeTranscriptTimestamps: TypeAdapter[Any] = TypeAdapter(models.GetEpisodeTranscriptTimestampsResponse)
+_adapter_getEpisodeTranscriptTimestampsPreview: TypeAdapter[Any] = TypeAdapter(
+    models.GetEpisodeTranscriptTimestampsPreviewResponse
+)
 _adapter_getLatestEpisodes: TypeAdapter[Any] = TypeAdapter(models.GetLatestEpisodesResponse)
 _adapter_archiveGuestProfile: TypeAdapter[Any] = TypeAdapter(models.UpdateGuestProfileBioResponse)
 _adapter_createGuestProfile: TypeAdapter[Any] = TypeAdapter(models.CreateGuestProfileResponse)
@@ -1009,10 +1029,27 @@ class EpisodesResource:
         """
         Episode Transcript Text
 
-        Get the transcript text of an episode
+        Get the full transcript text of an episode. Counts as one transcript download.
         """
         return _adapter_getEpisodeTranscriptText.validate_python(
             self._core.request(_DESCRIPTORS["getEpisodeTranscriptText"], {"episodeId": episode_id}, request_options)
+        )
+
+    def get_episode_transcript_text_preview(
+        self,
+        *,
+        episode_id: str,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetEpisodeTranscriptTextPreviewResponse:
+        """
+        Episode Transcript Text Preview
+
+        Get a short, free excerpt of an episode transcript. Does not count against your transcript downloads. `totalCharacters` reports the length of the full transcript.
+        """
+        return _adapter_getEpisodeTranscriptTextPreview.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getEpisodeTranscriptTextPreview"], {"episodeId": episode_id}, request_options
+            )
         )
 
     def get_episode_transcript_timestamps(
@@ -1024,11 +1061,28 @@ class EpisodesResource:
         """
         Episode Transcript Timestamps
 
-        Get the transcript of an episode with word-level timestamps in a structured JSON format
+        Get the full transcript of an episode with word-level timestamps in a structured JSON format. Counts as one transcript download.
         """
         return _adapter_getEpisodeTranscriptTimestamps.validate_python(
             self._core.request(
                 _DESCRIPTORS["getEpisodeTranscriptTimestamps"], {"episodeId": episode_id}, request_options
+            )
+        )
+
+    def get_episode_transcript_timestamps_preview(
+        self,
+        *,
+        episode_id: str,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetEpisodeTranscriptTimestampsPreviewResponse:
+        """
+        Episode Transcript Timestamps Preview
+
+        Get the first few timestamped sentences of an episode transcript, free. Does not count against your transcript downloads. `totalSentences` reports how many sentences the full transcript has.
+        """
+        return _adapter_getEpisodeTranscriptTimestampsPreview.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getEpisodeTranscriptTimestampsPreview"], {"episodeId": episode_id}, request_options
             )
         )
 
@@ -1439,8 +1493,8 @@ class PodcastsResource:
         *,
         podcast_id_or_slug: str,
         has_transcript: bool | None = None,
-        skip: float | None = None,
-        limit: float | None = None,
+        skip: int | None = None,
+        limit: int | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastEpisodesResponse:
         """
@@ -1841,15 +1895,20 @@ class SearchResource:
         transcript_highlight_length: int | None = None,
         include_episode_ids: list[str] | None = None,
         published_since: Any | None = None,
+        published_before: Any | None = None,
         has_transcript: bool | None = None,
         episode_updated_since: Any | None = None,
         episode_created_since: Any | None = None,
+        person_filters: list[models.AskAgentProjectPodcastRelevancySearchOptionsVariant2PersonFiltersItem]
+        | None = None,
+        sponsor_filters: list[models.AskAgentProjectPodcastRelevancySearchOptionsVariant2SponsorFiltersItem]
+        | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.SearchEpisodesResponse:
         """
         Search Episodes
 
-        Search for episodes by title, description, or transcript text
+        Search for episodes by title, description, or transcript text, with optional filters on guest, host, and sponsor names
         """
         return _adapter_searchEpisodes.validate_python(
             self._core.request(
@@ -1888,9 +1947,12 @@ class SearchResource:
                     "transcriptHighlightLength": transcript_highlight_length,
                     "includeEpisodeIds": include_episode_ids,
                     "publishedSince": published_since,
+                    "publishedBefore": published_before,
                     "hasTranscript": has_transcript,
                     "episodeUpdatedSince": episode_updated_since,
                     "episodeCreatedSince": episode_created_since,
+                    "personFilters": person_filters,
+                    "sponsorFilters": sponsor_filters,
                 },
                 request_options,
             )
@@ -2624,11 +2686,28 @@ class AsyncEpisodesResource:
         """
         Episode Transcript Text
 
-        Get the transcript text of an episode
+        Get the full transcript text of an episode. Counts as one transcript download.
         """
         return _adapter_getEpisodeTranscriptText.validate_python(
             await self._core.request(
                 _DESCRIPTORS["getEpisodeTranscriptText"], {"episodeId": episode_id}, request_options
+            )
+        )
+
+    async def get_episode_transcript_text_preview(
+        self,
+        *,
+        episode_id: str,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetEpisodeTranscriptTextPreviewResponse:
+        """
+        Episode Transcript Text Preview
+
+        Get a short, free excerpt of an episode transcript. Does not count against your transcript downloads. `totalCharacters` reports the length of the full transcript.
+        """
+        return _adapter_getEpisodeTranscriptTextPreview.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getEpisodeTranscriptTextPreview"], {"episodeId": episode_id}, request_options
             )
         )
 
@@ -2641,11 +2720,28 @@ class AsyncEpisodesResource:
         """
         Episode Transcript Timestamps
 
-        Get the transcript of an episode with word-level timestamps in a structured JSON format
+        Get the full transcript of an episode with word-level timestamps in a structured JSON format. Counts as one transcript download.
         """
         return _adapter_getEpisodeTranscriptTimestamps.validate_python(
             await self._core.request(
                 _DESCRIPTORS["getEpisodeTranscriptTimestamps"], {"episodeId": episode_id}, request_options
+            )
+        )
+
+    async def get_episode_transcript_timestamps_preview(
+        self,
+        *,
+        episode_id: str,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetEpisodeTranscriptTimestampsPreviewResponse:
+        """
+        Episode Transcript Timestamps Preview
+
+        Get the first few timestamped sentences of an episode transcript, free. Does not count against your transcript downloads. `totalSentences` reports how many sentences the full transcript has.
+        """
+        return _adapter_getEpisodeTranscriptTimestampsPreview.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getEpisodeTranscriptTimestampsPreview"], {"episodeId": episode_id}, request_options
             )
         )
 
@@ -3064,8 +3160,8 @@ class AsyncPodcastsResource:
         *,
         podcast_id_or_slug: str,
         has_transcript: bool | None = None,
-        skip: float | None = None,
-        limit: float | None = None,
+        skip: int | None = None,
+        limit: int | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastEpisodesResponse:
         """
@@ -3470,15 +3566,20 @@ class AsyncSearchResource:
         transcript_highlight_length: int | None = None,
         include_episode_ids: list[str] | None = None,
         published_since: Any | None = None,
+        published_before: Any | None = None,
         has_transcript: bool | None = None,
         episode_updated_since: Any | None = None,
         episode_created_since: Any | None = None,
+        person_filters: list[models.AskAgentProjectPodcastRelevancySearchOptionsVariant2PersonFiltersItem]
+        | None = None,
+        sponsor_filters: list[models.AskAgentProjectPodcastRelevancySearchOptionsVariant2SponsorFiltersItem]
+        | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.SearchEpisodesResponse:
         """
         Search Episodes
 
-        Search for episodes by title, description, or transcript text
+        Search for episodes by title, description, or transcript text, with optional filters on guest, host, and sponsor names
         """
         return _adapter_searchEpisodes.validate_python(
             await self._core.request(
@@ -3517,9 +3618,12 @@ class AsyncSearchResource:
                     "transcriptHighlightLength": transcript_highlight_length,
                     "includeEpisodeIds": include_episode_ids,
                     "publishedSince": published_since,
+                    "publishedBefore": published_before,
                     "hasTranscript": has_transcript,
                     "episodeUpdatedSince": episode_updated_since,
                     "episodeCreatedSince": episode_created_since,
+                    "personFilters": person_filters,
+                    "sponsorFilters": sponsor_filters,
                 },
                 request_options,
             )

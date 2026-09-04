@@ -159,6 +159,27 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant2SearchTermsItem(BaseMo
     )
 
 
+class AskAgentProjectPodcastRelevancySearchOptionsVariant2PersonFiltersItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    name: str
+    match_mode: Literal["must", "not"] | None = Field(default=None, alias="matchMode")
+    phrase_match: bool | None = Field(default=None, alias="phraseMatch")
+    slop: float | None = None
+    fuzzy: bool | None = None
+    type: Literal["guest", "host"]
+
+
+class AskAgentProjectPodcastRelevancySearchOptionsVariant2SponsorFiltersItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    name: str
+    match_mode: Literal["must", "not"] | None = Field(default=None, alias="matchMode")
+    phrase_match: bool | None = Field(default=None, alias="phraseMatch")
+    slop: float | None = None
+    fuzzy: bool | None = None
+
+
 class AskAgentProjectPodcastRelevancySearchOptionsVariant2(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -232,9 +253,16 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant2(BaseModel):
     transcript_highlight_length: int | None = Field(default=None, alias="transcriptHighlightLength")
     include_episode_ids: list[str] | None = Field(default=None, alias="includeEpisodeIds")
     published_since: Any | None = Field(default=None, alias="publishedSince")
+    published_before: Any | None = Field(default=None, alias="publishedBefore")
     has_transcript: bool | None = Field(default=None, alias="hasTranscript")
     episode_updated_since: Any | None = Field(default=None, alias="episodeUpdatedSince")
     episode_created_since: Any | None = Field(default=None, alias="episodeCreatedSince")
+    person_filters: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2PersonFiltersItem] | None = Field(
+        default=None, alias="personFilters"
+    )
+    sponsor_filters: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2SponsorFiltersItem] | None = Field(
+        default=None, alias="sponsorFilters"
+    )
 
 
 class AskAgentProjectPodcastRelevancyResponseResultAnswer(BaseModel):
@@ -277,6 +305,65 @@ class CreateAlertConfigAdditionalAlertSettings(BaseModel):
     other_spellings: list[str] | None = Field(default=None, alias="otherSpellings")
 
 
+class CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1ContextAwareDetails(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    what: str | None = None
+    relevant_clues: str | None = Field(default=None, alias="relevantClues")
+    common_false_positives: str | None = Field(default=None, alias="commonFalsePositives")
+
+
+class CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    genres_to_skip: list[str] | None = Field(default=None, alias="genresToSkip")
+    genres_to_include: list[str] | None = Field(default=None, alias="genresToInclude")
+    other_spellings: list[str] | None = Field(default=None, alias="otherSpellings")
+    other_emails: list[str] | None = Field(default=None, alias="otherEmails")
+    context_aware_question: str | None = Field(default=None, alias="contextAwareQuestion")
+    context_aware_details: (
+        CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1ContextAwareDetails | None
+    ) = Field(default=None, alias="contextAwareDetails")
+    filter_advertisements: bool | None = Field(default=None, alias="filterAdvertisements")
+    type: Literal["person"]
+    value: str
+    track_guest_appearances: bool | None = Field(default=None, alias="trackGuestAppearances")
+    track_host_appearances: bool | None = Field(default=None, alias="trackHostAppearances")
+    track_mentions: bool | None = Field(default=None, alias="trackMentions")
+
+
+class CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant2(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    genres_to_skip: list[str] | None = Field(default=None, alias="genresToSkip")
+    genres_to_include: list[str] | None = Field(default=None, alias="genresToInclude")
+    other_spellings: list[str] | None = Field(default=None, alias="otherSpellings")
+    other_emails: list[str] | None = Field(default=None, alias="otherEmails")
+    context_aware_question: str | None = Field(default=None, alias="contextAwareQuestion")
+    context_aware_details: (
+        CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1ContextAwareDetails | None
+    ) = Field(default=None, alias="contextAwareDetails")
+    filter_advertisements: bool | None = Field(default=None, alias="filterAdvertisements")
+    type: Literal["company"]
+    value: str
+
+
+class CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant3(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    genres_to_skip: list[str] | None = Field(default=None, alias="genresToSkip")
+    genres_to_include: list[str] | None = Field(default=None, alias="genresToInclude")
+    other_spellings: list[str] | None = Field(default=None, alias="otherSpellings")
+    other_emails: list[str] | None = Field(default=None, alias="otherEmails")
+    context_aware_question: str | None = Field(default=None, alias="contextAwareQuestion")
+    context_aware_details: (
+        CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1ContextAwareDetails | None
+    ) = Field(default=None, alias="contextAwareDetails")
+    filter_advertisements: bool | None = Field(default=None, alias="filterAdvertisements")
+    type: Literal["custom-keyword"]
+    value: str
+
+
 class CreateAlertConfigResponseCreatedAlertConfig(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -288,7 +375,11 @@ class CreateAlertConfigResponseCreatedAlertConfig(BaseModel):
     alert_name: str = Field(alias="alertName")
     alert_type: Literal["person", "company", "custom-keyword"] = Field(alias="alertType")
     enabled: bool
-    alert_settings: Any = Field(alias="alertSettings")
+    alert_settings: (
+        CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1
+        | CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant2
+        | CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant3
+    ) = Field(alias="alertSettings")
     email_settings: CreateAlertConfigEmailSettings = Field(alias="emailSettings")
     last_run_date: Any | None = Field(alias="lastRunDate")
 
@@ -326,7 +417,12 @@ class UpdateAlertConfigUpdates(BaseModel):
 
     alert_name: str | None = Field(default=None, alias="alertName")
     email_settings: CreateAlertConfigEmailSettings | None = Field(default=None, alias="emailSettings")
-    alert_settings: Any | None = Field(default=None, alias="alertSettings")
+    alert_settings: (
+        CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1
+        | CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant2
+        | CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant3
+        | None
+    ) = Field(default=None, alias="alertSettings")
     enabled: bool | None = None
 
 
@@ -350,12 +446,75 @@ class GetAlertMatchHistoryResponseOptions(BaseModel):
     since_date: Any | None = Field(default=None, alias="sinceDate")
 
 
+class GetAlertMatchHistoryResponseAlertMatchesItemVariant1AlertConfig(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    name: str
+    value: str
+    team_id: str = Field(alias="teamId")
+    created_by_user_id: str = Field(alias="createdByUserId")
+
+
+class GetAlertMatchHistoryResponseAlertMatchesItemVariant1(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    advertisement_llm_history_id: float | None = Field(alias="advertisementLLMHistoryId")
+    context_llm_history_id: float | None = Field(alias="contextLLMHistoryId")
+    episode_date: Any = Field(alias="episodeDate")
+    episode_id: str = Field(alias="episodeId")
+    filtered_out_reason: str | None = Field(alias="filteredOutReason")
+    podcast_id: str = Field(alias="podcastId")
+    processed_date: Any = Field(alias="processedDate")
+    id: str
+    alert_config: GetAlertMatchHistoryResponseAlertMatchesItemVariant1AlertConfig = Field(alias="alertConfig")
+    email_history_id: float | None = Field(alias="emailHistoryId")
+    episode_slug: str = Field(alias="episodeSlug")
+    episode_title: str = Field(alias="episodeTitle")
+    filtered_out: bool = Field(alias="filteredOut")
+    image_url: str | None = Field(alias="imageUrl")
+    podcast_slug: str = Field(alias="podcastSlug")
+    podcast_title: str = Field(alias="podcastTitle")
+    text: str
+    type: Literal["EPISODE"]
+
+
+class GetAlertMatchHistoryResponseAlertMatchesItemVariant2(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    advertisement_llm_history_id: float | None = Field(alias="advertisementLLMHistoryId")
+    context_llm_history_id: float | None = Field(alias="contextLLMHistoryId")
+    episode_date: Any = Field(alias="episodeDate")
+    episode_id: str = Field(alias="episodeId")
+    filtered_out_reason: str | None = Field(alias="filteredOutReason")
+    podcast_id: str = Field(alias="podcastId")
+    processed_date: Any = Field(alias="processedDate")
+    id: str
+    alert_config: GetAlertMatchHistoryResponseAlertMatchesItemVariant1AlertConfig = Field(alias="alertConfig")
+    email_history_id: float | None = Field(alias="emailHistoryId")
+    episode_slug: str = Field(alias="episodeSlug")
+    episode_title: str = Field(alias="episodeTitle")
+    filtered_out: bool = Field(alias="filteredOut")
+    image_url: str | None = Field(alias="imageUrl")
+    podcast_slug: str = Field(alias="podcastSlug")
+    podcast_title: str = Field(alias="podcastTitle")
+    text: str
+    type: Literal["TRANSCRIPT"]
+    end_second: float = Field(alias="endSecond")
+    start_second: float = Field(alias="startSecond")
+    transcript_embedding_id: str = Field(alias="transcriptEmbeddingId")
+    transcript_id: str = Field(alias="transcriptId")
+    transcription_date: Any = Field(alias="transcriptionDate")
+
+
 class GetAlertMatchHistoryResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     options: GetAlertMatchHistoryResponseOptions
     total_alert_matches: float = Field(alias="totalAlertMatches")
-    alert_matches: list[Any] = Field(alias="alertMatches")
+    alert_matches: list[
+        GetAlertMatchHistoryResponseAlertMatchesItemVariant1 | GetAlertMatchHistoryResponseAlertMatchesItemVariant2
+    ] = Field(alias="alertMatches")
 
 
 class GetChartResponseOptions(BaseModel):
@@ -599,6 +758,25 @@ class GetEpisodeTranscriptTextResponse(BaseModel):
     )
 
 
+class GetEpisodeTranscriptTextPreviewResponseEpisodeTranscriptText(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    podcast_id: str = Field(alias="podcastId")
+    episode_id: str = Field(alias="episodeId")
+    transcript_id: str = Field(alias="transcriptId")
+    text: str | None
+    truncated: bool
+    total_characters: float = Field(alias="totalCharacters")
+
+
+class GetEpisodeTranscriptTextPreviewResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    episode_transcript_text: GetEpisodeTranscriptTextPreviewResponseEpisodeTranscriptText = Field(
+        alias="episodeTranscriptText"
+    )
+
+
 class RequestEpisodeTranscriptionResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -619,6 +797,16 @@ class GetEpisodeTranscriptTimestampsResponse(BaseModel):
     episode_id: str = Field(alias="episodeId")
     podcast_id: str = Field(alias="podcastId")
     sentences: list[GetEpisodeTranscriptTimestampsResponseSentencesItem]
+
+
+class GetEpisodeTranscriptTimestampsPreviewResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    episode_id: str = Field(alias="episodeId")
+    podcast_id: str = Field(alias="podcastId")
+    sentences: list[GetEpisodeTranscriptTimestampsResponseSentencesItem]
+    total_sentences: float = Field(alias="totalSentences")
+    truncated: bool
 
 
 class GetTranscriptionRequestsResponseRequestsItemVariant1(BaseModel):
@@ -863,7 +1051,11 @@ class RegenerateBioResponseResult(BaseModel):
 class RegenerateBioResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    result: RegenerateBioResponseResult
+    result: RegenerateBioResponseResult | None
+    failure_reason: Literal["no-source-material", "empty-result", "generation-error"] | None = Field(
+        default=None, alias="failureReason"
+    )
+    failure_message: str | None = Field(default=None, alias="failureMessage")
 
 
 class UploadDocumentsResponseUploadedDocumentsItem(BaseModel):
@@ -1424,7 +1616,7 @@ class GetPodcastAllDetailsResponsePodcastSocialMediaLinkedInCompanyDataItem(Base
     linked_in_url: str = Field(alias="linkedInUrl")
     name: str
     country_code: str | None = Field(alias="countryCode")
-    followers: float
+    followers: float | None
     employees_in_linkedin: float = Field(alias="employeesInLinkedin")
     about: str | None
     description: str | None
@@ -1635,8 +1827,8 @@ class GetPodcastEpisodesResponseOptions(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     has_transcript: bool | None = Field(default=None, alias="hasTranscript")
-    skip: float | None = None
-    limit: float | None = None
+    skip: int | None = None
+    limit: int | None = None
 
 
 class GetPodcastEpisodesResponse(BaseModel):
@@ -1917,6 +2109,7 @@ class GetProjectsResponseProjectsItemLinkedGuestProfile(BaseModel):
     status: Literal["ACTIVE", "DRAFT", "PENDING", "ARCHIVED", "ERROR"]
     image_url: str | None = Field(alias="imageUrl")
     linkedin_url: str | None = Field(alias="linkedinUrl")
+    company_name: str | None = Field(alias="companyName")
     appearances_count: float = Field(alias="appearancesCount")
 
 
@@ -1988,15 +2181,6 @@ class GetProjectsResponse(BaseModel):
     projects: list[GetProjectsResponseProjectsItem]
 
 
-class GetProjectDetailsResponseProjectGoHighLevelIntegration(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    location_id: str = Field(alias="locationId")
-    has_api_key: bool = Field(alias="hasApiKey")
-    enabled: bool
-    only_push_relevant_podcasts: bool = Field(alias="onlyPushRelevantPodcasts")
-
-
 class GetProjectDetailsResponseProject(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -2035,9 +2219,6 @@ class GetProjectDetailsResponseProject(BaseModel):
     is_public_listicle: bool = Field(alias="isPublicListicle")
     public_podcast_limit: float = Field(alias="publicPodcastLimit")
     is_public_for_team: bool = Field(alias="isPublicForTeam")
-    go_high_level_integration: GetProjectDetailsResponseProjectGoHighLevelIntegration | None = Field(
-        alias="goHighLevelIntegration"
-    )
 
 
 class GetProjectDetailsResponse(BaseModel):
@@ -2169,7 +2350,7 @@ class SearchAutocompletePodcastsResponse(BaseModel):
     words: list[str]
 
 
-class SearchPodcastsResponseSeachResultsStatsTime(BaseModel):
+class SearchPodcastsResponseSearchResultsStatsTime(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     total_time_taken_ms: float = Field(alias="totalTimeTakenMs")
@@ -2177,7 +2358,7 @@ class SearchPodcastsResponseSeachResultsStatsTime(BaseModel):
     total_post_processing_time_ms: float = Field(alias="totalPostProcessingTimeMs")
 
 
-class SearchPodcastsResponseSeachResultsStatsTotals(BaseModel):
+class SearchPodcastsResponseSearchResultsStatsTotals(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     blacklisted_podcasts: float = Field(alias="blacklistedPodcasts")
@@ -2188,27 +2369,27 @@ class SearchPodcastsResponseSeachResultsStatsTotals(BaseModel):
     results_returned: float = Field(alias="resultsReturned")
 
 
-class SearchPodcastsResponseSeachResultsStatsFiltersProjectPodcastRelevancyScoresValue(BaseModel):
+class SearchPodcastsResponseSearchResultsStatsFiltersProjectPodcastRelevancyScoresValue(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     answer: AskAgentProjectPodcastRelevancyResponseResultAnswer
 
 
-class SearchPodcastsResponseSeachResultsStatsFilters(BaseModel):
+class SearchPodcastsResponseSearchResultsStatsFilters(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     relevancy_scores_totals: dict[str, float] = Field(alias="relevancyScoresTotals")
     project_podcast_relevancy_scores: (
-        dict[str, SearchPodcastsResponseSeachResultsStatsFiltersProjectPodcastRelevancyScoresValue | None] | None
+        dict[str, SearchPodcastsResponseSearchResultsStatsFiltersProjectPodcastRelevancyScoresValue | None] | None
     ) = Field(default=None, alias="projectPodcastRelevancyScores")
 
 
-class SearchPodcastsResponseSeachResultsStats(BaseModel):
+class SearchPodcastsResponseSearchResultsStats(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    time: SearchPodcastsResponseSeachResultsStatsTime
-    totals: SearchPodcastsResponseSeachResultsStatsTotals
-    filters: SearchPodcastsResponseSeachResultsStatsFilters
+    time: SearchPodcastsResponseSearchResultsStatsTime
+    totals: SearchPodcastsResponseSearchResultsStatsTotals
+    filters: SearchPodcastsResponseSearchResultsStatsFilters
 
 
 class SearchPodcastsResponse(BaseModel):
@@ -2217,7 +2398,7 @@ class SearchPodcastsResponse(BaseModel):
     search_mode: Literal["podcasts"] = Field(alias="searchMode")
     search_id: str = Field(alias="searchId")
     search_options: AskAgentProjectPodcastRelevancySearchOptionsVariant1 = Field(alias="searchOptions")
-    seach_results_stats: SearchPodcastsResponseSeachResultsStats = Field(alias="seachResultsStats")
+    search_results_stats: SearchPodcastsResponseSearchResultsStats = Field(alias="searchResultsStats")
     result: Any
     cursor: str | None
 
@@ -2228,7 +2409,7 @@ class SearchEpisodesResponse(BaseModel):
     search_mode: Literal["episodes"] = Field(alias="searchMode")
     search_id: str = Field(alias="searchId")
     search_options: AskAgentProjectPodcastRelevancySearchOptionsVariant2 = Field(alias="searchOptions")
-    seach_results_stats: SearchPodcastsResponseSeachResultsStats = Field(alias="seachResultsStats")
+    search_results_stats: SearchPodcastsResponseSearchResultsStats = Field(alias="searchResultsStats")
     result: Any
     cursor: str | None
 
@@ -2369,7 +2550,6 @@ class GetCurrentResponseFeatureFlags(BaseModel):
     airtable_integration: bool | None = Field(default=None, alias="airtableIntegration")
     automated_search: bool | None = Field(default=None, alias="automatedSearch")
     apply_page: bool | None = Field(default=None, alias="applyPage")
-    go_high_level_integration: bool | None = Field(default=None, alias="goHighLevelIntegration")
 
 
 class GetCurrentResponseAliasesItem(BaseModel):
@@ -2407,7 +2587,8 @@ class GetCurrentResponseProjectUsage(BaseModel):
 class GetCurrentResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    month: str
+    period_start: datetime = Field(alias="periodStart")
+    period_end: datetime = Field(alias="periodEnd")
     plan: str
     feature_flags: GetCurrentResponseFeatureFlags = Field(alias="featureFlags")
     aliases: list[GetCurrentResponseAliasesItem]
@@ -2433,7 +2614,8 @@ class GetDailyResponse(BaseModel):
 class GetMonthlyResponseMonthsItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    month: str
+    period_start: datetime = Field(alias="periodStart")
+    period_end: datetime = Field(alias="periodEnd")
     total_usage: float = Field(alias="totalUsage")
     usage_by_alias: dict[str, float] = Field(alias="usageByAlias")
 
