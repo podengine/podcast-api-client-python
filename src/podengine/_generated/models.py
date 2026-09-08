@@ -1206,6 +1206,8 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2SocialMediaLinksItem(BaseMo
             "podchaser",
             "rephonic",
             "rss",
+            "youtube-channel-links",
+            "youtube-episode-search",
         ]
     ]
 
