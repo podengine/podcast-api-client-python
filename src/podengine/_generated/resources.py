@@ -343,6 +343,17 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         body="none",
         binary=False,
     ),
+    "getPodcastGuests": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/podcasts/{podcastIdOrSlug}/guests",
+        path_params=("podcastIdOrSlug",),
+        query_params=(
+            "sinceDays",
+            "role",
+        ),
+        body="none",
+        binary=False,
+    ),
     "getPodcastIdLookup": EndpointDescriptor(
         method="GET",
         path="/api/v1/podcasts/id/lookup",
@@ -381,6 +392,14 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         path="/api/v1/podcasts/{podcastIdOrSlug}/social-media",
         path_params=("podcastIdOrSlug",),
         query_params=(),
+        body="none",
+        binary=False,
+    ),
+    "getPodcastSponsors": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/podcasts/{podcastIdOrSlug}/sponsors",
+        path_params=("podcastIdOrSlug",),
+        query_params=("sinceDays",),
         body="none",
         binary=False,
     ),
@@ -649,10 +668,12 @@ _adapter_getPodcastAllDetails: TypeAdapter[Any] = TypeAdapter(models.GetPodcastA
 _adapter_getPodcastCharts: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartsResponse)
 _adapter_getPodcastContacts: TypeAdapter[Any] = TypeAdapter(models.GetPodcastContactsResponse)
 _adapter_getPodcastEpisodes: TypeAdapter[Any] = TypeAdapter(models.GetPodcastEpisodesResponse)
+_adapter_getPodcastGuests: TypeAdapter[Any] = TypeAdapter(models.GetPodcastGuestsResponse)
 _adapter_getPodcastIdLookup: TypeAdapter[Any] = TypeAdapter(models.GetPodcastIdLookupResponse)
 _adapter_getPodcastRelatedPodcasts: TypeAdapter[Any] = TypeAdapter(models.GetPodcastRelatedPodcastsResponse)
 _adapter_getPodcastReviews: TypeAdapter[Any] = TypeAdapter(models.GetPodcastReviewsResponse)
 _adapter_getPodcastSocialMediaDetails: TypeAdapter[Any] = TypeAdapter(models.GetPodcastSocialMediaDetailsResponse)
+_adapter_getPodcastSponsors: TypeAdapter[Any] = TypeAdapter(models.GetPodcastSponsorsResponse)
 _adapter_getPodcastYoutubeDetails: TypeAdapter[Any] = TypeAdapter(models.GetPodcastYoutubeDetailsResponse)
 _adapter_refreshPodcast: TypeAdapter[Any] = TypeAdapter(
     models.RefreshPodcastResponseVariant1 | models.RefreshPodcastResponseVariant2
@@ -1510,6 +1531,27 @@ class PodcastsResource:
             )
         )
 
+    def get_podcast_guests(
+        self,
+        *,
+        podcast_id_or_slug: str,
+        since_days: int | None = None,
+        role: Literal["guest", "host"] | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastGuestsResponse:
+        """
+        Podcast Guests
+
+        Get a summary of the guests and hosts appearing on a podcast — by default from its last 10 episodes, or from a time window with sinceDays
+        """
+        return _adapter_getPodcastGuests.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getPodcastGuests"],
+                {"podcastIdOrSlug": podcast_id_or_slug, "sinceDays": since_days, "role": role},
+                request_options,
+            )
+        )
+
     def get_podcast_id_lookup(
         self,
         *,
@@ -1585,6 +1627,26 @@ class PodcastsResource:
         return _adapter_getPodcastSocialMediaDetails.validate_python(
             self._core.request(
                 _DESCRIPTORS["getPodcastSocialMediaDetails"], {"podcastIdOrSlug": podcast_id_or_slug}, request_options
+            )
+        )
+
+    def get_podcast_sponsors(
+        self,
+        *,
+        podcast_id_or_slug: str,
+        since_days: int | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastSponsorsResponse:
+        """
+        Podcast Sponsors
+
+        Get a summary of the sponsors and advertisers on a podcast — by default from its last 10 episodes, or from a time window with sinceDays
+        """
+        return _adapter_getPodcastSponsors.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getPodcastSponsors"],
+                {"podcastIdOrSlug": podcast_id_or_slug, "sinceDays": since_days},
+                request_options,
             )
         )
 
@@ -3177,6 +3239,27 @@ class AsyncPodcastsResource:
             )
         )
 
+    async def get_podcast_guests(
+        self,
+        *,
+        podcast_id_or_slug: str,
+        since_days: int | None = None,
+        role: Literal["guest", "host"] | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastGuestsResponse:
+        """
+        Podcast Guests
+
+        Get a summary of the guests and hosts appearing on a podcast — by default from its last 10 episodes, or from a time window with sinceDays
+        """
+        return _adapter_getPodcastGuests.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getPodcastGuests"],
+                {"podcastIdOrSlug": podcast_id_or_slug, "sinceDays": since_days, "role": role},
+                request_options,
+            )
+        )
+
     async def get_podcast_id_lookup(
         self,
         *,
@@ -3252,6 +3335,26 @@ class AsyncPodcastsResource:
         return _adapter_getPodcastSocialMediaDetails.validate_python(
             await self._core.request(
                 _DESCRIPTORS["getPodcastSocialMediaDetails"], {"podcastIdOrSlug": podcast_id_or_slug}, request_options
+            )
+        )
+
+    async def get_podcast_sponsors(
+        self,
+        *,
+        podcast_id_or_slug: str,
+        since_days: int | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastSponsorsResponse:
+        """
+        Podcast Sponsors
+
+        Get a summary of the sponsors and advertisers on a podcast — by default from its last 10 episodes, or from a time window with sinceDays
+        """
+        return _adapter_getPodcastSponsors.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getPodcastSponsors"],
+                {"podcastIdOrSlug": podcast_id_or_slug, "sinceDays": since_days},
+                request_options,
             )
         )
 

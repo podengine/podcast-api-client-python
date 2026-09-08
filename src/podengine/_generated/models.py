@@ -1480,8 +1480,8 @@ class GetPodcastAllDetailsResponsePodcastGuests(BaseModel):
 
     episodes_count: float = Field(alias="episodesCount")
     episodes_with_guests_count: float = Field(alias="episodesWithGuestsCount")
-    most_recent_episode_date: Any = Field(alias="mostRecentEpisodeDate")
-    oldest_episode_date: Any = Field(alias="oldestEpisodeDate")
+    most_recent_episode_date: Any | None = Field(alias="mostRecentEpisodeDate")
+    oldest_episode_date: Any | None = Field(alias="oldestEpisodeDate")
     guests: list[GetPodcastAllDetailsResponsePodcastGuestsGuestsItem]
 
 
@@ -1721,8 +1721,8 @@ class GetPodcastAllDetailsResponsePodcastSponsors(BaseModel):
 
     episodes_count: float = Field(alias="episodesCount")
     episodes_with_sponsors_count: float = Field(alias="episodesWithSponsorsCount")
-    most_recent_episode_date: Any = Field(alias="mostRecentEpisodeDate")
-    oldest_episode_date: Any = Field(alias="oldestEpisodeDate")
+    most_recent_episode_date: Any | None = Field(alias="mostRecentEpisodeDate")
+    oldest_episode_date: Any | None = Field(alias="oldestEpisodeDate")
     sponsors: list[GetPodcastAllDetailsResponsePodcastSponsorsSponsorsItem]
 
 
@@ -1896,6 +1896,40 @@ class GetPodcastContactsResponse(BaseModel):
 
     podcast: GetLatestEpisodesResponseLatestPodcastsItemPodcast
     podcast_contacts: GetPodcastContactsResponsePodcastContacts = Field(alias="podcastContacts")
+
+
+class GetPodcastGuestsResponseGuests(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    episodes_count: float = Field(alias="episodesCount")
+    episodes_with_guests_count: float = Field(alias="episodesWithGuestsCount")
+    most_recent_episode_date: Any | None = Field(alias="mostRecentEpisodeDate")
+    oldest_episode_date: Any | None = Field(alias="oldestEpisodeDate")
+    guests: list[GetPodcastAllDetailsResponsePodcastGuestsGuestsItem]
+
+
+class GetPodcastGuestsResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    podcast: GetLatestEpisodesResponseLatestPodcastsItemPodcast
+    guests: GetPodcastGuestsResponseGuests
+
+
+class GetPodcastSponsorsResponseSponsors(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    episodes_count: float = Field(alias="episodesCount")
+    episodes_with_sponsors_count: float = Field(alias="episodesWithSponsorsCount")
+    most_recent_episode_date: Any | None = Field(alias="mostRecentEpisodeDate")
+    oldest_episode_date: Any | None = Field(alias="oldestEpisodeDate")
+    sponsors: list[GetPodcastAllDetailsResponsePodcastSponsorsSponsorsItem]
+
+
+class GetPodcastSponsorsResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    podcast: GetLatestEpisodesResponseLatestPodcastsItemPodcast
+    sponsors: GetPodcastSponsorsResponseSponsors
 
 
 class GetPodcastChartsResponseOptions(BaseModel):
