@@ -1208,6 +1208,8 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2SocialMediaLinksItem(BaseMo
             "rss",
             "youtube-channel-links",
             "youtube-episode-search",
+            "youtube-serp",
+            "youtube-api-search",
         ]
     ]
 
