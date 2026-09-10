@@ -1248,6 +1248,61 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2TranscriptionModeVariant3(B
     transcribe_since: Any = Field(alias="transcribeSince")
 
 
+class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaAudioVariant1(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    unit: Literal["downloads"]
+    source: Literal["op3"]
+    basis: Literal["trailing_30_days"]
+    last_synced_at: datetime | None
+    source_as_of: datetime | None
+    measurement_recorded_at: datetime | None
+    coverage: Literal["unknown"]
+    freshness: Literal["fresh", "stale", "unknown"]
+    status: Literal["available"]
+    value: int
+    reason: Any | None
+
+
+class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaAudioVariant2(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    unit: Literal["downloads"]
+    source: Literal["op3"]
+    basis: Literal["trailing_30_days"]
+    last_synced_at: datetime | None
+    source_as_of: datetime | None
+    measurement_recorded_at: datetime | None
+    coverage: Literal["unknown"]
+    freshness: Literal["fresh", "stale", "unknown"]
+    status: Literal["unavailable"]
+    value: Any | None
+    reason: Literal["no_measurement", "invalid_measurement", "history_mismatch"]
+
+
+class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaYoutube(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    status: Literal["unavailable"]
+    value: Any | None
+    unit: Literal["views"]
+    reason: Literal["validation_pending"]
+
+
+class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBeta(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    schema_version: Literal[1]
+    audio: (
+        GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaAudioVariant1
+        | GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaAudioVariant2
+    )
+    youtube: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaYoutube
+    audience_estimate_monthly_listeners: Any | None
+    unique_viewers: Any | None
+    combined_audience: Any | None
+
+
 class GetMultiplePodcastsResponsePodcastsItemVariant2(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -1297,6 +1352,9 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2(BaseModel):
         | GetMultiplePodcastsResponsePodcastsItemVariant2TranscriptionModeVariant3
     ) = Field(alias="transcriptionMode")
     website_url: str | None = Field(alias="websiteUrl")
+    audience_beta: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBeta | None = Field(
+        default=None, alias="audienceBeta"
+    )
     audience_estimate: GetLatestEpisodesResponseLatestPodcastsItemEpisodesItemAudienceEstimate | None = Field(
         default=None, alias="audienceEstimate"
     )
