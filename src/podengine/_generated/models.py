@@ -1470,6 +1470,7 @@ class GetAppleIdComprehensiveLookupResponse(BaseModel):
         "no_episodes_count",
         "no_podcast_image",
         "non_us_apple_url",
+        "podcast_blocked",
         "not_active",
         "request_not_found",
         "rss_download_failed",
