@@ -1248,6 +1248,66 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2TranscriptionModeVariant3(B
     transcribe_since: Any = Field(alias="transcribeSince")
 
 
+class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionAudio(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    value: int | None
+    basis: Literal[
+        "op3_measured",
+        "experimental_audio_model",
+        "measured_counter_gains",
+        "experimental_90_day_views_divided_by_3",
+        "unavailable",
+    ]
+    as_of: datetime | None = Field(alias="asOf")
+    unit: Literal["downloads"]
+    p10: int | None
+    p90: int | None
+    model_version: str | None = Field(alias="modelVersion")
+
+
+class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionYoutubePeriodsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    video_id: str = Field(alias="videoId")
+    start: datetime
+    end: datetime
+    elapsed_days: float = Field(alias="elapsedDays")
+    views: int
+
+
+class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionYoutube(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    value: int | None
+    basis: Literal[
+        "op3_measured",
+        "experimental_audio_model",
+        "measured_counter_gains",
+        "experimental_90_day_views_divided_by_3",
+        "unavailable",
+    ]
+    as_of: datetime | None = Field(alias="asOf")
+    unit: Literal["views"]
+    qualified_videos: int = Field(alias="qualifiedVideos")
+    measured_videos: int = Field(alias="measuredVideos")
+    estimated_videos: int = Field(alias="estimatedVideos")
+    measured_partial_views: int | None = Field(alias="measuredPartialViews")
+    periods: list[GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionYoutubePeriodsItem]
+
+
+class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumption(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    schema_version: Literal[1] = Field(alias="schemaVersion")
+    audio: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionAudio
+    youtube: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionYoutube
+    provisional_monthly_total: int | None = Field(alias="provisionalMonthlyTotal")
+    unit: Literal["audio_downloads_plus_youtube_views"]
+    coverage: Literal["audio_and_partial_youtube", "audio_only", "partial_youtube_only", "unavailable"]
+    unique_listeners: Any | None = Field(alias="uniqueListeners")
+
+
 class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaAudioVariant1(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -1293,6 +1353,7 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBeta(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     schema_version: Literal[1]
+    monthly_consumption: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumption | None = None
     audio: (
         GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaAudioVariant1
         | GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaAudioVariant2
