@@ -1300,6 +1300,9 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumpt
     model_config = ConfigDict(populate_by_name=True)
 
     schema_version: Literal[1] = Field(alias="schemaVersion")
+    eligibility: Literal["eligible", "language_out_of_scope", "no_recent_episode"] | None = None
+    policy_version: Literal["active-english-90d-v1"] | None = Field(default=None, alias="policyVersion")
+    calculated_as_of: datetime | None = Field(default=None, alias="calculatedAsOf")
     audio: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionAudio
     youtube: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionYoutube
     provisional_monthly_total: int | None = Field(alias="provisionalMonthlyTotal")
