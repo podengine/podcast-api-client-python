@@ -1912,6 +1912,9 @@ class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItem(BaseModel):
     last_video_upload_date: Any | None = Field(alias="lastVideoUploadDate")
     last_video_upload_date_source: str | None = Field(alias="lastVideoUploadDateSource")
     last_video_upload_date_checked_at: Any | None = Field(alias="lastVideoUploadDateCheckedAt")
+    association_tier: Literal["associated", "candidate", "unverified"] | None = Field(
+        default=None, alias="associationTier"
+    )
 
 
 class GetPodcastAllDetailsResponsePodcastYoutubeData(BaseModel):
