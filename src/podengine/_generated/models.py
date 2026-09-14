@@ -677,6 +677,8 @@ class GetLatestEpisodesResponseLatestPodcastsItemEpisodesItemAudienceEstimate(Ba
     ) = Field(alias="audienceDemographics")
     estimated_monthly_listeners: float | None = Field(alias="estimatedMonthlyListeners")
     estimated_monthy_listeners_calculated_at: Any | None = Field(alias="estimatedMonthyListenersCalculatedAt")
+    confidence: Literal["high", "medium", "low"] | None = None
+    is_dormant: bool | None = Field(default=None, alias="isDormant")
 
 
 class GetLatestEpisodesResponseLatestPodcastsItemEpisodesItemYoutubeEpisodeDetails(BaseModel):
@@ -1248,125 +1250,6 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2TranscriptionModeVariant3(B
     transcribe_since: Any = Field(alias="transcribeSince")
 
 
-class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionAudio(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    value: int | None
-    basis: Literal[
-        "op3_measured",
-        "experimental_audio_model",
-        "measured_counter_gains",
-        "experimental_90_day_views_divided_by_3",
-        "unavailable",
-    ]
-    as_of: datetime | None = Field(alias="asOf")
-    unit: Literal["downloads"]
-    p10: int | None
-    p90: int | None
-    model_version: str | None = Field(alias="modelVersion")
-
-
-class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionYoutubePeriodsItem(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    video_id: str = Field(alias="videoId")
-    start: datetime
-    end: datetime
-    elapsed_days: float = Field(alias="elapsedDays")
-    views: int
-
-
-class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionYoutube(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    value: int | None
-    basis: Literal[
-        "op3_measured",
-        "experimental_audio_model",
-        "measured_counter_gains",
-        "experimental_90_day_views_divided_by_3",
-        "unavailable",
-    ]
-    as_of: datetime | None = Field(alias="asOf")
-    unit: Literal["views"]
-    qualified_videos: int = Field(alias="qualifiedVideos")
-    measured_videos: int = Field(alias="measuredVideos")
-    estimated_videos: int = Field(alias="estimatedVideos")
-    measured_partial_views: int | None = Field(alias="measuredPartialViews")
-    periods: list[GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionYoutubePeriodsItem]
-
-
-class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumption(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    schema_version: Literal[1] = Field(alias="schemaVersion")
-    eligibility: Literal["eligible", "language_out_of_scope", "no_recent_episode"] | None = None
-    policy_version: Literal["active-english-90d-v1"] | None = Field(default=None, alias="policyVersion")
-    calculated_as_of: datetime | None = Field(default=None, alias="calculatedAsOf")
-    audio: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionAudio
-    youtube: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumptionYoutube
-    provisional_monthly_total: int | None = Field(alias="provisionalMonthlyTotal")
-    unit: Literal["audio_downloads_plus_youtube_views"]
-    coverage: Literal["audio_and_partial_youtube", "audio_only", "partial_youtube_only", "unavailable"]
-    unique_listeners: Any | None = Field(alias="uniqueListeners")
-
-
-class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaAudioVariant1(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    unit: Literal["downloads"]
-    source: Literal["op3"]
-    basis: Literal["trailing_30_days"]
-    last_synced_at: datetime | None
-    source_as_of: datetime | None
-    measurement_recorded_at: datetime | None
-    coverage: Literal["unknown"]
-    freshness: Literal["fresh", "stale", "unknown"]
-    status: Literal["available"]
-    value: int
-    reason: Any | None
-
-
-class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaAudioVariant2(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    unit: Literal["downloads"]
-    source: Literal["op3"]
-    basis: Literal["trailing_30_days"]
-    last_synced_at: datetime | None
-    source_as_of: datetime | None
-    measurement_recorded_at: datetime | None
-    coverage: Literal["unknown"]
-    freshness: Literal["fresh", "stale", "unknown"]
-    status: Literal["unavailable"]
-    value: Any | None
-    reason: Literal["no_measurement", "invalid_measurement", "history_mismatch"]
-
-
-class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaYoutube(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    status: Literal["unavailable"]
-    value: Any | None
-    unit: Literal["views"]
-    reason: Literal["validation_pending"]
-
-
-class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBeta(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    schema_version: Literal[1]
-    monthly_consumption: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaMonthlyConsumption | None = None
-    audio: (
-        GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaAudioVariant1
-        | GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaAudioVariant2
-    )
-    youtube: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBetaYoutube
-    audience_estimate_monthly_listeners: Any | None
-    unique_viewers: Any | None
-    combined_audience: Any | None
-
-
 class GetMultiplePodcastsResponsePodcastsItemVariant2(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -1416,9 +1299,6 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2(BaseModel):
         | GetMultiplePodcastsResponsePodcastsItemVariant2TranscriptionModeVariant3
     ) = Field(alias="transcriptionMode")
     website_url: str | None = Field(alias="websiteUrl")
-    audience_beta: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceBeta | None = Field(
-        default=None, alias="audienceBeta"
-    )
     audience_estimate: GetLatestEpisodesResponseLatestPodcastsItemEpisodesItemAudienceEstimate | None = Field(
         default=None, alias="audienceEstimate"
     )
