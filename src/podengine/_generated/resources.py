@@ -1951,6 +1951,8 @@ class SearchResource:
         podcast_has_guests: bool | None = None,
         podcast_authority_score: models.AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScore
         | None = None,
+        podcast_audience_estimated_monthly_listeners: models.AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAudienceEstimatedMonthlyListeners
+        | None = None,
         sort_order: list[models.AskAgentProjectPodcastRelevancySearchOptionsVariant1SortOrderItem] | None = None,
         include_transcript_snippet: bool | None = None,
         transcript_snippet_length: int | None = None,
@@ -2003,6 +2005,7 @@ class SearchResource:
                     "podcastCountries": podcast_countries,
                     "podcastHasGuests": podcast_has_guests,
                     "podcastAuthorityScore": podcast_authority_score,
+                    "podcastAudienceEstimatedMonthlyListeners": podcast_audience_estimated_monthly_listeners,
                     "sortOrder": sort_order,
                     "includeTranscriptSnippet": include_transcript_snippet,
                     "transcriptSnippetLength": transcript_snippet_length,
@@ -2080,6 +2083,8 @@ class SearchResource:
         podcast_has_guests: bool | None = None,
         podcast_authority_score: models.AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScore
         | None = None,
+        podcast_audience_estimated_monthly_listeners: models.AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAudienceEstimatedMonthlyListeners
+        | None = None,
         sort_order: list[models.AskAgentProjectPodcastRelevancySearchOptionsVariant1SortOrderItem] | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.SearchPodcastsResponse:
@@ -2119,6 +2124,7 @@ class SearchResource:
                     "podcastCountries": podcast_countries,
                     "podcastHasGuests": podcast_has_guests,
                     "podcastAuthorityScore": podcast_authority_score,
+                    "podcastAudienceEstimatedMonthlyListeners": podcast_audience_estimated_monthly_listeners,
                     "sortOrder": sort_order,
                 },
                 request_options,
@@ -3663,6 +3669,8 @@ class AsyncSearchResource:
         podcast_has_guests: bool | None = None,
         podcast_authority_score: models.AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScore
         | None = None,
+        podcast_audience_estimated_monthly_listeners: models.AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAudienceEstimatedMonthlyListeners
+        | None = None,
         sort_order: list[models.AskAgentProjectPodcastRelevancySearchOptionsVariant1SortOrderItem] | None = None,
         include_transcript_snippet: bool | None = None,
         transcript_snippet_length: int | None = None,
@@ -3715,6 +3723,7 @@ class AsyncSearchResource:
                     "podcastCountries": podcast_countries,
                     "podcastHasGuests": podcast_has_guests,
                     "podcastAuthorityScore": podcast_authority_score,
+                    "podcastAudienceEstimatedMonthlyListeners": podcast_audience_estimated_monthly_listeners,
                     "sortOrder": sort_order,
                     "includeTranscriptSnippet": include_transcript_snippet,
                     "transcriptSnippetLength": transcript_snippet_length,
@@ -3792,6 +3801,8 @@ class AsyncSearchResource:
         podcast_has_guests: bool | None = None,
         podcast_authority_score: models.AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScore
         | None = None,
+        podcast_audience_estimated_monthly_listeners: models.AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAudienceEstimatedMonthlyListeners
+        | None = None,
         sort_order: list[models.AskAgentProjectPodcastRelevancySearchOptionsVariant1SortOrderItem] | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.SearchPodcastsResponse:
@@ -3831,6 +3842,7 @@ class AsyncSearchResource:
                     "podcastCountries": podcast_countries,
                     "podcastHasGuests": podcast_has_guests,
                     "podcastAuthorityScore": podcast_authority_score,
+                    "podcastAudienceEstimatedMonthlyListeners": podcast_audience_estimated_monthly_listeners,
                     "sortOrder": sort_order,
                 },
                 request_options,

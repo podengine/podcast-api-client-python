@@ -68,6 +68,13 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScore(
     )
 
 
+class AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAudienceEstimatedMonthlyListeners(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    min: int | None = None
+    max: int | None = None
+
+
 class AskAgentProjectPodcastRelevancySearchOptionsVariant1SortOrderItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -141,6 +148,9 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant1(BaseModel):
     podcast_authority_score: AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScore | None = Field(
         default=None, alias="podcastAuthorityScore"
     )
+    podcast_audience_estimated_monthly_listeners: (
+        AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAudienceEstimatedMonthlyListeners | None
+    ) = Field(default=None, alias="podcastAudienceEstimatedMonthlyListeners")
     sort_order: list[AskAgentProjectPodcastRelevancySearchOptionsVariant1SortOrderItem] | None = Field(
         default=None, alias="sortOrder"
     )
@@ -245,6 +255,9 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant2(BaseModel):
     podcast_authority_score: AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScore | None = Field(
         default=None, alias="podcastAuthorityScore"
     )
+    podcast_audience_estimated_monthly_listeners: (
+        AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAudienceEstimatedMonthlyListeners | None
+    ) = Field(default=None, alias="podcastAudienceEstimatedMonthlyListeners")
     sort_order: list[AskAgentProjectPodcastRelevancySearchOptionsVariant1SortOrderItem] | None = Field(
         default=None, alias="sortOrder"
     )
