@@ -589,6 +589,7 @@ class GetChartResponseChartPositionsItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     position: float
+    estimated_monthly_listeners: int | None = Field(alias="estimatedMonthlyListeners")
     podcast_on_chart: GetChartResponseChartPositionsItemPodcastOnChart = Field(alias="podcastOnChart")
     podengine_podcast: GetChartResponseChartPositionsItemPodenginePodcast | None = Field(alias="podenginePodcast")
 
