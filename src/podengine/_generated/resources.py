@@ -336,7 +336,6 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         path="/api/v1/podcasts/{podcastIdOrSlug}/episodes",
         path_params=("podcastIdOrSlug",),
         query_params=(
-            "includePublishingRhythm",
             "hasTranscript",
             "skip",
             "limit",
@@ -1514,7 +1513,6 @@ class PodcastsResource:
         self,
         *,
         podcast_id_or_slug: str,
-        include_publishing_rhythm: bool | None = None,
         has_transcript: bool | None = None,
         skip: int | None = None,
         limit: int | None = None,
@@ -1528,13 +1526,7 @@ class PodcastsResource:
         return _adapter_getPodcastEpisodes.validate_python(
             self._core.request(
                 _DESCRIPTORS["getPodcastEpisodes"],
-                {
-                    "podcastIdOrSlug": podcast_id_or_slug,
-                    "includePublishingRhythm": include_publishing_rhythm,
-                    "hasTranscript": has_transcript,
-                    "skip": skip,
-                    "limit": limit,
-                },
+                {"podcastIdOrSlug": podcast_id_or_slug, "hasTranscript": has_transcript, "skip": skip, "limit": limit},
                 request_options,
             )
         )
@@ -3235,7 +3227,6 @@ class AsyncPodcastsResource:
         self,
         *,
         podcast_id_or_slug: str,
-        include_publishing_rhythm: bool | None = None,
         has_transcript: bool | None = None,
         skip: int | None = None,
         limit: int | None = None,
@@ -3249,13 +3240,7 @@ class AsyncPodcastsResource:
         return _adapter_getPodcastEpisodes.validate_python(
             await self._core.request(
                 _DESCRIPTORS["getPodcastEpisodes"],
-                {
-                    "podcastIdOrSlug": podcast_id_or_slug,
-                    "includePublishingRhythm": include_publishing_rhythm,
-                    "hasTranscript": has_transcript,
-                    "skip": skip,
-                    "limit": limit,
-                },
+                {"podcastIdOrSlug": podcast_id_or_slug, "hasTranscript": has_transcript, "skip": skip, "limit": limit},
                 request_options,
             )
         )
