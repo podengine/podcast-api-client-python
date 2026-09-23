@@ -1264,6 +1264,56 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2TranscriptionModeVariant3(B
     transcribe_since: Any = Field(alias="transcribeSince")
 
 
+class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimateOp3DownloadsVariant1(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    unit: Literal["downloads"]
+    source: Literal["op3"]
+    basis: Literal["trailing_30_days"]
+    last_synced_at: datetime | None
+    source_as_of: datetime | None
+    measurement_recorded_at: datetime | None
+    coverage: Literal["unknown"]
+    freshness: Literal["fresh", "stale", "unknown"]
+    status: Literal["available"]
+    value: int
+    reason: Any | None
+
+
+class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimateOp3DownloadsVariant2(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    unit: Literal["downloads"]
+    source: Literal["op3"]
+    basis: Literal["trailing_30_days"]
+    last_synced_at: datetime | None
+    source_as_of: datetime | None
+    measurement_recorded_at: datetime | None
+    coverage: Literal["unknown"]
+    freshness: Literal["fresh", "stale", "unknown"]
+    status: Literal["unavailable"]
+    value: Any | None
+    reason: Literal["no_measurement", "invalid_measurement", "history_mismatch"]
+
+
+class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimate(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    audience_demographics: (
+        GetLatestEpisodesResponseLatestPodcastsItemEpisodesItemAudienceEstimateAudienceDemographics | None
+    ) = Field(alias="audienceDemographics")
+    estimated_monthly_listeners: float | None = Field(alias="estimatedMonthlyListeners")
+    estimated_monthy_listeners_calculated_at: Any | None = Field(alias="estimatedMonthyListenersCalculatedAt")
+    confidence: Literal["high", "medium", "low"] | None = None
+    is_dormant: bool | None = Field(default=None, alias="isDormant")
+    has_op3_analytics: bool | None = Field(default=None, alias="hasOp3Analytics")
+    op3_downloads: (
+        GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimateOp3DownloadsVariant1
+        | GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimateOp3DownloadsVariant2
+        | None
+    ) = Field(default=None, alias="op3Downloads")
+
+
 class GetMultiplePodcastsResponsePodcastsItemVariant2(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -1313,7 +1363,7 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2(BaseModel):
         | GetMultiplePodcastsResponsePodcastsItemVariant2TranscriptionModeVariant3
     ) = Field(alias="transcriptionMode")
     website_url: str | None = Field(alias="websiteUrl")
-    audience_estimate: GetLatestEpisodesResponseLatestPodcastsItemEpisodesItemAudienceEstimate | None = Field(
+    audience_estimate: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimate | None = Field(
         default=None, alias="audienceEstimate"
     )
     audio_retention_policy: Literal["RETAIN_INDEFINITELY", "RETAIN_DAYS", "RETAIN_UNTIL_TRANSCRIBED"] | None = Field(
