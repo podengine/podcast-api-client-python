@@ -48,23 +48,51 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreA
     max: float | None
 
 
+class AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreQualityScore(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    min: float | None
+    max: float | None
+
+
+class AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreEngagementScore(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    min: float | None
+    max: float | None
+
+
+class AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreSocialScore(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    min: float | None
+    max: float | None
+
+
+class AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreYoutubeScore(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    min: float | None
+    max: float | None
+
+
 class AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScore(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     authority_score: AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreAuthorityScore | None = (
         Field(default=None, alias="authorityScore")
     )
-    quality_score: AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreAuthorityScore | None = (
-        Field(default=None, alias="qualityScore")
+    quality_score: AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreQualityScore | None = Field(
+        default=None, alias="qualityScore"
     )
-    engagement_score: AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreAuthorityScore | None = (
-        Field(default=None, alias="engagementScore")
+    engagement_score: (
+        AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreEngagementScore | None
+    ) = Field(default=None, alias="engagementScore")
+    social_score: AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreSocialScore | None = Field(
+        default=None, alias="socialScore"
     )
-    social_score: AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreAuthorityScore | None = (
-        Field(default=None, alias="socialScore")
-    )
-    youtube_score: AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreAuthorityScore | None = (
-        Field(default=None, alias="youtubeScore")
+    youtube_score: AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreYoutubeScore | None = Field(
+        default=None, alias="youtubeScore"
     )
 
 
