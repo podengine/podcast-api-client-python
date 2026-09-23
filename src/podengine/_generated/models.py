@@ -1900,9 +1900,41 @@ class GetPodcastResponse(BaseModel):
 class GetPodcastEpisodesResponseOptions(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
+    include_publishing_rhythm: bool | None = Field(default=None, alias="includePublishingRhythm")
     has_transcript: bool | None = Field(default=None, alias="hasTranscript")
     skip: int | None = None
     limit: int | None = None
+
+
+class GetPodcastEpisodesResponsePublishingRhythmDaysItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str
+    count: int
+    runtime_seconds: float | None = Field(alias="runtimeSeconds")
+    future: bool
+
+
+class GetPodcastEpisodesResponsePublishingRhythmWeekdayShift(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    from_day: int = Field(alias="fromDay")
+    to_day: int = Field(alias="toDay")
+    since: str
+
+
+class GetPodcastEpisodesResponsePublishingRhythm(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    start: datetime
+    end: datetime
+    days: list[GetPodcastEpisodesResponsePublishingRhythmDaysItem]
+    episode_count: int = Field(alias="episodeCount")
+    truncated: bool
+    median_runtime_seconds: float | None = Field(alias="medianRuntimeSeconds")
+    median_interval_days: float | None = Field(alias="medianIntervalDays")
+    empty_weeks: list[str] = Field(alias="emptyWeeks")
+    weekday_shift: GetPodcastEpisodesResponsePublishingRhythmWeekdayShift | None = Field(alias="weekdayShift")
 
 
 class GetPodcastEpisodesResponse(BaseModel):
@@ -1912,6 +1944,7 @@ class GetPodcastEpisodesResponse(BaseModel):
     total_episodes: float = Field(alias="totalEpisodes")
     total_transcripts: float = Field(alias="totalTranscripts")
     podcast_with_episodes: GetLatestEpisodesResponseLatestPodcastsItem = Field(alias="podcastWithEpisodes")
+    publishing_rhythm: GetPodcastEpisodesResponsePublishingRhythm | None = Field(default=None, alias="publishingRhythm")
 
 
 class GetPodcastRelatedPodcastsResponseRelatedPodcasts(BaseModel):
