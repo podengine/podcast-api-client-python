@@ -1848,6 +1848,14 @@ class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemThumbnails(Ba
     high: str | None
 
 
+class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemVideosItemEpisode(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    slug: str
+    title: str
+
+
 class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemVideosItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -1859,6 +1867,16 @@ class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemVideosItem(Ba
     title: str
     video_url: str = Field(alias="videoUrl")
     views: float
+    duration_seconds: float | None = Field(default=None, alias="durationSeconds")
+    duration_checked_at: Any | None = Field(default=None, alias="durationCheckedAt")
+    episode: GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemVideosItemEpisode | None = None
+
+
+class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemStatsHistoryItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    recorded_at: Any = Field(alias="recordedAt")
+    subscriber_count: float = Field(alias="subscriberCount")
 
 
 class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItem(BaseModel):
@@ -1886,6 +1904,9 @@ class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItem(BaseModel):
     last_video_upload_date_checked_at: Any | None = Field(alias="lastVideoUploadDateCheckedAt")
     association_tier: Literal["associated", "candidate", "unverified"] | None = Field(
         default=None, alias="associationTier"
+    )
+    stats_history: list[GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemStatsHistoryItem] | None = Field(
+        default=None, alias="statsHistory"
     )
 
 
