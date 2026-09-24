@@ -2716,10 +2716,28 @@ class RemoveListedPodcastFromProjectResponse(BaseModel):
     listed_podcast_id: str = Field(alias="listedPodcastId")
 
 
+class SearchAutocompletePodcastsResponsePodcastsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    author: str | None
+    authority_score: GetChartResponseChartPositionsItemPodenginePodcastAuthorityScore | None = Field(
+        alias="authorityScore"
+    )
+    genres: list[str]
+    id: str
+    image_url: str | None = Field(alias="imageUrl")
+    language: str
+    last_episode_published_at: Any = Field(alias="lastEpisodePublishedAt")
+    slug: str
+    title: str
+    title_latest: str = Field(alias="titleLatest")
+    episode_count: int | None = Field(alias="episodeCount")
+
+
 class SearchAutocompletePodcastsResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    podcasts: list[GetLatestEpisodesResponseLatestPodcastsItemPodcast]
+    podcasts: list[SearchAutocompletePodcastsResponsePodcastsItem]
     words: list[str]
 
 
