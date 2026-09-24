@@ -120,6 +120,20 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
             "category",
             "country",
             "positionsLimit",
+            "compare",
+            "date",
+        ),
+        body="none",
+        binary=False,
+    ),
+    "getChartAvailability": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/charts/availability",
+        path_params=(),
+        query_params=(
+            "chartType",
+            "category",
+            "country",
             "date",
         ),
         body="none",
@@ -134,6 +148,39 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
             "category",
             "country",
             "positionsLimit",
+            "compare",
+        ),
+        body="none",
+        binary=False,
+    ),
+    "getPodcastChartAppearances": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/charts/podcast-appearances",
+        path_params=(),
+        query_params=(
+            "identityType",
+            "podcastIdOrSlug",
+            "platformId",
+            "chartType",
+            "date",
+            "limit",
+        ),
+        body="none",
+        binary=False,
+    ),
+    "getPodcastChartHistory": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/charts/podcast-history",
+        path_params=(),
+        query_params=(
+            "identityType",
+            "podcastIdOrSlug",
+            "platformId",
+            "chartType",
+            "category",
+            "country",
+            "range",
+            "date",
         ),
         body="none",
         binary=False,
@@ -318,7 +365,9 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
             "category",
             "country",
             "positionsLimit",
+            "compare",
             "limit",
+            "date",
         ),
         body="none",
         binary=False,
@@ -643,7 +692,10 @@ _adapter_getAvailableCountriesByChartType: TypeAdapter[Any] = TypeAdapter(
 )
 _adapter_getCategoriesByChartType: TypeAdapter[Any] = TypeAdapter(models.GetCategoriesByChartTypeResponse)
 _adapter_getChart: TypeAdapter[Any] = TypeAdapter(models.GetChartResponse)
+_adapter_getChartAvailability: TypeAdapter[Any] = TypeAdapter(models.GetChartAvailabilityResponse)
 _adapter_getLatestChart: TypeAdapter[Any] = TypeAdapter(models.GetLatestChartResponse)
+_adapter_getPodcastChartAppearances: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartAppearancesResponse)
+_adapter_getPodcastChartHistory: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartHistoryResponse)
 _adapter_getEpisodeDetailsById: TypeAdapter[Any] = TypeAdapter(models.GetEpisodeDetailsByIdResponse)
 _adapter_getEpisodeTranscriptText: TypeAdapter[Any] = TypeAdapter(models.GetEpisodeTranscriptTextResponse)
 _adapter_getEpisodeTranscriptTextPreview: TypeAdapter[Any] = TypeAdapter(models.GetEpisodeTranscriptTextPreviewResponse)
@@ -961,6 +1013,7 @@ class ChartsResource:
         category: str | None = None,
         country: str | None = None,
         positions_limit: float | None = None,
+        compare: Literal["1d", "7d"] | None = None,
         date: str | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetChartResponse:
@@ -977,8 +1030,31 @@ class ChartsResource:
                     "category": category,
                     "country": country,
                     "positionsLimit": positions_limit,
+                    "compare": compare,
                     "date": date,
                 },
+                request_options,
+            )
+        )
+
+    def get_chart_availability(
+        self,
+        *,
+        chart_type: Literal["apple", "spotify"] | None = None,
+        category: str | None = None,
+        country: str | None = None,
+        date: str | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetChartAvailabilityResponse:
+        """
+        Chart Availability
+
+        Get the earliest, latest, previous and next chart dates around a selected date
+        """
+        return _adapter_getChartAvailability.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getChartAvailability"],
+                {"chartType": chart_type, "category": category, "country": country, "date": date},
                 request_options,
             )
         )
@@ -990,6 +1066,7 @@ class ChartsResource:
         category: str | None = None,
         country: str | None = None,
         positions_limit: float | None = None,
+        compare: Literal["1d", "7d"] | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetLatestChartResponse:
         """
@@ -1000,7 +1077,79 @@ class ChartsResource:
         return _adapter_getLatestChart.validate_python(
             self._core.request(
                 _DESCRIPTORS["getLatestChart"],
-                {"chartType": chart_type, "category": category, "country": country, "positionsLimit": positions_limit},
+                {
+                    "chartType": chart_type,
+                    "category": category,
+                    "country": country,
+                    "positionsLimit": positions_limit,
+                    "compare": compare,
+                },
+                request_options,
+            )
+        )
+
+    def get_podcast_chart_appearances(
+        self,
+        *,
+        identity_type: Literal["podcast", "platform"],
+        date: str,
+        podcast_id_or_slug: str | None = None,
+        platform_id: str | None = None,
+        chart_type: Literal["apple", "spotify"] | None = None,
+        limit: int | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastChartAppearancesResponse:
+        """
+        Podcast Chart Appearances
+
+        Get every chart a podcast is on for one date, ordered by position, with the total count
+        """
+        return _adapter_getPodcastChartAppearances.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getPodcastChartAppearances"],
+                {
+                    "identityType": identity_type,
+                    "podcastIdOrSlug": podcast_id_or_slug,
+                    "platformId": platform_id,
+                    "chartType": chart_type,
+                    "date": date,
+                    "limit": limit,
+                },
+                request_options,
+            )
+        )
+
+    def get_podcast_chart_history(
+        self,
+        *,
+        identity_type: Literal["podcast", "platform"],
+        podcast_id_or_slug: str | None = None,
+        platform_id: str | None = None,
+        chart_type: Literal["apple", "spotify"] | None = None,
+        category: str | None = None,
+        country: str | None = None,
+        range: Literal["30d", "90d", "6m", "1y", "all"] | None = None,
+        date: str | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastChartHistoryResponse:
+        """
+        Podcast Chart History
+
+        Get a podcast's rank history on one chart: daily ranks for 30 or 90 days, weekly buckets for longer ranges, with range stats and coverage gaps
+        """
+        return _adapter_getPodcastChartHistory.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getPodcastChartHistory"],
+                {
+                    "identityType": identity_type,
+                    "podcastIdOrSlug": podcast_id_or_slug,
+                    "platformId": platform_id,
+                    "chartType": chart_type,
+                    "category": category,
+                    "country": country,
+                    "range": range,
+                    "date": date,
+                },
                 request_options,
             )
         )
@@ -1471,7 +1620,9 @@ class PodcastsResource:
         category: str | None = None,
         country: str | None = None,
         positions_limit: float | None = None,
-        limit: float | None = None,
+        compare: Literal["1d", "7d"] | None = None,
+        limit: int | None = None,
+        date: str | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastChartsResponse:
         """
@@ -1488,7 +1639,9 @@ class PodcastsResource:
                     "category": category,
                     "country": country,
                     "positionsLimit": positions_limit,
+                    "compare": compare,
                     "limit": limit,
+                    "date": date,
                 },
                 request_options,
             )
@@ -2674,6 +2827,7 @@ class AsyncChartsResource:
         category: str | None = None,
         country: str | None = None,
         positions_limit: float | None = None,
+        compare: Literal["1d", "7d"] | None = None,
         date: str | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetChartResponse:
@@ -2690,8 +2844,31 @@ class AsyncChartsResource:
                     "category": category,
                     "country": country,
                     "positionsLimit": positions_limit,
+                    "compare": compare,
                     "date": date,
                 },
+                request_options,
+            )
+        )
+
+    async def get_chart_availability(
+        self,
+        *,
+        chart_type: Literal["apple", "spotify"] | None = None,
+        category: str | None = None,
+        country: str | None = None,
+        date: str | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetChartAvailabilityResponse:
+        """
+        Chart Availability
+
+        Get the earliest, latest, previous and next chart dates around a selected date
+        """
+        return _adapter_getChartAvailability.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getChartAvailability"],
+                {"chartType": chart_type, "category": category, "country": country, "date": date},
                 request_options,
             )
         )
@@ -2703,6 +2880,7 @@ class AsyncChartsResource:
         category: str | None = None,
         country: str | None = None,
         positions_limit: float | None = None,
+        compare: Literal["1d", "7d"] | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetLatestChartResponse:
         """
@@ -2713,7 +2891,79 @@ class AsyncChartsResource:
         return _adapter_getLatestChart.validate_python(
             await self._core.request(
                 _DESCRIPTORS["getLatestChart"],
-                {"chartType": chart_type, "category": category, "country": country, "positionsLimit": positions_limit},
+                {
+                    "chartType": chart_type,
+                    "category": category,
+                    "country": country,
+                    "positionsLimit": positions_limit,
+                    "compare": compare,
+                },
+                request_options,
+            )
+        )
+
+    async def get_podcast_chart_appearances(
+        self,
+        *,
+        identity_type: Literal["podcast", "platform"],
+        date: str,
+        podcast_id_or_slug: str | None = None,
+        platform_id: str | None = None,
+        chart_type: Literal["apple", "spotify"] | None = None,
+        limit: int | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastChartAppearancesResponse:
+        """
+        Podcast Chart Appearances
+
+        Get every chart a podcast is on for one date, ordered by position, with the total count
+        """
+        return _adapter_getPodcastChartAppearances.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getPodcastChartAppearances"],
+                {
+                    "identityType": identity_type,
+                    "podcastIdOrSlug": podcast_id_or_slug,
+                    "platformId": platform_id,
+                    "chartType": chart_type,
+                    "date": date,
+                    "limit": limit,
+                },
+                request_options,
+            )
+        )
+
+    async def get_podcast_chart_history(
+        self,
+        *,
+        identity_type: Literal["podcast", "platform"],
+        podcast_id_or_slug: str | None = None,
+        platform_id: str | None = None,
+        chart_type: Literal["apple", "spotify"] | None = None,
+        category: str | None = None,
+        country: str | None = None,
+        range: Literal["30d", "90d", "6m", "1y", "all"] | None = None,
+        date: str | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastChartHistoryResponse:
+        """
+        Podcast Chart History
+
+        Get a podcast's rank history on one chart: daily ranks for 30 or 90 days, weekly buckets for longer ranges, with range stats and coverage gaps
+        """
+        return _adapter_getPodcastChartHistory.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getPodcastChartHistory"],
+                {
+                    "identityType": identity_type,
+                    "podcastIdOrSlug": podcast_id_or_slug,
+                    "platformId": platform_id,
+                    "chartType": chart_type,
+                    "category": category,
+                    "country": country,
+                    "range": range,
+                    "date": date,
+                },
                 request_options,
             )
         )
@@ -3194,7 +3444,9 @@ class AsyncPodcastsResource:
         category: str | None = None,
         country: str | None = None,
         positions_limit: float | None = None,
-        limit: float | None = None,
+        compare: Literal["1d", "7d"] | None = None,
+        limit: int | None = None,
+        date: str | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastChartsResponse:
         """
@@ -3211,7 +3463,9 @@ class AsyncPodcastsResource:
                     "category": category,
                     "country": country,
                     "positionsLimit": positions_limit,
+                    "compare": compare,
                     "limit": limit,
+                    "date": date,
                 },
                 request_options,
             )

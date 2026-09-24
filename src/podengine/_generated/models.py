@@ -565,7 +565,15 @@ class GetChartResponseOptions(BaseModel):
     category: str | None = None
     country: str | None = None
     positions_limit: float | None = Field(default=None, alias="positionsLimit")
+    compare: Literal["1d", "7d"] | None = None
     date: str | None = None
+
+
+class GetChartResponseChartChartHistoryWindow(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    dates: list[str]
+    coverage: list[Literal["complete", "unresolved_identities", "incomplete", "no_chart"]]
 
 
 class GetChartResponseChartChart(BaseModel):
@@ -575,6 +583,21 @@ class GetChartResponseChartChart(BaseModel):
     category: str
     country: str
     chart_date: str = Field(alias="chartDate")
+    total_positions: float = Field(alias="totalPositions")
+    unresolved_positions: float = Field(alias="unresolvedPositions")
+    observed_depth: float = Field(alias="observedDepth")
+    coverage_status: Literal["complete", "unresolved_identities", "incomplete"] = Field(alias="coverageStatus")
+    compare: Literal["1d", "7d"]
+    requested_compare_date: str = Field(alias="requestedCompareDate")
+    compare_chart_date: str | None = Field(alias="compareChartDate")
+    comparison_status: Literal["available", "unavailable"] = Field(alias="comparisonStatus")
+    comparison_unavailable_reason: Literal["no_earlier_chart"] | None = Field(alias="comparisonUnavailableReason")
+    compare_chart_observed_depth: float | None = Field(alias="compareChartObservedDepth")
+    compare_chart_coverage_status: Literal["complete", "unresolved_identities", "incomplete"] | None = Field(
+        alias="compareChartCoverageStatus"
+    )
+    entry_exit_confirmable: bool = Field(alias="entryExitConfirmable")
+    history_window: GetChartResponseChartChartHistoryWindow = Field(alias="historyWindow")
 
 
 class GetChartResponseChartPositionsItemPodcastOnChart(BaseModel):
@@ -582,6 +605,7 @@ class GetChartResponseChartPositionsItemPodcastOnChart(BaseModel):
 
     podcast_on_chart_id: str = Field(alias="podcastOnChartId")
     title: str
+    creator: str | None
     image_url: str | None = Field(alias="imageUrl")
 
 
@@ -620,6 +644,16 @@ class GetChartResponseChartPositionsItem(BaseModel):
     estimated_monthly_listeners: int | None = Field(alias="estimatedMonthlyListeners")
     podcast_on_chart: GetChartResponseChartPositionsItemPodcastOnChart = Field(alias="podcastOnChart")
     podengine_podcast: GetChartResponseChartPositionsItemPodenginePodcast | None = Field(alias="podenginePodcast")
+    previous_position: float | None = Field(alias="previousPosition")
+    position_change: float | None = Field(alias="positionChange")
+    is_new: bool | None = Field(alias="isNew")
+    movement: Literal["up", "down", "unchanged", "entered", "unknown"]
+    history30d: list[float | None]
+    history30d_status: list[Literal["observed", "off_chart", "no_chart", "unknown"]] = Field(alias="history30dStatus")
+    peak_position30d: float | None = Field(alias="peakPosition30d")
+    days_charted30d: float = Field(alias="daysCharted30d")
+    charts_in_window30d: float = Field(alias="chartsInWindow30d")
+    unknown_days30d: float = Field(alias="unknownDays30d")
 
 
 class GetChartResponseChart(BaseModel):
@@ -643,6 +677,7 @@ class GetLatestChartResponseOptions(BaseModel):
     category: str | None = None
     country: str | None = None
     positions_limit: float | None = Field(default=None, alias="positionsLimit")
+    compare: Literal["1d", "7d"] | None = None
 
 
 class GetLatestChartResponse(BaseModel):
@@ -650,6 +685,193 @@ class GetLatestChartResponse(BaseModel):
 
     options: GetLatestChartResponseOptions
     chart: GetChartResponseChart | None
+
+
+class GetChartAvailabilityResponseOptions(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    chart_type: Literal["apple", "spotify"] | None = Field(default=None, alias="chartType")
+    category: str | None = None
+    country: str | None = None
+    date: str | None = None
+
+
+class GetChartAvailabilityResponseAvailability(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    earliest_chart_date: str | None = Field(alias="earliestChartDate")
+    latest_chart_date: str | None = Field(alias="latestChartDate")
+    selected_date: str | None = Field(alias="selectedDate")
+    selected_date_available: bool = Field(alias="selectedDateAvailable")
+    previous_chart_date: str | None = Field(alias="previousChartDate")
+    next_chart_date: str | None = Field(alias="nextChartDate")
+
+
+class GetChartAvailabilityResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    options: GetChartAvailabilityResponseOptions
+    availability: GetChartAvailabilityResponseAvailability
+
+
+class GetPodcastChartHistoryResponseHistoryPodcastOnChart(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    platform_id: str = Field(alias="platformId")
+    title: str
+    creator: str | None
+    image_url: str | None = Field(alias="imageUrl")
+
+
+class GetPodcastChartHistoryResponseHistoryIdentityVariant1(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    type: Literal["podcast"]
+    podcast_id: str = Field(alias="podcastId")
+    slug: str
+
+
+class GetPodcastChartHistoryResponseHistoryIdentityVariant2(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    type: Literal["platform"]
+    chart_type: Literal["apple", "spotify"] = Field(alias="chartType")
+    platform_id: str = Field(alias="platformId")
+
+
+class GetPodcastChartHistoryResponseHistoryChart(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    chart_type: Literal["apple", "spotify"] = Field(alias="chartType")
+    category: str
+    country: str
+    earliest_chart_date: str = Field(alias="earliestChartDate")
+    latest_chart_date: str = Field(alias="latestChartDate")
+
+
+class GetPodcastChartHistoryResponseHistoryRange(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    range: Literal["30d", "90d", "6m", "1y", "all"]
+    start_date: str = Field(alias="startDate")
+    end_date: str = Field(alias="endDate")
+
+
+class GetPodcastChartHistoryResponseHistoryStatsStreak(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    days: float | None
+    end_date_status: Literal["observed", "off_chart", "no_chart", "unknown"] = Field(alias="endDateStatus")
+    start_date: str | None = Field(alias="startDate")
+    bounded_by_missing_coverage: bool = Field(alias="boundedByMissingCoverage")
+
+
+class GetPodcastChartHistoryResponseHistoryStats(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    best_position: float | None = Field(alias="bestPosition")
+    average_position_when_charting: float | None = Field(alias="averagePositionWhenCharting")
+    days_on_chart: float = Field(alias="daysOnChart")
+    chart_days: float = Field(alias="chartDays")
+    off_chart_days: float = Field(alias="offChartDays")
+    unknown_days: float = Field(alias="unknownDays")
+    missing_days: float = Field(alias="missingDays")
+    calendar_days: float = Field(alias="calendarDays")
+    first_seen_date: str | None = Field(alias="firstSeenDate")
+    last_seen_date: str | None = Field(alias="lastSeenDate")
+    streak: GetPodcastChartHistoryResponseHistoryStatsStreak
+
+
+class GetPodcastChartHistoryResponseHistorySeriesVariant1PointsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str
+    position: float | None
+    status: Literal["observed", "off_chart", "no_chart", "unknown"]
+    chart_coverage: Literal["complete", "unresolved_identities", "incomplete", "no_chart"] = Field(
+        alias="chartCoverage"
+    )
+
+
+class GetPodcastChartHistoryResponseHistorySeriesVariant1(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    resolution: Literal["daily"]
+    points: list[GetPodcastChartHistoryResponseHistorySeriesVariant1PointsItem]
+
+
+class GetPodcastChartHistoryResponseHistorySeriesVariant2BucketsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    start_date: str = Field(alias="startDate")
+    end_date: str = Field(alias="endDate")
+    is_partial: bool = Field(alias="isPartial")
+    calendar_days: float = Field(alias="calendarDays")
+    best_position: float | None = Field(alias="bestPosition")
+    average_position: float | None = Field(alias="averagePosition")
+    days_charted: float = Field(alias="daysCharted")
+    chart_days: float = Field(alias="chartDays")
+    off_chart_days: float = Field(alias="offChartDays")
+    unknown_days: float = Field(alias="unknownDays")
+    missing_dates: list[str] = Field(alias="missingDates")
+    has_coverage_gaps: bool = Field(alias="hasCoverageGaps")
+
+
+class GetPodcastChartHistoryResponseHistorySeriesVariant2(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    resolution: Literal["weekly"]
+    buckets: list[GetPodcastChartHistoryResponseHistorySeriesVariant2BucketsItem]
+
+
+class GetPodcastChartHistoryResponseHistory(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    podengine_podcast: GetChartResponseChartPositionsItemPodenginePodcast | None = Field(alias="podenginePodcast")
+    podcast_on_chart: GetPodcastChartHistoryResponseHistoryPodcastOnChart | None = Field(alias="podcastOnChart")
+    identity: (
+        GetPodcastChartHistoryResponseHistoryIdentityVariant1 | GetPodcastChartHistoryResponseHistoryIdentityVariant2
+    )
+    chart: GetPodcastChartHistoryResponseHistoryChart
+    range: GetPodcastChartHistoryResponseHistoryRange
+    stats: GetPodcastChartHistoryResponseHistoryStats
+    series: GetPodcastChartHistoryResponseHistorySeriesVariant1 | GetPodcastChartHistoryResponseHistorySeriesVariant2
+
+
+class GetPodcastChartHistoryResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    history: GetPodcastChartHistoryResponseHistory
+
+
+class GetPodcastChartAppearancesResponseAppearancesAppearancesItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    chart_date: str = Field(alias="chartDate")
+    chart_type: Literal["apple", "spotify"] = Field(alias="chartType")
+    country: str
+    category: str
+    position: float
+
+
+class GetPodcastChartAppearancesResponseAppearances(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    podengine_podcast: GetChartResponseChartPositionsItemPodenginePodcast | None = Field(alias="podenginePodcast")
+    podcast_on_chart: GetPodcastChartHistoryResponseHistoryPodcastOnChart | None = Field(alias="podcastOnChart")
+    identity: (
+        GetPodcastChartHistoryResponseHistoryIdentityVariant1 | GetPodcastChartHistoryResponseHistoryIdentityVariant2
+    )
+    chart_type: Literal["apple", "spotify"] = Field(alias="chartType")
+    date: str
+    total_count: float = Field(alias="totalCount")
+    appearances: list[GetPodcastChartAppearancesResponseAppearancesAppearancesItem]
+
+
+class GetPodcastChartAppearancesResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    appearances: GetPodcastChartAppearancesResponseAppearances
 
 
 class GetCategoriesByChartTypeResponse(BaseModel):
@@ -1830,16 +2052,6 @@ class GetPodcastAllDetailsResponsePodcastRelatedPodcasts(BaseModel):
     similar_podcasts: list[GetLatestEpisodesResponseLatestPodcastsItemPodcast] = Field(alias="similarPodcasts")
 
 
-class GetPodcastAllDetailsResponsePodcastChartPositionsItem(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    chart_date: str = Field(alias="chartDate")
-    chart_type: Literal["apple", "spotify"] = Field(alias="chartType")
-    country: str
-    category: str
-    position: float
-
-
 class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemThumbnails(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -1930,7 +2142,9 @@ class GetPodcastAllDetailsResponsePodcast(BaseModel):
     social_media: GetPodcastAllDetailsResponsePodcastSocialMedia | None = Field(alias="socialMedia")
     sponsors: GetPodcastAllDetailsResponsePodcastSponsors | None
     related_podcasts: GetPodcastAllDetailsResponsePodcastRelatedPodcasts | None = Field(alias="relatedPodcasts")
-    chart_positions: list[GetPodcastAllDetailsResponsePodcastChartPositionsItem] | None = Field(alias="chartPositions")
+    chart_positions: list[GetPodcastChartAppearancesResponseAppearancesAppearancesItem] | None = Field(
+        alias="chartPositions"
+    )
     youtube_data: GetPodcastAllDetailsResponsePodcastYoutubeData | None = Field(alias="youtubeData")
 
 
@@ -2060,7 +2274,9 @@ class GetPodcastChartsResponseOptions(BaseModel):
     category: str | None = None
     country: str | None = None
     positions_limit: float | None = Field(default=None, alias="positionsLimit")
-    limit: float | None = None
+    compare: Literal["1d", "7d"] | None = None
+    limit: int | None = None
+    date: str | None = None
 
 
 class GetPodcastChartsResponse(BaseModel):
@@ -2069,7 +2285,7 @@ class GetPodcastChartsResponse(BaseModel):
     podcast: GetLatestEpisodesResponseLatestPodcastsItemPodcast
     options: GetPodcastChartsResponseOptions
     total_charts: float = Field(alias="totalCharts")
-    positions: list[GetPodcastAllDetailsResponsePodcastChartPositionsItem]
+    positions: list[GetPodcastChartAppearancesResponseAppearancesAppearancesItem]
 
 
 class GetPodcastSocialMediaDetailsResponseSocialMediaData(BaseModel):
