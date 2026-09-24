@@ -383,6 +383,8 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
             "country",
             "limit",
             "offset",
+            "minRating",
+            "maxRating",
         ),
         body="none",
         binary=False,
@@ -1598,6 +1600,8 @@ class PodcastsResource:
         country: Literal["us", "gb", "au", "ca"] | None = None,
         limit: float | None = None,
         offset: float | None = None,
+        min_rating: int | None = None,
+        max_rating: int | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastReviewsResponse:
         """
@@ -1608,7 +1612,14 @@ class PodcastsResource:
         return _adapter_getPodcastReviews.validate_python(
             self._core.request(
                 _DESCRIPTORS["getPodcastReviews"],
-                {"podcastIdOrSlug": podcast_id_or_slug, "country": country, "limit": limit, "offset": offset},
+                {
+                    "podcastIdOrSlug": podcast_id_or_slug,
+                    "country": country,
+                    "limit": limit,
+                    "offset": offset,
+                    "minRating": min_rating,
+                    "maxRating": max_rating,
+                },
                 request_options,
             )
         )
@@ -3312,6 +3323,8 @@ class AsyncPodcastsResource:
         country: Literal["us", "gb", "au", "ca"] | None = None,
         limit: float | None = None,
         offset: float | None = None,
+        min_rating: int | None = None,
+        max_rating: int | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastReviewsResponse:
         """
@@ -3322,7 +3335,14 @@ class AsyncPodcastsResource:
         return _adapter_getPodcastReviews.validate_python(
             await self._core.request(
                 _DESCRIPTORS["getPodcastReviews"],
-                {"podcastIdOrSlug": podcast_id_or_slug, "country": country, "limit": limit, "offset": offset},
+                {
+                    "podcastIdOrSlug": podcast_id_or_slug,
+                    "country": country,
+                    "limit": limit,
+                    "offset": offset,
+                    "minRating": min_rating,
+                    "maxRating": max_rating,
+                },
                 request_options,
             )
         )
