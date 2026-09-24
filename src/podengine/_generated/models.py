@@ -841,6 +841,107 @@ class GetChartMovementResponse(BaseModel):
     movement: GetChartMovementResponseMovement | None
 
 
+class GetChartRankHistoryResponseOptions(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    chart_type: Literal["apple", "spotify"] | None = Field(default=None, alias="chartType")
+    category: str | None = None
+    country: str | None = None
+    end_date: str | None = Field(default=None, alias="endDate")
+    days: int | None = None
+    rows: int | None = None
+
+
+class GetChartRankHistoryResponseHistoryChartEndChart(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    total_positions: float = Field(alias="totalPositions")
+    unresolved_positions: float = Field(alias="unresolvedPositions")
+    observed_depth: float = Field(alias="observedDepth")
+    coverage_status: Literal["complete", "unresolved_identities", "incomplete"] = Field(alias="coverageStatus")
+
+
+class GetChartRankHistoryResponseHistoryChartCoverage(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    calendar_days: float = Field(alias="calendarDays")
+    chart_days: float = Field(alias="chartDays")
+    missing_days: float = Field(alias="missingDays")
+    complete_days: float = Field(alias="completeDays")
+    unresolved_identity_days: float = Field(alias="unresolvedIdentityDays")
+    incomplete_days: float = Field(alias="incompleteDays")
+    min_observed_depth: float | None = Field(alias="minObservedDepth")
+    max_observed_depth: float | None = Field(alias="maxObservedDepth")
+    depth_changed: bool = Field(alias="depthChanged")
+
+
+class GetChartRankHistoryResponseHistoryChart(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    chart_type: Literal["apple", "spotify"] = Field(alias="chartType")
+    category: str
+    country: str
+    start_date: str = Field(alias="startDate")
+    end_date: str = Field(alias="endDate")
+    days: float
+    end_date_status: Literal["available", "no_chart"] = Field(alias="endDateStatus")
+    end_chart: GetChartRankHistoryResponseHistoryChartEndChart | None = Field(alias="endChart")
+    requested_rows: float = Field(alias="requestedRows")
+    actual_rows: float = Field(alias="actualRows")
+    coverage: GetChartRankHistoryResponseHistoryChartCoverage
+
+
+class GetChartRankHistoryResponseHistoryDatesItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str
+    coverage: Literal["complete", "unresolved_identities", "incomplete", "no_chart"]
+    observed_depth: float | None = Field(alias="observedDepth")
+    total_positions: float | None = Field(alias="totalPositions")
+    unresolved_positions: float | None = Field(alias="unresolvedPositions")
+
+
+class GetChartRankHistoryResponseHistoryRowsItemRanksItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    position: float | None
+    status: Literal["observed", "off_chart", "no_chart", "unknown"]
+
+
+class GetChartRankHistoryResponseHistoryRowsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    podengine_podcast: GetChartResponseChartPositionsItemPodenginePodcast | None = Field(alias="podenginePodcast")
+    position: float
+    identity: (
+        GetChartMovementResponseMovementClimbersItemsItemIdentityVariant1
+        | GetChartMovementResponseMovementClimbersItemsItemIdentityVariant2
+    )
+    platform_id: str | None = Field(alias="platformId")
+    title: str
+    creator: str | None
+    image_url: str | None = Field(alias="imageUrl")
+    ranks: list[GetChartRankHistoryResponseHistoryRowsItemRanksItem]
+    best_position: float | None = Field(alias="bestPosition")
+    days_charted: float = Field(alias="daysCharted")
+    unknown_days: float = Field(alias="unknownDays")
+
+
+class GetChartRankHistoryResponseHistory(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    chart: GetChartRankHistoryResponseHistoryChart
+    dates: list[GetChartRankHistoryResponseHistoryDatesItem]
+    rows: list[GetChartRankHistoryResponseHistoryRowsItem]
+
+
+class GetChartRankHistoryResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    options: GetChartRankHistoryResponseOptions
+    history: GetChartRankHistoryResponseHistory | None
+
+
 class GetPodcastChartHistoryResponseHistoryPodcastOnChart(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 

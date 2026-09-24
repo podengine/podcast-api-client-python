@@ -154,6 +154,21 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         body="none",
         binary=False,
     ),
+    "getChartRankHistory": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/charts/history",
+        path_params=(),
+        query_params=(
+            "chartType",
+            "category",
+            "country",
+            "endDate",
+            "days",
+            "rows",
+        ),
+        body="none",
+        binary=False,
+    ),
     "getLatestChart": EndpointDescriptor(
         method="GET",
         path="/api/v1/charts/latest",
@@ -709,6 +724,7 @@ _adapter_getCategoriesByChartType: TypeAdapter[Any] = TypeAdapter(models.GetCate
 _adapter_getChart: TypeAdapter[Any] = TypeAdapter(models.GetChartResponse)
 _adapter_getChartAvailability: TypeAdapter[Any] = TypeAdapter(models.GetChartAvailabilityResponse)
 _adapter_getChartMovement: TypeAdapter[Any] = TypeAdapter(models.GetChartMovementResponse)
+_adapter_getChartRankHistory: TypeAdapter[Any] = TypeAdapter(models.GetChartRankHistoryResponse)
 _adapter_getLatestChart: TypeAdapter[Any] = TypeAdapter(models.GetLatestChartResponse)
 _adapter_getPodcastChartAppearances: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartAppearancesResponse)
 _adapter_getPodcastChartHistory: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartHistoryResponse)
@@ -1101,6 +1117,37 @@ class ChartsResource:
                     "date": date,
                     "compare": compare,
                     "limit": limit,
+                },
+                request_options,
+            )
+        )
+
+    def get_chart_rank_history(
+        self,
+        *,
+        chart_type: Literal["apple", "spotify"] | None = None,
+        category: str | None = None,
+        country: str | None = None,
+        end_date: str | None = None,
+        days: int | None = None,
+        rows: int | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetChartRankHistoryResponse:
+        """
+        Chart Rank History
+
+        Get the daily ranks of a chart's top shows on the end date over the preceding 7 to 90 days, with each day's chart coverage
+        """
+        return _adapter_getChartRankHistory.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getChartRankHistory"],
+                {
+                    "chartType": chart_type,
+                    "category": category,
+                    "country": country,
+                    "endDate": end_date,
+                    "days": days,
+                    "rows": rows,
                 },
                 request_options,
             )
@@ -2946,6 +2993,37 @@ class AsyncChartsResource:
                     "date": date,
                     "compare": compare,
                     "limit": limit,
+                },
+                request_options,
+            )
+        )
+
+    async def get_chart_rank_history(
+        self,
+        *,
+        chart_type: Literal["apple", "spotify"] | None = None,
+        category: str | None = None,
+        country: str | None = None,
+        end_date: str | None = None,
+        days: int | None = None,
+        rows: int | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetChartRankHistoryResponse:
+        """
+        Chart Rank History
+
+        Get the daily ranks of a chart's top shows on the end date over the preceding 7 to 90 days, with each day's chart coverage
+        """
+        return _adapter_getChartRankHistory.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getChartRankHistory"],
+                {
+                    "chartType": chart_type,
+                    "category": category,
+                    "country": country,
+                    "endDate": end_date,
+                    "days": days,
+                    "rows": rows,
                 },
                 request_options,
             )
