@@ -714,16 +714,41 @@ class GetChartAvailabilityResponse(BaseModel):
     availability: GetChartAvailabilityResponseAvailability
 
 
-class GetPodcastChartHistoryResponseHistoryPodcastOnChart(BaseModel):
+class GetChartMovementResponseOptions(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    platform_id: str = Field(alias="platformId")
-    title: str
-    creator: str | None
-    image_url: str | None = Field(alias="imageUrl")
+    chart_type: Literal["apple", "spotify"] | None = Field(default=None, alias="chartType")
+    category: str | None = None
+    country: str | None = None
+    date: str | None = None
+    compare: Literal["1d", "7d"] | None = None
+    limit: int | None = None
 
 
-class GetPodcastChartHistoryResponseHistoryIdentityVariant1(BaseModel):
+class GetChartMovementResponseMovementChart(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    chart_type: Literal["apple", "spotify"] = Field(alias="chartType")
+    category: str
+    country: str
+    chart_date: str = Field(alias="chartDate")
+    total_positions: float = Field(alias="totalPositions")
+    unresolved_positions: float = Field(alias="unresolvedPositions")
+    observed_depth: float = Field(alias="observedDepth")
+    coverage_status: Literal["complete", "unresolved_identities", "incomplete"] = Field(alias="coverageStatus")
+    compare: Literal["1d", "7d"]
+    requested_compare_date: str = Field(alias="requestedCompareDate")
+    compare_chart_date: str | None = Field(alias="compareChartDate")
+    comparison_status: Literal["available", "unavailable"] = Field(alias="comparisonStatus")
+    comparison_unavailable_reason: Literal["no_earlier_chart"] | None = Field(alias="comparisonUnavailableReason")
+    compare_chart_observed_depth: float | None = Field(alias="compareChartObservedDepth")
+    compare_chart_coverage_status: Literal["complete", "unresolved_identities", "incomplete"] | None = Field(
+        alias="compareChartCoverageStatus"
+    )
+    entry_exit_confirmable: bool = Field(alias="entryExitConfirmable")
+
+
+class GetChartMovementResponseMovementClimbersItemsItemIdentityVariant1(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     type: Literal["podcast"]
@@ -731,12 +756,98 @@ class GetPodcastChartHistoryResponseHistoryIdentityVariant1(BaseModel):
     slug: str
 
 
-class GetPodcastChartHistoryResponseHistoryIdentityVariant2(BaseModel):
+class GetChartMovementResponseMovementClimbersItemsItemIdentityVariant2(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     type: Literal["platform"]
     chart_type: Literal["apple", "spotify"] = Field(alias="chartType")
     platform_id: str = Field(alias="platformId")
+
+
+class GetChartMovementResponseMovementClimbersItemsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    podengine_podcast: GetChartResponseChartPositionsItemPodenginePodcast | None = Field(alias="podenginePodcast")
+    identity: (
+        GetChartMovementResponseMovementClimbersItemsItemIdentityVariant1
+        | GetChartMovementResponseMovementClimbersItemsItemIdentityVariant2
+    )
+    title: str
+    creator: str | None
+    image_url: str | None = Field(alias="imageUrl")
+    position: float | None
+    previous_position: float | None = Field(alias="previousPosition")
+    position_change: float | None = Field(alias="positionChange")
+
+
+class GetChartMovementResponseMovementClimbers(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    status: Literal["available", "unavailable"]
+    unavailable_reason: Literal["no_earlier_chart", "depth_changed", "incomplete_coverage"] | None = Field(
+        alias="unavailableReason"
+    )
+    total_count: float = Field(alias="totalCount")
+    items: list[GetChartMovementResponseMovementClimbersItemsItem]
+
+
+class GetChartMovementResponseMovementFallers(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    status: Literal["available", "unavailable"]
+    unavailable_reason: Literal["no_earlier_chart", "depth_changed", "incomplete_coverage"] | None = Field(
+        alias="unavailableReason"
+    )
+    total_count: float = Field(alias="totalCount")
+    items: list[GetChartMovementResponseMovementClimbersItemsItem]
+
+
+class GetChartMovementResponseMovementNewEntries(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    status: Literal["available", "unavailable"]
+    unavailable_reason: Literal["no_earlier_chart", "depth_changed", "incomplete_coverage"] | None = Field(
+        alias="unavailableReason"
+    )
+    total_count: float = Field(alias="totalCount")
+    items: list[GetChartMovementResponseMovementClimbersItemsItem]
+
+
+class GetChartMovementResponseMovementDroppedOff(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    status: Literal["available", "unavailable"]
+    unavailable_reason: Literal["no_earlier_chart", "depth_changed", "incomplete_coverage"] | None = Field(
+        alias="unavailableReason"
+    )
+    total_count: float = Field(alias="totalCount")
+    items: list[GetChartMovementResponseMovementClimbersItemsItem]
+
+
+class GetChartMovementResponseMovement(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    chart: GetChartMovementResponseMovementChart
+    climbers: GetChartMovementResponseMovementClimbers
+    fallers: GetChartMovementResponseMovementFallers
+    new_entries: GetChartMovementResponseMovementNewEntries = Field(alias="newEntries")
+    dropped_off: GetChartMovementResponseMovementDroppedOff = Field(alias="droppedOff")
+
+
+class GetChartMovementResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    options: GetChartMovementResponseOptions
+    movement: GetChartMovementResponseMovement | None
+
+
+class GetPodcastChartHistoryResponseHistoryPodcastOnChart(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    platform_id: str = Field(alias="platformId")
+    title: str
+    creator: str | None
+    image_url: str | None = Field(alias="imageUrl")
 
 
 class GetPodcastChartHistoryResponseHistoryChart(BaseModel):
@@ -830,7 +941,8 @@ class GetPodcastChartHistoryResponseHistory(BaseModel):
     podengine_podcast: GetChartResponseChartPositionsItemPodenginePodcast | None = Field(alias="podenginePodcast")
     podcast_on_chart: GetPodcastChartHistoryResponseHistoryPodcastOnChart | None = Field(alias="podcastOnChart")
     identity: (
-        GetPodcastChartHistoryResponseHistoryIdentityVariant1 | GetPodcastChartHistoryResponseHistoryIdentityVariant2
+        GetChartMovementResponseMovementClimbersItemsItemIdentityVariant1
+        | GetChartMovementResponseMovementClimbersItemsItemIdentityVariant2
     )
     chart: GetPodcastChartHistoryResponseHistoryChart
     range: GetPodcastChartHistoryResponseHistoryRange
@@ -860,7 +972,8 @@ class GetPodcastChartAppearancesResponseAppearances(BaseModel):
     podengine_podcast: GetChartResponseChartPositionsItemPodenginePodcast | None = Field(alias="podenginePodcast")
     podcast_on_chart: GetPodcastChartHistoryResponseHistoryPodcastOnChart | None = Field(alias="podcastOnChart")
     identity: (
-        GetPodcastChartHistoryResponseHistoryIdentityVariant1 | GetPodcastChartHistoryResponseHistoryIdentityVariant2
+        GetChartMovementResponseMovementClimbersItemsItemIdentityVariant1
+        | GetChartMovementResponseMovementClimbersItemsItemIdentityVariant2
     )
     chart_type: Literal["apple", "spotify"] = Field(alias="chartType")
     date: str

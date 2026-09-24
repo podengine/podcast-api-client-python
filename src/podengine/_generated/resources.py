@@ -139,6 +139,21 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         body="none",
         binary=False,
     ),
+    "getChartMovement": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/charts/movement",
+        path_params=(),
+        query_params=(
+            "chartType",
+            "category",
+            "country",
+            "date",
+            "compare",
+            "limit",
+        ),
+        body="none",
+        binary=False,
+    ),
     "getLatestChart": EndpointDescriptor(
         method="GET",
         path="/api/v1/charts/latest",
@@ -693,6 +708,7 @@ _adapter_getAvailableCountriesByChartType: TypeAdapter[Any] = TypeAdapter(
 _adapter_getCategoriesByChartType: TypeAdapter[Any] = TypeAdapter(models.GetCategoriesByChartTypeResponse)
 _adapter_getChart: TypeAdapter[Any] = TypeAdapter(models.GetChartResponse)
 _adapter_getChartAvailability: TypeAdapter[Any] = TypeAdapter(models.GetChartAvailabilityResponse)
+_adapter_getChartMovement: TypeAdapter[Any] = TypeAdapter(models.GetChartMovementResponse)
 _adapter_getLatestChart: TypeAdapter[Any] = TypeAdapter(models.GetLatestChartResponse)
 _adapter_getPodcastChartAppearances: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartAppearancesResponse)
 _adapter_getPodcastChartHistory: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartHistoryResponse)
@@ -1055,6 +1071,37 @@ class ChartsResource:
             self._core.request(
                 _DESCRIPTORS["getChartAvailability"],
                 {"chartType": chart_type, "category": category, "country": country, "date": date},
+                request_options,
+            )
+        )
+
+    def get_chart_movement(
+        self,
+        *,
+        chart_type: Literal["apple", "spotify"] | None = None,
+        category: str | None = None,
+        country: str | None = None,
+        date: str | None = None,
+        compare: Literal["1d", "7d"] | None = None,
+        limit: int | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetChartMovementResponse:
+        """
+        Chart Movement
+
+        Get a chart's biggest climbers and fallers, new entries and drop-offs since the chart 1 or 7 days earlier, computed over every position
+        """
+        return _adapter_getChartMovement.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getChartMovement"],
+                {
+                    "chartType": chart_type,
+                    "category": category,
+                    "country": country,
+                    "date": date,
+                    "compare": compare,
+                    "limit": limit,
+                },
                 request_options,
             )
         )
@@ -2869,6 +2916,37 @@ class AsyncChartsResource:
             await self._core.request(
                 _DESCRIPTORS["getChartAvailability"],
                 {"chartType": chart_type, "category": category, "country": country, "date": date},
+                request_options,
+            )
+        )
+
+    async def get_chart_movement(
+        self,
+        *,
+        chart_type: Literal["apple", "spotify"] | None = None,
+        category: str | None = None,
+        country: str | None = None,
+        date: str | None = None,
+        compare: Literal["1d", "7d"] | None = None,
+        limit: int | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetChartMovementResponse:
+        """
+        Chart Movement
+
+        Get a chart's biggest climbers and fallers, new entries and drop-offs since the chart 1 or 7 days earlier, computed over every position
+        """
+        return _adapter_getChartMovement.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getChartMovement"],
+                {
+                    "chartType": chart_type,
+                    "category": category,
+                    "country": country,
+                    "date": date,
+                    "compare": compare,
+                    "limit": limit,
+                },
                 request_options,
             )
         )
