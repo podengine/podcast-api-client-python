@@ -34,7 +34,7 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant1SearchTermsItem(BaseMo
     model_config = ConfigDict(populate_by_name=True)
 
     search_term: str = Field(alias="searchTerm")
-    search_type: Literal["text", "embeddings"] = Field(alias="searchType")
+    search_type: Literal["text"] = Field(alias="searchType")
     search_targets: list[Literal["podcast-title", "podcast-description"]] = Field(alias="searchTargets")
     search_term_options: AskAgentProjectPodcastRelevancySearchOptionsVariant1SearchTermsItemSearchTermOptions = Field(
         alias="searchTermOptions"
@@ -188,7 +188,7 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant2SearchTermsItem(BaseMo
     model_config = ConfigDict(populate_by_name=True)
 
     search_term: str = Field(alias="searchTerm")
-    search_type: Literal["text", "embeddings"] = Field(alias="searchType")
+    search_type: Literal["text"] = Field(alias="searchType")
     search_targets: list[
         Literal["podcast-title", "podcast-description", "episode-title", "episode-description", "transcript"]
     ] = Field(alias="searchTargets")
@@ -405,6 +405,12 @@ class CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant3(BaseModel
     value: str
 
 
+class CreateAlertConfigResponseCreatedAlertConfigEmailSettings(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    frequency: Literal["hourly", "daily", "weekly"]
+
+
 class CreateAlertConfigResponseCreatedAlertConfig(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -421,7 +427,7 @@ class CreateAlertConfigResponseCreatedAlertConfig(BaseModel):
         | CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant2
         | CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant3
     ) = Field(alias="alertSettings")
-    email_settings: CreateAlertConfigEmailSettings = Field(alias="emailSettings")
+    email_settings: CreateAlertConfigResponseCreatedAlertConfigEmailSettings = Field(alias="emailSettings")
     last_run_date: Any | None = Field(alias="lastRunDate")
 
 
@@ -453,11 +459,17 @@ class GetAlertConfigResponse(BaseModel):
     alert_config: CreateAlertConfigResponseCreatedAlertConfig = Field(alias="alertConfig")
 
 
+class UpdateAlertConfigUpdatesEmailSettings(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    frequency: Literal["hourly", "daily", "weekly"]
+
+
 class UpdateAlertConfigUpdates(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     alert_name: str | None = Field(default=None, alias="alertName")
-    email_settings: CreateAlertConfigEmailSettings | None = Field(default=None, alias="emailSettings")
+    email_settings: UpdateAlertConfigUpdatesEmailSettings | None = Field(default=None, alias="emailSettings")
     alert_settings: (
         CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1
         | CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant2
@@ -2997,6 +3009,324 @@ class SearchPodcastsResponseSearchResultsStats(BaseModel):
     filters: SearchPodcastsResponseSearchResultsStatsFilters
 
 
+class SearchPodcastsResponseResultTotal(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    value: float
+    relation: str | None = None
+
+
+class SearchPodcastsResponseResultHitsItemChartPositionsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str
+    chart_type: str
+    country_code: str
+    category: str
+    sub_category: str | None
+    position: float
+    previous_position: float | None
+    position_change: float | None
+    total_days_in_chart: float
+    days_streak_count: float
+
+
+class SearchPodcastsResponseResultHitsItemPodcastSocialMediaLinksItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    type: str
+    url: str
+
+
+class SearchPodcastsResponseResultHitsItemSimilarPodcastsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    podcast_id: str
+    title: str
+    image_url: str | None
+    slug: str
+
+
+class SearchPodcastsResponseResultHitsItemSocialsFacebookItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    name: str
+    followers_count: float
+    likes_count: float
+    following_count: float
+    talking_about_count: float
+    image_url: str | None
+    url: str
+    data_last_updated: datetime
+
+
+class SearchPodcastsResponseResultHitsItemSocialsInstagramItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    username: str
+    followers_count: float
+    following_count: float
+    posts_count: float
+    image_url: str | None
+    data_last_updated: datetime
+
+
+class SearchPodcastsResponseResultHitsItemSocialsLinkedinCompanyItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    name: str
+    about: str | None
+    description: str | None
+    company_size: str | None
+    country_code: str | None
+    industries: str | None
+    followers_count: float
+    employees_count: float
+    image_url: str | None
+    data_last_updated: datetime
+
+
+class SearchPodcastsResponseResultHitsItemSocialsLinkedinPersonItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    name: str
+    about: str | None
+    description: str | None
+    followers_count: float
+    connections_count: float
+    country_code: str | None
+    image_url: str | None
+    data_last_updated: datetime
+
+
+class SearchPodcastsResponseResultHitsItemSocialsTiktokItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    handle: str
+    profile_name: str
+    biography: str | None
+    followers_count: float
+    following_count: float
+    likes_count: float
+    image_url: str | None
+    data_last_updated: datetime
+
+
+class SearchPodcastsResponseResultHitsItemSocialsTwitterItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    date_joined: datetime | None
+    biography: str | None
+    handle: str
+    followers_count: float
+    following_count: float
+    posts_count: float
+    image_url: str | None
+    data_last_updated: datetime
+
+
+class SearchPodcastsResponseResultHitsItemYoutubeChannelsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    average_views_per_video: float
+    channel_data_last_updated: datetime
+    channel_description: str | None
+    channel_handle: str | None
+    channel_id: str
+    channel_title: str | None
+    channel_published_date: datetime | None
+    total_subscribers: float
+    total_videos: float
+    total_views: float
+
+
+class SearchPodcastsResponseResultHitsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    apple_id: float | None = Field(default=None, alias="appleId")
+    apple_podcasts_content_rating: str | None = Field(default=None, alias="applePodcastsContentRating")
+    apple_podcasts_rating: float | None = Field(default=None, alias="applePodcastsRating")
+    apple_podcasts_ratings_count: float | None = Field(default=None, alias="applePodcastsRatingsCount")
+    apple_podcasts_rating_wilson_score: float | None = Field(default=None, alias="applePodcastsRatingWilsonScore")
+    apple_podcasts_scraped_date: datetime | None = Field(default=None, alias="applePodcastsScrapedDate")
+    castbox_plays: float | None = Field(default=None, alias="castboxPlays")
+    castbox_subscribers: float | None = Field(default=None, alias="castboxSubscribers")
+    castbox_data_last_updated: datetime | None = Field(default=None, alias="castboxDataLastUpdated")
+    castbox_id: str | None = Field(default=None, alias="castboxId")
+    chart_positions: list[SearchPodcastsResponseResultHitsItemChartPositionsItem] | None = Field(
+        default=None, alias="chartPositions"
+    )
+    ignore: bool | None = None
+    podcast_affiliation_organization_name: str | None = Field(default=None, alias="podcastAffiliationOrganizationName")
+    podcast_affiliation_type: str | None = Field(default=None, alias="podcastAffiliationType")
+    podcast_authority_score_calculated_date: datetime | None = Field(
+        default=None, alias="podcastAuthorityScoreCalculatedDate"
+    )
+    podcast_authority_score_engagement: float | None = Field(alias="podcastAuthorityScoreEngagement")
+    podcast_authority_score_quality: float | None = Field(alias="podcastAuthorityScoreQuality")
+    podcast_authority_score_social: float | None = Field(alias="podcastAuthorityScoreSocial")
+    podcast_authority_score_total: float | None = Field(alias="podcastAuthorityScoreTotal")
+    podcast_authority_score_youtube: float | None = Field(alias="podcastAuthorityScoreYoutube")
+    podcast_emails: list[str] | None = Field(default=None, alias="podcastEmails")
+    podcast_websites: list[str] | None = Field(default=None, alias="podcastWebsites")
+    podcast_countries: list[str] | None = Field(default=None, alias="podcastCountries")
+    founded_date: datetime | None = Field(alias="foundedDate")
+    last_episode_date: datetime | None = Field(alias="lastEpisodeDate")
+    podcast_estimated_audience_age: str | None = Field(default=None, alias="podcastEstimatedAudienceAge")
+    podcast_estimated_audience_education: str | None = Field(default=None, alias="podcastEstimatedAudienceEducation")
+    podcast_estimated_audience_gender: str | None = Field(default=None, alias="podcastEstimatedAudienceGender")
+    podcast_estimated_audience_income: str | None = Field(default=None, alias="podcastEstimatedAudienceIncome")
+    podcast_estimated_listeners: str | None = Field(default=None, alias="podcastEstimatedListeners")
+    podcast_audience_estimated_monthly_listeners: float | None = Field(
+        default=None, alias="podcastAudienceEstimatedMonthlyListeners"
+    )
+    podcast_audience_confidence: str | None = Field(default=None, alias="podcastAudienceConfidence")
+    podcast_audience_is_dormant: bool | None = Field(default=None, alias="podcastAudienceIsDormant")
+    podcast_estimated_political_bias: str | None = Field(default=None, alias="podcastEstimatedPoliticalBias")
+    podcast_has_sponsors: bool | None = Field(default=None, alias="podcastHasSponsors")
+    podcast_has_guests: bool | None = Field(default=None, alias="podcastHasGuests")
+    podcast_id: str = Field(alias="podcastId")
+    podcast_image_url: str | None = Field(alias="podcastImageUrl")
+    podcast_guid: str | None = Field(default=None, alias="podcastGuid")
+    podcast_host_names: list[str] | None = Field(default=None, alias="podcastHostNames")
+    podcast_rss_author: str | None = Field(default=None, alias="podcastRssAuthor")
+    podcast_rss_description: str | None = Field(alias="podcastRssDescription")
+    podcast_rss_description_no_html: str | None = Field(default=None, alias="podcastRssDescriptionNoHtml")
+    podcast_rss_description_generated_long: str | None = Field(default=None, alias="podcastRssDescriptionGeneratedLong")
+    podcast_rss_description_generated_short: str | None = Field(
+        default=None, alias="podcastRssDescriptionGeneratedShort"
+    )
+    podcast_rss_title_latest_cleaned: str | None = Field(default=None, alias="podcastRssTitleLatestCleaned")
+    podcast_rss_title_latest: str | None = Field(alias="podcastRssTitleLatest")
+    podcast_rss_title_original: str | None = Field(default=None, alias="podcastRssTitleOriginal")
+    podcast_rss_title: str = Field(alias="podcastRssTitle")
+    podcast_slug: str = Field(alias="podcastSlug")
+    podcast_social_media_links: list[SearchPodcastsResponseResultHitsItemPodcastSocialMediaLinksItem] | None = Field(
+        default=None, alias="podcastSocialMediaLinks"
+    )
+    podcast_website_url: str | None = Field(alias="podcastWebsiteUrl")
+    podcast_rss_feed_url: str | None = Field(default=None, alias="podcastRssFeedUrl")
+    updated_at: datetime | None = Field(default=None, alias="updatedAt")
+    update_frequency: str | None = Field(default=None, alias="updateFrequency")
+    primary_contact: str | None = Field(default=None, alias="primaryContact")
+    rss_categories: list[str] | None = Field(default=None, alias="rssCategories")
+    rss_language: str | None = Field(alias="rssLanguage")
+    podchaser_url_slug: str | None = Field(default=None, alias="podchaserUrlSlug")
+    podnews_url_slug: str | None = Field(default=None, alias="podnewsUrlSlug")
+    rephonic_url_slug: str | None = Field(default=None, alias="rephonicUrlSlug")
+    similar_podcasts: list[SearchPodcastsResponseResultHitsItemSimilarPodcastsItem] | None = Field(
+        default=None, alias="similarPodcasts"
+    )
+    socials_facebook_total_pages_count: float | None = Field(default=None, alias="socialsFacebookTotalPagesCount")
+    socials_facebook_total_followers_count: float | None = Field(
+        default=None, alias="socialsFacebookTotalFollowersCount"
+    )
+    socials_facebook_total_likes_count: float | None = Field(default=None, alias="socialsFacebookTotalLikesCount")
+    socials_facebook_total_following_count: float | None = Field(
+        default=None, alias="socialsFacebookTotalFollowingCount"
+    )
+    socials_facebook_total_talking_about_count: float | None = Field(
+        default=None, alias="socialsFacebookTotalTalkingAboutCount"
+    )
+    socials_facebook: list[SearchPodcastsResponseResultHitsItemSocialsFacebookItem] | None = Field(
+        default=None, alias="socialsFacebook"
+    )
+    socials_instagram_total_followers_count: float | None = Field(
+        default=None, alias="socialsInstagramTotalFollowersCount"
+    )
+    socials_instagram_total_following_count: float | None = Field(
+        default=None, alias="socialsInstagramTotalFollowingCount"
+    )
+    socials_instagram_total_posts_count: float | None = Field(default=None, alias="socialsInstagramTotalPostsCount")
+    socials_instagram_total_profiles_count: float | None = Field(
+        default=None, alias="socialsInstagramTotalProfilesCount"
+    )
+    socials_instagram: list[SearchPodcastsResponseResultHitsItemSocialsInstagramItem] | None = Field(
+        default=None, alias="socialsInstagram"
+    )
+    socials_linkedin_company_total_followers_count: float | None = Field(
+        default=None, alias="socialsLinkedinCompanyTotalFollowersCount"
+    )
+    socials_linkedin_company_total_employees_count: float | None = Field(
+        default=None, alias="socialsLinkedinCompanyTotalEmployeesCount"
+    )
+    socials_linkedin_company_total_pages_count: float | None = Field(
+        default=None, alias="socialsLinkedinCompanyTotalPagesCount"
+    )
+    socials_linkedin_company: list[SearchPodcastsResponseResultHitsItemSocialsLinkedinCompanyItem] | None = Field(
+        default=None, alias="socialsLinkedinCompany"
+    )
+    socials_linkedin_person_total_followers_count: float | None = Field(
+        default=None, alias="socialsLinkedinPersonTotalFollowersCount"
+    )
+    socials_linkedin_person_total_connections_count: float | None = Field(
+        default=None, alias="socialsLinkedinPersonTotalConnectionsCount"
+    )
+    socials_linkedin_person_total_profiles_count: float | None = Field(
+        default=None, alias="socialsLinkedinPersonTotalProfilesCount"
+    )
+    socials_linkedin_person: list[SearchPodcastsResponseResultHitsItemSocialsLinkedinPersonItem] | None = Field(
+        default=None, alias="socialsLinkedinPerson"
+    )
+    socials_tiktok_total_followers_count: float | None = Field(default=None, alias="socialsTiktokTotalFollowersCount")
+    socials_tiktok_total_following_count: float | None = Field(default=None, alias="socialsTiktokTotalFollowingCount")
+    socials_tiktok_total_likes_count: float | None = Field(default=None, alias="socialsTiktokTotalLikesCount")
+    socials_tiktok_total_profiles_count: float | None = Field(default=None, alias="socialsTiktokTotalProfilesCount")
+    socials_tiktok: list[SearchPodcastsResponseResultHitsItemSocialsTiktokItem] | None = Field(
+        default=None, alias="socialsTiktok"
+    )
+    socials_twitter_total_followers_count: float | None = Field(default=None, alias="socialsTwitterTotalFollowersCount")
+    socials_twitter_total_following_count: float | None = Field(default=None, alias="socialsTwitterTotalFollowingCount")
+    socials_twitter_total_posts_count: float | None = Field(default=None, alias="socialsTwitterTotalPostsCount")
+    socials_twitter_total_profiles_count: float | None = Field(default=None, alias="socialsTwitterTotalProfilesCount")
+    socials_twitter: list[SearchPodcastsResponseResultHitsItemSocialsTwitterItem] | None = Field(
+        default=None, alias="socialsTwitter"
+    )
+    spotify_data_last_updated: datetime | None = Field(default=None, alias="spotifyDataLastUpdated")
+    spotify_id: str | None = Field(default=None, alias="spotifyId")
+    spotify_rating: float | None = Field(default=None, alias="spotifyRating")
+    spotify_ratings_count: float | None = Field(default=None, alias="spotifyRatingsCount")
+    spotify_rating_wilson_score: float | None = Field(default=None, alias="spotifyRatingWilsonScore")
+    transcription_mode: Literal["none", "all", "episodes-since"] = Field(alias="transcriptionMode")
+    total_episodes: float | None = Field(default=None, alias="totalEpisodes")
+    total_transcripts: float | None = Field(default=None, alias="totalTranscripts")
+    youtube_average_views_per_video: float | None = Field(default=None, alias="youtubeAverageViewsPerVideo")
+    youtube_channel_count: float | None = Field(alias="youtubeChannelCount")
+    youtube_data_last_updated: datetime | None = Field(default=None, alias="youtubeDataLastUpdated")
+    youtube_total_subscribers: float | None = Field(alias="youtubeTotalSubscribers")
+    youtube_total_videos: float | None = Field(alias="youtubeTotalVideos")
+    youtube_total_views: float | None = Field(alias="youtubeTotalViews")
+    youtube_channels: list[SearchPodcastsResponseResultHitsItemYoutubeChannelsItem] | None = Field(
+        default=None, alias="youtubeChannels"
+    )
+    youtube_primary_chanel_data_last_updated: datetime | None = Field(
+        default=None, alias="youtubePrimaryChanelDataLastUpdated"
+    )
+    youtube_primary_channel_id: str | None = Field(default=None, alias="youtubePrimaryChannelId")
+    youtube_primary_channel_name: str | None = Field(default=None, alias="youtubePrimaryChannelName")
+    youtube_primary_channel_subscribers: float | None = Field(default=None, alias="youtubePrimaryChannelSubscribers")
+    youtube_primary_channel_videos: float | None = Field(default=None, alias="youtubePrimaryChannelVideos")
+    youtube_primary_channel_views: float | None = Field(default=None, alias="youtubePrimaryChannelViews")
+    score: float
+    podcast_description_highlights: list[str] | None = Field(default=None, alias="podcastDescriptionHighlights")
+    podcast_title_highlights: list[str] | None = Field(default=None, alias="podcastTitleHighlights")
+
+
+class SearchPodcastsResponseResult(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    total: SearchPodcastsResponseResultTotal
+    max_score: float | None = Field(alias="maxScore")
+    hits_returned: float = Field(alias="hitsReturned")
+    hits: list[SearchPodcastsResponseResultHitsItem]
+
+
 class SearchPodcastsResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -3004,8 +3334,246 @@ class SearchPodcastsResponse(BaseModel):
     search_id: str = Field(alias="searchId")
     search_options: AskAgentProjectPodcastRelevancySearchOptionsVariant1 = Field(alias="searchOptions")
     search_results_stats: SearchPodcastsResponseSearchResultsStats = Field(alias="searchResultsStats")
-    result: Any
+    result: SearchPodcastsResponseResult
     cursor: str | None
+
+
+class SearchEpisodesResponseResultHitsItemEpisodeSponsorsAndAdvertisersItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    name: str
+    urls: list[str]
+    snippet: str
+    coupon_codes: str | None
+
+
+class SearchEpisodesResponseResultHitsItemEpisodeGuestsAndHostsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    name: str
+    type: Literal["host", "guest", "unknown", "mentioned"]
+    roles: list[str]
+    organizations: list[str]
+    image_url: str | None
+
+
+class SearchEpisodesResponseResultHitsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    episode_created_at: datetime | None = Field(default=None, alias="episodeCreatedAt")
+    episode_updated_at: datetime | None = Field(default=None, alias="episodeUpdatedAt")
+    episode_rss_description_no_html: str | None = Field(default=None, alias="episodeRssDescriptionNoHtml")
+    episode_rss_description_generated_short: str | None = Field(
+        default=None, alias="episodeRssDescriptionGeneratedShort"
+    )
+    episode_rss_description_generated_long: str | None = Field(default=None, alias="episodeRssDescriptionGeneratedLong")
+    episode_rss_itunes_subtitle: str | None = Field(default=None, alias="episodeRssItunesSubtitle")
+    episode_duration_seconds: float | None = Field(default=None, alias="episodeDurationSeconds")
+    episode_enclosure_url: str = Field(alias="episodeEnclosureUrl")
+    episode_guid: str | None = Field(default=None, alias="episodeGuid")
+    episode_id: str = Field(alias="episodeId")
+    episode_image_url: str | None = Field(alias="episodeImageUrl")
+    episode_podcast_title_denormalized: str | None = Field(default=None, alias="episodePodcastTitleDenormalized")
+    episode_podcast_description_denormalized: str | None = Field(
+        default=None, alias="episodePodcastDescriptionDenormalized"
+    )
+    episode_rss_description: str | None = Field(alias="episodeRssDescription")
+    episode_rss_title: str = Field(alias="episodeRssTitle")
+    episode_slug: str = Field(alias="episodeSlug")
+    episode_has_transcript: bool = Field(alias="episodeHasTranscript")
+    episode_sponsors_and_advertisers: (
+        list[SearchEpisodesResponseResultHitsItemEpisodeSponsorsAndAdvertisersItem] | None
+    ) = Field(default=None, alias="episodeSponsorsAndAdvertisers")
+    episode_guests_and_hosts: list[SearchEpisodesResponseResultHitsItemEpisodeGuestsAndHostsItem] | None = Field(
+        default=None, alias="episodeGuestsAndHosts"
+    )
+    episode_web_url: str | None = Field(alias="episodeWebUrl")
+    episode_rss_published_at: datetime = Field(alias="episodeRssPublishedAt")
+    podcast_id: str = Field(alias="podcastId")
+    podcast_slug: str = Field(alias="podcastSlug")
+    transcript_id: str | None = Field(alias="transcriptId")
+    transcript_text: str | None = Field(default=None, alias="transcriptText")
+    youtube_video_data_date: datetime | None = Field(default=None, alias="youtubeVideoDataDate")
+    youtube_video_url: str | None = Field(default=None, alias="youtubeVideoUrl")
+    youtube_video_view_count: float | None = Field(default=None, alias="youtubeVideoViewCount")
+    apple_id: float | None = Field(default=None, alias="appleId")
+    apple_podcasts_content_rating: str | None = Field(default=None, alias="applePodcastsContentRating")
+    apple_podcasts_rating: float | None = Field(default=None, alias="applePodcastsRating")
+    apple_podcasts_ratings_count: float | None = Field(default=None, alias="applePodcastsRatingsCount")
+    apple_podcasts_rating_wilson_score: float | None = Field(default=None, alias="applePodcastsRatingWilsonScore")
+    apple_podcasts_scraped_date: datetime | None = Field(default=None, alias="applePodcastsScrapedDate")
+    castbox_plays: float | None = Field(default=None, alias="castboxPlays")
+    castbox_subscribers: float | None = Field(default=None, alias="castboxSubscribers")
+    castbox_data_last_updated: datetime | None = Field(default=None, alias="castboxDataLastUpdated")
+    castbox_id: str | None = Field(default=None, alias="castboxId")
+    chart_positions: list[SearchPodcastsResponseResultHitsItemChartPositionsItem] | None = Field(
+        default=None, alias="chartPositions"
+    )
+    ignore: bool | None = None
+    podcast_affiliation_organization_name: str | None = Field(default=None, alias="podcastAffiliationOrganizationName")
+    podcast_affiliation_type: str | None = Field(default=None, alias="podcastAffiliationType")
+    podcast_authority_score_calculated_date: datetime | None = Field(
+        default=None, alias="podcastAuthorityScoreCalculatedDate"
+    )
+    podcast_authority_score_engagement: float | None = Field(alias="podcastAuthorityScoreEngagement")
+    podcast_authority_score_quality: float | None = Field(alias="podcastAuthorityScoreQuality")
+    podcast_authority_score_social: float | None = Field(alias="podcastAuthorityScoreSocial")
+    podcast_authority_score_total: float | None = Field(alias="podcastAuthorityScoreTotal")
+    podcast_authority_score_youtube: float | None = Field(alias="podcastAuthorityScoreYoutube")
+    podcast_emails: list[str] | None = Field(default=None, alias="podcastEmails")
+    podcast_websites: list[str] | None = Field(default=None, alias="podcastWebsites")
+    podcast_countries: list[str] | None = Field(default=None, alias="podcastCountries")
+    founded_date: datetime | None = Field(alias="foundedDate")
+    last_episode_date: datetime | None = Field(alias="lastEpisodeDate")
+    podcast_estimated_audience_age: str | None = Field(default=None, alias="podcastEstimatedAudienceAge")
+    podcast_estimated_audience_education: str | None = Field(default=None, alias="podcastEstimatedAudienceEducation")
+    podcast_estimated_audience_gender: str | None = Field(default=None, alias="podcastEstimatedAudienceGender")
+    podcast_estimated_audience_income: str | None = Field(default=None, alias="podcastEstimatedAudienceIncome")
+    podcast_estimated_listeners: str | None = Field(default=None, alias="podcastEstimatedListeners")
+    podcast_audience_estimated_monthly_listeners: float | None = Field(
+        default=None, alias="podcastAudienceEstimatedMonthlyListeners"
+    )
+    podcast_audience_confidence: str | None = Field(default=None, alias="podcastAudienceConfidence")
+    podcast_audience_is_dormant: bool | None = Field(default=None, alias="podcastAudienceIsDormant")
+    podcast_estimated_political_bias: str | None = Field(default=None, alias="podcastEstimatedPoliticalBias")
+    podcast_has_sponsors: bool | None = Field(default=None, alias="podcastHasSponsors")
+    podcast_has_guests: bool | None = Field(default=None, alias="podcastHasGuests")
+    podcast_image_url: str | None = Field(alias="podcastImageUrl")
+    podcast_guid: str | None = Field(default=None, alias="podcastGuid")
+    podcast_host_names: list[str] | None = Field(default=None, alias="podcastHostNames")
+    podcast_rss_author: str | None = Field(default=None, alias="podcastRssAuthor")
+    podcast_rss_description: str | None = Field(alias="podcastRssDescription")
+    podcast_rss_description_no_html: str | None = Field(default=None, alias="podcastRssDescriptionNoHtml")
+    podcast_rss_description_generated_long: str | None = Field(default=None, alias="podcastRssDescriptionGeneratedLong")
+    podcast_rss_description_generated_short: str | None = Field(
+        default=None, alias="podcastRssDescriptionGeneratedShort"
+    )
+    podcast_rss_title_latest_cleaned: str | None = Field(default=None, alias="podcastRssTitleLatestCleaned")
+    podcast_rss_title_latest: str | None = Field(alias="podcastRssTitleLatest")
+    podcast_rss_title_original: str | None = Field(default=None, alias="podcastRssTitleOriginal")
+    podcast_rss_title: str = Field(alias="podcastRssTitle")
+    podcast_social_media_links: list[SearchPodcastsResponseResultHitsItemPodcastSocialMediaLinksItem] | None = Field(
+        default=None, alias="podcastSocialMediaLinks"
+    )
+    podcast_website_url: str | None = Field(alias="podcastWebsiteUrl")
+    podcast_rss_feed_url: str | None = Field(default=None, alias="podcastRssFeedUrl")
+    updated_at: datetime | None = Field(default=None, alias="updatedAt")
+    update_frequency: str | None = Field(default=None, alias="updateFrequency")
+    primary_contact: str | None = Field(default=None, alias="primaryContact")
+    rss_categories: list[str] | None = Field(default=None, alias="rssCategories")
+    rss_language: str | None = Field(alias="rssLanguage")
+    podchaser_url_slug: str | None = Field(default=None, alias="podchaserUrlSlug")
+    podnews_url_slug: str | None = Field(default=None, alias="podnewsUrlSlug")
+    rephonic_url_slug: str | None = Field(default=None, alias="rephonicUrlSlug")
+    similar_podcasts: list[SearchPodcastsResponseResultHitsItemSimilarPodcastsItem] | None = Field(
+        default=None, alias="similarPodcasts"
+    )
+    socials_facebook_total_pages_count: float | None = Field(default=None, alias="socialsFacebookTotalPagesCount")
+    socials_facebook_total_followers_count: float | None = Field(
+        default=None, alias="socialsFacebookTotalFollowersCount"
+    )
+    socials_facebook_total_likes_count: float | None = Field(default=None, alias="socialsFacebookTotalLikesCount")
+    socials_facebook_total_following_count: float | None = Field(
+        default=None, alias="socialsFacebookTotalFollowingCount"
+    )
+    socials_facebook_total_talking_about_count: float | None = Field(
+        default=None, alias="socialsFacebookTotalTalkingAboutCount"
+    )
+    socials_facebook: list[SearchPodcastsResponseResultHitsItemSocialsFacebookItem] | None = Field(
+        default=None, alias="socialsFacebook"
+    )
+    socials_instagram_total_followers_count: float | None = Field(
+        default=None, alias="socialsInstagramTotalFollowersCount"
+    )
+    socials_instagram_total_following_count: float | None = Field(
+        default=None, alias="socialsInstagramTotalFollowingCount"
+    )
+    socials_instagram_total_posts_count: float | None = Field(default=None, alias="socialsInstagramTotalPostsCount")
+    socials_instagram_total_profiles_count: float | None = Field(
+        default=None, alias="socialsInstagramTotalProfilesCount"
+    )
+    socials_instagram: list[SearchPodcastsResponseResultHitsItemSocialsInstagramItem] | None = Field(
+        default=None, alias="socialsInstagram"
+    )
+    socials_linkedin_company_total_followers_count: float | None = Field(
+        default=None, alias="socialsLinkedinCompanyTotalFollowersCount"
+    )
+    socials_linkedin_company_total_employees_count: float | None = Field(
+        default=None, alias="socialsLinkedinCompanyTotalEmployeesCount"
+    )
+    socials_linkedin_company_total_pages_count: float | None = Field(
+        default=None, alias="socialsLinkedinCompanyTotalPagesCount"
+    )
+    socials_linkedin_company: list[SearchPodcastsResponseResultHitsItemSocialsLinkedinCompanyItem] | None = Field(
+        default=None, alias="socialsLinkedinCompany"
+    )
+    socials_linkedin_person_total_followers_count: float | None = Field(
+        default=None, alias="socialsLinkedinPersonTotalFollowersCount"
+    )
+    socials_linkedin_person_total_connections_count: float | None = Field(
+        default=None, alias="socialsLinkedinPersonTotalConnectionsCount"
+    )
+    socials_linkedin_person_total_profiles_count: float | None = Field(
+        default=None, alias="socialsLinkedinPersonTotalProfilesCount"
+    )
+    socials_linkedin_person: list[SearchPodcastsResponseResultHitsItemSocialsLinkedinPersonItem] | None = Field(
+        default=None, alias="socialsLinkedinPerson"
+    )
+    socials_tiktok_total_followers_count: float | None = Field(default=None, alias="socialsTiktokTotalFollowersCount")
+    socials_tiktok_total_following_count: float | None = Field(default=None, alias="socialsTiktokTotalFollowingCount")
+    socials_tiktok_total_likes_count: float | None = Field(default=None, alias="socialsTiktokTotalLikesCount")
+    socials_tiktok_total_profiles_count: float | None = Field(default=None, alias="socialsTiktokTotalProfilesCount")
+    socials_tiktok: list[SearchPodcastsResponseResultHitsItemSocialsTiktokItem] | None = Field(
+        default=None, alias="socialsTiktok"
+    )
+    socials_twitter_total_followers_count: float | None = Field(default=None, alias="socialsTwitterTotalFollowersCount")
+    socials_twitter_total_following_count: float | None = Field(default=None, alias="socialsTwitterTotalFollowingCount")
+    socials_twitter_total_posts_count: float | None = Field(default=None, alias="socialsTwitterTotalPostsCount")
+    socials_twitter_total_profiles_count: float | None = Field(default=None, alias="socialsTwitterTotalProfilesCount")
+    socials_twitter: list[SearchPodcastsResponseResultHitsItemSocialsTwitterItem] | None = Field(
+        default=None, alias="socialsTwitter"
+    )
+    spotify_data_last_updated: datetime | None = Field(default=None, alias="spotifyDataLastUpdated")
+    spotify_id: str | None = Field(default=None, alias="spotifyId")
+    spotify_rating: float | None = Field(default=None, alias="spotifyRating")
+    spotify_ratings_count: float | None = Field(default=None, alias="spotifyRatingsCount")
+    spotify_rating_wilson_score: float | None = Field(default=None, alias="spotifyRatingWilsonScore")
+    transcription_mode: Literal["none", "all", "episodes-since"] = Field(alias="transcriptionMode")
+    total_episodes: float | None = Field(default=None, alias="totalEpisodes")
+    total_transcripts: float | None = Field(default=None, alias="totalTranscripts")
+    youtube_average_views_per_video: float | None = Field(default=None, alias="youtubeAverageViewsPerVideo")
+    youtube_channel_count: float | None = Field(alias="youtubeChannelCount")
+    youtube_data_last_updated: datetime | None = Field(default=None, alias="youtubeDataLastUpdated")
+    youtube_total_subscribers: float | None = Field(alias="youtubeTotalSubscribers")
+    youtube_total_videos: float | None = Field(alias="youtubeTotalVideos")
+    youtube_total_views: float | None = Field(alias="youtubeTotalViews")
+    youtube_channels: list[SearchPodcastsResponseResultHitsItemYoutubeChannelsItem] | None = Field(
+        default=None, alias="youtubeChannels"
+    )
+    youtube_primary_chanel_data_last_updated: datetime | None = Field(
+        default=None, alias="youtubePrimaryChanelDataLastUpdated"
+    )
+    youtube_primary_channel_id: str | None = Field(default=None, alias="youtubePrimaryChannelId")
+    youtube_primary_channel_name: str | None = Field(default=None, alias="youtubePrimaryChannelName")
+    youtube_primary_channel_subscribers: float | None = Field(default=None, alias="youtubePrimaryChannelSubscribers")
+    youtube_primary_channel_videos: float | None = Field(default=None, alias="youtubePrimaryChannelVideos")
+    youtube_primary_channel_views: float | None = Field(default=None, alias="youtubePrimaryChannelViews")
+    score: float
+    podcast_description_highlights: list[str] | None = Field(default=None, alias="podcastDescriptionHighlights")
+    podcast_title_highlights: list[str] | None = Field(default=None, alias="podcastTitleHighlights")
+    episode_description_highlights: list[str] | None = Field(default=None, alias="episodeDescriptionHighlights")
+    episode_title_highlights: list[str] | None = Field(default=None, alias="episodeTitleHighlights")
+    transcript_highlights: list[str] | None = Field(default=None, alias="transcriptHighlights")
+    transcript_text_snippet: str | None = Field(default=None, alias="transcriptTextSnippet")
+
+
+class SearchEpisodesResponseResult(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    total: SearchPodcastsResponseResultTotal
+    max_score: float | None = Field(alias="maxScore")
+    hits_returned: float = Field(alias="hitsReturned")
+    hits: list[SearchEpisodesResponseResultHitsItem]
 
 
 class SearchEpisodesResponse(BaseModel):
@@ -3015,7 +3583,7 @@ class SearchEpisodesResponse(BaseModel):
     search_id: str = Field(alias="searchId")
     search_options: AskAgentProjectPodcastRelevancySearchOptionsVariant2 = Field(alias="searchOptions")
     search_results_stats: SearchPodcastsResponseSearchResultsStats = Field(alias="searchResultsStats")
-    result: Any
+    result: SearchEpisodesResponseResult
     cursor: str | None
 
 
