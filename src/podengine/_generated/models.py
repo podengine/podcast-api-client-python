@@ -106,7 +106,18 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAudienceEstimat
 class AskAgentProjectPodcastRelevancySearchOptionsVariant1SortOrderItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    field: Literal["relevance", "recentActivity", "title", "appleReviews", "spotifyReviews"]
+    field: Literal[
+        "relevance",
+        "recentActivity",
+        "title",
+        "appleReviews",
+        "spotifyReviews",
+        "estimatedListeners",
+        "youtubeSubscribers",
+        "youtubeViews",
+        "authorityScore",
+        "castboxSubscribers",
+    ]
     direction: Literal["asc", "desc"] | None = None
     null_order: Literal["first", "last"] | None = Field(default=None, alias="nullOrder")
 
@@ -195,6 +206,14 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant2SearchTermsItem(BaseMo
     search_term_options: AskAgentProjectPodcastRelevancySearchOptionsVariant1SearchTermsItemSearchTermOptions = Field(
         alias="searchTermOptions"
     )
+
+
+class AskAgentProjectPodcastRelevancySearchOptionsVariant2SortOrderItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    field: Literal["relevance", "recentActivity", "title", "appleReviews", "spotifyReviews"]
+    direction: Literal["asc", "desc"] | None = None
+    null_order: Literal["first", "last"] | None = Field(default=None, alias="nullOrder")
 
 
 class AskAgentProjectPodcastRelevancySearchOptionsVariant2PersonFiltersItem(BaseModel):
@@ -286,7 +305,7 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant2(BaseModel):
     podcast_audience_estimated_monthly_listeners: (
         AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAudienceEstimatedMonthlyListeners | None
     ) = Field(default=None, alias="podcastAudienceEstimatedMonthlyListeners")
-    sort_order: list[AskAgentProjectPodcastRelevancySearchOptionsVariant1SortOrderItem] | None = Field(
+    sort_order: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2SortOrderItem] | None = Field(
         default=None, alias="sortOrder"
     )
     include_transcript_snippet: bool | None = Field(default=None, alias="includeTranscriptSnippet")
