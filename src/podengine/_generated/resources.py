@@ -581,6 +581,14 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         body="merge",
         binary=False,
     ),
+    "getTranscriptPassages": EndpointDescriptor(
+        method="POST",
+        path="/api/v1/search/episodes/{episodeId}/transcript",
+        path_params=("episodeId",),
+        query_params=(),
+        body="merge",
+        binary=False,
+    ),
     "searchEpisodes": EndpointDescriptor(
         method="POST", path="/api/v1/search/episodes", path_params=(), query_params=(), body="merge", binary=False
     ),
@@ -772,6 +780,7 @@ _adapter_getProjectStrategies: TypeAdapter[Any] = TypeAdapter(models.GetProjectS
 _adapter_removeListedPodcastFromProject: TypeAdapter[Any] = TypeAdapter(models.RemoveListedPodcastFromProjectResponse)
 _adapter_updateProject: TypeAdapter[Any] = TypeAdapter(models.UpdateProjectResponse)
 _adapter_updateProjectListedPodcast: TypeAdapter[Any] = TypeAdapter(models.UpdateProjectListedPodcastResponse)
+_adapter_getTranscriptPassages: TypeAdapter[Any] = TypeAdapter(models.GetTranscriptPassagesResponse)
 _adapter_searchEpisodes: TypeAdapter[Any] = TypeAdapter(models.SearchEpisodesResponse)
 _adapter_searchPodcasts: TypeAdapter[Any] = TypeAdapter(models.SearchPodcastsResponse)
 _adapter_getRssStatsPodcast2: TypeAdapter[Any] = TypeAdapter(models.GetRssStatsPodcast2Response)
@@ -2149,6 +2158,28 @@ class SearchResource:
     def __init__(self, core: PodEngineCore) -> None:
         self._core = core
 
+    def get_transcript_passages(
+        self,
+        *,
+        episode_id: str,
+        search_options: models.GetTranscriptPassagesSearchOptions,
+        page_size: int,
+        cursor: str | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetTranscriptPassagesResponse:
+        """
+        Search Episode Transcript
+
+        Search within the transcript of the episode identified by episodeId in the URL. Send the original searchOptions, pageSize and optional cursor in the body; do not repeat episodeId in the body. Count and browse matching passages for that episode. The best passage is separate from paginated additional passages. Counts are exact (eq) or lower bounds (gte); at most 100 passages can be browsed. Initial episode totals still count episodes. Reuse nextCursor with the same episode and query; HTTP 409 means restart without the cursor. Passages use the same Elasticsearch analyzer and sentence boundaries as matchSnippet; nearby terms in one passage count once. Highlighting failures, including transcripts exceeding the index analysis limit, are errors, never zero matches or silently partial counts.
+        """
+        return _adapter_getTranscriptPassages.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getTranscriptPassages"],
+                {"episodeId": episode_id, "searchOptions": search_options, "pageSize": page_size, "cursor": cursor},
+                request_options,
+            )
+        )
+
     def search_episodes(
         self,
         *,
@@ -2211,7 +2242,8 @@ class SearchResource:
         | None = None,
         podcast_audience_estimated_monthly_listeners: models.AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAudienceEstimatedMonthlyListeners
         | None = None,
-        sort_order: list[models.AskAgentProjectPodcastRelevancySearchOptionsVariant1SortOrderItem] | None = None,
+        sort_order: list[models.AskAgentProjectPodcastRelevancySearchOptionsVariant2SortOrderItem] | None = None,
+        include_match_snippet: bool | None = None,
         include_transcript_snippet: bool | None = None,
         transcript_snippet_length: int | None = None,
         transcript_highlight_length: int | None = None,
@@ -2230,7 +2262,7 @@ class SearchResource:
         """
         Search Episodes
 
-        Search for episodes by title, description, or transcript text, with optional filters on guest, host, and sponsor names
+        Search for episodes by title, description, or transcript text, with optional filters on guest, host, and sponsor names. For matching transcript text, send includeMatchSnippet: true with a text search term targeting transcript, then read result.hits[].matchSnippet. It returns the best passage (about 400 characters), with matches marked by <em> tags. transcriptHighlights contains highlighted fragments; with includeMatchSnippet it contains the same single passage. The legacy includeTranscriptSnippet option returns transcriptTextSnippet from the start of the transcript, which may be an intro or advertisement, not the matching passage. matchSnippet is omitted for filter-only searches or when no transcript passage matches. Timestamps are not yet available.
         """
         return _adapter_searchEpisodes.validate_python(
             self._core.request(
@@ -2265,6 +2297,7 @@ class SearchResource:
                     "podcastAuthorityScore": podcast_authority_score,
                     "podcastAudienceEstimatedMonthlyListeners": podcast_audience_estimated_monthly_listeners,
                     "sortOrder": sort_order,
+                    "includeMatchSnippet": include_match_snippet,
                     "includeTranscriptSnippet": include_transcript_snippet,
                     "transcriptSnippetLength": transcript_snippet_length,
                     "transcriptHighlightLength": transcript_highlight_length,
@@ -4039,6 +4072,28 @@ class AsyncSearchResource:
     def __init__(self, core: AsyncPodEngineCore) -> None:
         self._core = core
 
+    async def get_transcript_passages(
+        self,
+        *,
+        episode_id: str,
+        search_options: models.GetTranscriptPassagesSearchOptions,
+        page_size: int,
+        cursor: str | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetTranscriptPassagesResponse:
+        """
+        Search Episode Transcript
+
+        Search within the transcript of the episode identified by episodeId in the URL. Send the original searchOptions, pageSize and optional cursor in the body; do not repeat episodeId in the body. Count and browse matching passages for that episode. The best passage is separate from paginated additional passages. Counts are exact (eq) or lower bounds (gte); at most 100 passages can be browsed. Initial episode totals still count episodes. Reuse nextCursor with the same episode and query; HTTP 409 means restart without the cursor. Passages use the same Elasticsearch analyzer and sentence boundaries as matchSnippet; nearby terms in one passage count once. Highlighting failures, including transcripts exceeding the index analysis limit, are errors, never zero matches or silently partial counts.
+        """
+        return _adapter_getTranscriptPassages.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getTranscriptPassages"],
+                {"episodeId": episode_id, "searchOptions": search_options, "pageSize": page_size, "cursor": cursor},
+                request_options,
+            )
+        )
+
     async def search_episodes(
         self,
         *,
@@ -4101,7 +4156,8 @@ class AsyncSearchResource:
         | None = None,
         podcast_audience_estimated_monthly_listeners: models.AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAudienceEstimatedMonthlyListeners
         | None = None,
-        sort_order: list[models.AskAgentProjectPodcastRelevancySearchOptionsVariant1SortOrderItem] | None = None,
+        sort_order: list[models.AskAgentProjectPodcastRelevancySearchOptionsVariant2SortOrderItem] | None = None,
+        include_match_snippet: bool | None = None,
         include_transcript_snippet: bool | None = None,
         transcript_snippet_length: int | None = None,
         transcript_highlight_length: int | None = None,
@@ -4120,7 +4176,7 @@ class AsyncSearchResource:
         """
         Search Episodes
 
-        Search for episodes by title, description, or transcript text, with optional filters on guest, host, and sponsor names
+        Search for episodes by title, description, or transcript text, with optional filters on guest, host, and sponsor names. For matching transcript text, send includeMatchSnippet: true with a text search term targeting transcript, then read result.hits[].matchSnippet. It returns the best passage (about 400 characters), with matches marked by <em> tags. transcriptHighlights contains highlighted fragments; with includeMatchSnippet it contains the same single passage. The legacy includeTranscriptSnippet option returns transcriptTextSnippet from the start of the transcript, which may be an intro or advertisement, not the matching passage. matchSnippet is omitted for filter-only searches or when no transcript passage matches. Timestamps are not yet available.
         """
         return _adapter_searchEpisodes.validate_python(
             await self._core.request(
@@ -4155,6 +4211,7 @@ class AsyncSearchResource:
                     "podcastAuthorityScore": podcast_authority_score,
                     "podcastAudienceEstimatedMonthlyListeners": podcast_audience_estimated_monthly_listeners,
                     "sortOrder": sort_order,
+                    "includeMatchSnippet": include_match_snippet,
                     "includeTranscriptSnippet": include_transcript_snippet,
                     "transcriptSnippetLength": transcript_snippet_length,
                     "transcriptHighlightLength": transcript_highlight_length,

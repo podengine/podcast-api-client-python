@@ -68,3 +68,37 @@ def test_async_round_trip() -> None:
                 assert isinstance(res, GetLatestChartResponse)
 
     asyncio.run(go())
+
+
+@respx.mock
+def test_transcript_passage_count_and_cursor(respx_mock: respx.MockRouter) -> None:
+    data = {
+        "episodeId": "ep",
+        "bestPassage": {"id": "best", "text": "<em>match</em>"},
+        "passages": [],
+        "total": {"value": 101, "relation": "gte"},
+        "additionalCount": 100,
+        "truncated": True,
+        "hasMore": False,
+        "nextCursor": None,
+        "passageLimit": 100,
+    }
+    route = respx_mock.post(f"{BASE}/api/v1/search/episodes/ep/transcript").mock(
+        return_value=httpx.Response(200, json={"status": "OK", "data": data})
+    )
+    pe = PodEngine("k", http_client=httpx.Client())
+    result = pe.search.get_transcript_passages(
+        episode_id="ep",
+        search_options={
+            "searchTerms": [{"searchType": "text", "searchTerm": "match", "searchTargets": ["transcript"]}]
+        },
+        page_size=5,
+        cursor="opaque",
+    )
+    body = json.loads(route.calls.last.request.content)
+    assert "episodeId" not in body
+    assert body["cursor"] == "opaque"
+    assert body["searchOptions"]["searchTerms"][0]["searchTerm"] == "match"
+    assert result.total.relation == "gte"
+    assert result.additional_count == 100
+    assert result.has_more is False

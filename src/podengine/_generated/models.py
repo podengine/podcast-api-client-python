@@ -308,6 +308,7 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant2(BaseModel):
     sort_order: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2SortOrderItem] | None = Field(
         default=None, alias="sortOrder"
     )
+    include_match_snippet: bool | None = Field(default=None, alias="includeMatchSnippet")
     include_transcript_snippet: bool | None = Field(default=None, alias="includeTranscriptSnippet")
     transcript_snippet_length: int | None = Field(default=None, alias="transcriptSnippetLength")
     transcript_highlight_length: int | None = Field(default=None, alias="transcriptHighlightLength")
@@ -2970,6 +2971,130 @@ class RemoveListedPodcastFromProjectResponse(BaseModel):
     listed_podcast_id: str = Field(alias="listedPodcastId")
 
 
+class GetTranscriptPassagesSearchOptions(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    cursor: str | None = None
+    page_size: int | None = Field(default=None, alias="pageSize")
+    project: AskAgentProjectPodcastRelevancySearchOptionsVariant1Project | None = None
+    project_id: str | None = Field(default=None, alias="projectId")
+    search_terms: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2SearchTermsItem] | None = Field(
+        default=None, alias="searchTerms"
+    )
+    exclude_itunes_genres: list[str] | None = Field(default=None, alias="excludeItunesGenres")
+    exclude_podcast_ids: list[str] | None = Field(default=None, alias="excludePodcastIds")
+    exclude_episode_ids: list[str] | None = Field(default=None, alias="excludeEpisodeIds")
+    explicit: Literal["clean", "explicit"] | None = None
+    founded_since: Any | None = Field(default=None, alias="foundedSince")
+    has_primary_contact: bool | None = Field(default=None, alias="hasPrimaryContact")
+    has_socials: (
+        list[
+            Literal[
+                "beehiiv",
+                "behance",
+                "bluesky",
+                "discord",
+                "facebook",
+                "github",
+                "instagram",
+                "linkedin",
+                "linktree",
+                "mastodon",
+                "medium",
+                "patreon",
+                "pinterest",
+                "reddit",
+                "snapchat",
+                "soundcloud",
+                "substack",
+                "threads",
+                "tiktok",
+                "tumblr",
+                "twitch",
+                "twitter",
+                "vimeo",
+                "whatsapp",
+                "youtube",
+            ]
+        ]
+        | None
+    ) = Field(default=None, alias="hasSocials")
+    include_itunes_genres: list[str] | None = Field(default=None, alias="includeItunesGenres")
+    include_podcast_ids: list[str] | None = Field(default=None, alias="includePodcastIds")
+    languages: list[str] | None = None
+    last_episode_date_since: Any | None = Field(default=None, alias="lastEpisodeDateSince")
+    max_total_episodes: int | None = Field(default=None, alias="maxTotalEpisodes")
+    min_castbox_plays: int | None = Field(default=None, alias="minCastboxPlays")
+    min_castbox_subscribers: int | None = Field(default=None, alias="minCastboxSubscribers")
+    min_itunes_rating: float | None = Field(default=None, alias="minItunesRating")
+    min_itunes_rating_count: int | None = Field(default=None, alias="minItunesRatingCount")
+    min_spotify_rating: float | None = Field(default=None, alias="minSpotifyRating")
+    min_spotify_rating_count: int | None = Field(default=None, alias="minSpotifyRatingCount")
+    min_total_episodes: int | None = Field(default=None, alias="minTotalEpisodes")
+    podcast_countries: list[str] | None = Field(default=None, alias="podcastCountries")
+    podcast_has_guests: bool | None = Field(default=None, alias="podcastHasGuests")
+    podcast_authority_score: AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScore | None = Field(
+        default=None, alias="podcastAuthorityScore"
+    )
+    podcast_audience_estimated_monthly_listeners: (
+        AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAudienceEstimatedMonthlyListeners | None
+    ) = Field(default=None, alias="podcastAudienceEstimatedMonthlyListeners")
+    sort_order: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2SortOrderItem] | None = Field(
+        default=None, alias="sortOrder"
+    )
+    include_match_snippet: bool | None = Field(default=None, alias="includeMatchSnippet")
+    include_transcript_snippet: bool | None = Field(default=None, alias="includeTranscriptSnippet")
+    transcript_snippet_length: int | None = Field(default=None, alias="transcriptSnippetLength")
+    transcript_highlight_length: int | None = Field(default=None, alias="transcriptHighlightLength")
+    include_episode_ids: list[str] | None = Field(default=None, alias="includeEpisodeIds")
+    published_since: Any | None = Field(default=None, alias="publishedSince")
+    published_before: Any | None = Field(default=None, alias="publishedBefore")
+    has_transcript: bool | None = Field(default=None, alias="hasTranscript")
+    episode_updated_since: Any | None = Field(default=None, alias="episodeUpdatedSince")
+    episode_created_since: Any | None = Field(default=None, alias="episodeCreatedSince")
+    person_filters: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2PersonFiltersItem] | None = Field(
+        default=None, alias="personFilters"
+    )
+    sponsor_filters: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2SponsorFiltersItem] | None = Field(
+        default=None, alias="sponsorFilters"
+    )
+
+
+class GetTranscriptPassagesResponseBestPassage(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    text: str
+
+
+class GetTranscriptPassagesResponsePassagesItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    text: str
+
+
+class GetTranscriptPassagesResponseTotal(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    value: int
+    relation: Literal["eq", "gte"]
+
+
+class GetTranscriptPassagesResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    episode_id: str = Field(alias="episodeId")
+    best_passage: GetTranscriptPassagesResponseBestPassage | None = Field(alias="bestPassage")
+    passages: list[GetTranscriptPassagesResponsePassagesItem]
+    total: GetTranscriptPassagesResponseTotal
+    additional_count: int = Field(alias="additionalCount")
+    has_more: bool = Field(alias="hasMore")
+    next_cursor: str | None = Field(alias="nextCursor")
+    truncated: bool
+    passage_limit: Literal[100] = Field(alias="passageLimit")
+
+
 class SearchAutocompletePodcastsResponsePodcastsItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -3592,6 +3717,7 @@ class SearchEpisodesResponseResultHitsItem(BaseModel):
     episode_description_highlights: list[str] | None = Field(default=None, alias="episodeDescriptionHighlights")
     episode_title_highlights: list[str] | None = Field(default=None, alias="episodeTitleHighlights")
     transcript_highlights: list[str] | None = Field(default=None, alias="transcriptHighlights")
+    match_snippet: str | None = Field(default=None, alias="matchSnippet")
     transcript_text_snippet: str | None = Field(default=None, alias="transcriptTextSnippet")
 
 
