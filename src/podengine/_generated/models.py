@@ -654,6 +654,9 @@ class GetChartResponseChartPositionsItem(BaseModel):
 
     position: float
     estimated_monthly_listeners: int | None = Field(alias="estimatedMonthlyListeners")
+    estimated_monthly_listeners_bucket: Literal["0-1K", "1K-10K", "10K-100K", "100K-1M", "1M+"] | None = Field(
+        alias="estimatedMonthlyListenersBucket"
+    )
     podcast_on_chart: GetChartResponseChartPositionsItemPodcastOnChart = Field(alias="podcastOnChart")
     podengine_podcast: GetChartResponseChartPositionsItemPodenginePodcast | None = Field(alias="podenginePodcast")
     previous_position: float | None = Field(alias="previousPosition")
@@ -1166,6 +1169,9 @@ class GetLatestEpisodesResponseLatestPodcastsItemEpisodesItemAudienceEstimate(Ba
         GetLatestEpisodesResponseLatestPodcastsItemEpisodesItemAudienceEstimateAudienceDemographics | None
     ) = Field(alias="audienceDemographics")
     estimated_monthly_listeners: float | None = Field(alias="estimatedMonthlyListeners")
+    estimated_monthly_listeners_bucket: Literal["0-1K", "1K-10K", "10K-100K", "100K-1M", "1M+"] | None = Field(
+        default=None, alias="estimatedMonthlyListenersBucket"
+    )
     estimated_monthy_listeners_calculated_at: Any | None = Field(alias="estimatedMonthyListenersCalculatedAt")
     confidence: Literal["high", "medium", "low"] | None = None
     is_dormant: bool | None = Field(default=None, alias="isDormant")
@@ -1779,6 +1785,9 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimate(BaseModel)
         GetLatestEpisodesResponseLatestPodcastsItemEpisodesItemAudienceEstimateAudienceDemographics | None
     ) = Field(alias="audienceDemographics")
     estimated_monthly_listeners: float | None = Field(alias="estimatedMonthlyListeners")
+    estimated_monthly_listeners_bucket: Literal["0-1K", "1K-10K", "10K-100K", "100K-1M", "1M+"] | None = Field(
+        default=None, alias="estimatedMonthlyListenersBucket"
+    )
     estimated_monthy_listeners_calculated_at: Any | None = Field(alias="estimatedMonthyListenersCalculatedAt")
     confidence: Literal["high", "medium", "low"] | None = None
     is_dormant: bool | None = Field(default=None, alias="isDormant")
