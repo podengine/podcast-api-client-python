@@ -464,6 +464,8 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
             "offset",
             "minRating",
             "maxRating",
+            "q",
+            "sort",
         ),
         body="none",
         binary=False,
@@ -1858,6 +1860,8 @@ class PodcastsResource:
         offset: float | None = None,
         min_rating: int | None = None,
         max_rating: int | None = None,
+        q: str | None = None,
+        sort: Literal["newest", "lowest", "highest"] | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastReviewsResponse:
         """
@@ -1875,6 +1879,8 @@ class PodcastsResource:
                     "offset": offset,
                     "minRating": min_rating,
                     "maxRating": max_rating,
+                    "q": q,
+                    "sort": sort,
                 },
                 request_options,
             )
@@ -3768,6 +3774,8 @@ class AsyncPodcastsResource:
         offset: float | None = None,
         min_rating: int | None = None,
         max_rating: int | None = None,
+        q: str | None = None,
+        sort: Literal["newest", "lowest", "highest"] | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastReviewsResponse:
         """
@@ -3785,6 +3793,8 @@ class AsyncPodcastsResource:
                     "offset": offset,
                     "minRating": min_rating,
                     "maxRating": max_rating,
+                    "q": q,
+                    "sort": sort,
                 },
                 request_options,
             )

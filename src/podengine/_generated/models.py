@@ -2098,6 +2098,7 @@ class GetPodcastAllDetailsResponsePodcastReviewsApplePodcastsReviewTextReviewsIt
     body: str
     author: str
     reviewed_at: Any = Field(alias="reviewedAt")
+    matched_words: list[str] | None = Field(default=None, alias="matchedWords")
 
 
 class GetPodcastAllDetailsResponsePodcastReviewsApplePodcastsReviewText(BaseModel):
@@ -2372,6 +2373,7 @@ class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItem(BaseModel):
     association_tier: Literal["associated", "candidate", "unverified"] | None = Field(
         default=None, alias="associationTier"
     )
+    association_role: Literal["primary", "valid_secondary"] | None = Field(default=None, alias="associationRole")
     stats_history: list[GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemStatsHistoryItem] | None = Field(
         default=None, alias="statsHistory"
     )
