@@ -3515,6 +3515,11 @@ class SearchEpisodesResponseResultHitsItemEpisodeGuestsAndHostsItem(BaseModel):
 class SearchEpisodesResponseResultHitsItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
+    episode_audio_key: str | None = Field(default=None, alias="episodeAudioKey")
+    episode_podcast_language_denormalized: str | None = Field(default=None, alias="episodePodcastLanguageDenormalized")
+    episode_podcast_top_genres_denormalized: list[str] | None = Field(
+        default=None, alias="episodePodcastTopGenresDenormalized"
+    )
     episode_created_at: datetime | None = Field(default=None, alias="episodeCreatedAt")
     episode_updated_at: datetime | None = Field(default=None, alias="episodeUpdatedAt")
     episode_rss_description_no_html: str | None = Field(default=None, alias="episodeRssDescriptionNoHtml")
