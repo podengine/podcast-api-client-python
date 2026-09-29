@@ -3173,6 +3173,7 @@ class SearchPodcastsResponseResultHitsItemChartPositionsItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     date: str
+    chart_latest_date: str | None = None
     chart_type: str
     country_code: str
     category: str
@@ -3315,6 +3316,7 @@ class SearchPodcastsResponseResultHitsItem(BaseModel):
     chart_positions: list[SearchPodcastsResponseResultHitsItemChartPositionsItem] | None = Field(
         default=None, alias="chartPositions"
     )
+    chart_positions_calculated_at: datetime | None = Field(default=None, alias="chartPositionsCalculatedAt")
     ignore: bool | None = None
     podcast_affiliation_organization_name: str | None = Field(default=None, alias="podcastAffiliationOrganizationName")
     podcast_affiliation_type: str | None = Field(default=None, alias="podcastAffiliationType")
@@ -3562,6 +3564,7 @@ class SearchEpisodesResponseResultHitsItem(BaseModel):
     chart_positions: list[SearchPodcastsResponseResultHitsItemChartPositionsItem] | None = Field(
         default=None, alias="chartPositions"
     )
+    chart_positions_calculated_at: datetime | None = Field(default=None, alias="chartPositionsCalculatedAt")
     ignore: bool | None = None
     podcast_affiliation_organization_name: str | None = Field(default=None, alias="podcastAffiliationOrganizationName")
     podcast_affiliation_type: str | None = Field(default=None, alias="podcastAffiliationType")
