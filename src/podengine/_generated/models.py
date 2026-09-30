@@ -2324,6 +2324,13 @@ class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemVideosItemEpi
     title: str
 
 
+class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemVideosItemReadingsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    recorded_at: Any = Field(alias="recordedAt")
+    view_count: float = Field(alias="viewCount")
+
+
 class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemVideosItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -2338,6 +2345,9 @@ class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemVideosItem(Ba
     duration_seconds: float | None = Field(default=None, alias="durationSeconds")
     duration_checked_at: Any | None = Field(default=None, alias="durationCheckedAt")
     episode: GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemVideosItemEpisode | None = None
+    like_count: float | None = Field(default=None, alias="likeCount")
+    comment_count: float | None = Field(default=None, alias="commentCount")
+    readings: list[GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemVideosItemReadingsItem] | None = None
 
 
 class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemStatsHistoryItem(BaseModel):
@@ -2345,6 +2355,16 @@ class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemStatsHistoryI
 
     recorded_at: Any = Field(alias="recordedAt")
     subscriber_count: float = Field(alias="subscriberCount")
+    view_count: float | None = Field(default=None, alias="viewCount")
+    video_count: float | None = Field(default=None, alias="videoCount")
+
+
+class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemRecentEpisodeCoverage(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    window_days: float = Field(alias="windowDays")
+    episodes: float
+    episodes_with_video: float = Field(alias="episodesWithVideo")
 
 
 class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItem(BaseModel):
@@ -2377,6 +2397,9 @@ class GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItem(BaseModel):
     stats_history: list[GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemStatsHistoryItem] | None = Field(
         default=None, alias="statsHistory"
     )
+    recent_episode_coverage: (
+        GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItemRecentEpisodeCoverage | None
+    ) = Field(default=None, alias="recentEpisodeCoverage")
 
 
 class GetPodcastAllDetailsResponsePodcastYoutubeData(BaseModel):
