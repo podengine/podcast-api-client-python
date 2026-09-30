@@ -999,7 +999,7 @@ class GetPodcastChartHistoryResponseHistoryChart(BaseModel):
 class GetPodcastChartHistoryResponseHistoryRange(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    range: Literal["30d", "90d", "6m", "1y", "all"]
+    range: Literal["30d", "90d", "14w", "6m", "1y", "all"]
     start_date: str = Field(alias="startDate")
     end_date: str = Field(alias="endDate")
 
@@ -2522,6 +2522,100 @@ class GetPodcastSponsorsResponse(BaseModel):
 
     podcast: GetLatestEpisodesResponseLatestPodcastsItemPodcast
     sponsors: GetPodcastSponsorsResponseSponsors
+
+
+class GetPodcastChartPresenceResponsePresenceWindowWeeksItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    start_date: str = Field(alias="startDate")
+    end_date: str = Field(alias="endDate")
+    is_partial: bool = Field(alias="isPartial")
+
+
+class GetPodcastChartPresenceResponsePresenceWindow(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    start_date: str = Field(alias="startDate")
+    end_date: str = Field(alias="endDate")
+    weeks: list[GetPodcastChartPresenceResponsePresenceWindowWeeksItem]
+
+
+class GetPodcastChartPresenceResponsePresenceSummaryOnNowByPlatform(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    apple: float
+    spotify: float
+
+
+class GetPodcastChartPresenceResponsePresenceSummary(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    on_now: float = Field(alias="onNow")
+    markets: float
+    on_now_by_platform: GetPodcastChartPresenceResponsePresenceSummaryOnNowByPlatform = Field(alias="onNowByPlatform")
+    dropped_off30d: float = Field(alias="droppedOff30d")
+    older: float
+    top10_now: float = Field(alias="top10Now")
+
+
+class GetPodcastChartPresenceResponsePresenceChartsItemLastSeen(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str
+    position: int
+
+
+class GetPodcastChartPresenceResponsePresenceChartsItemPrevious(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str
+    position: int
+
+
+class GetPodcastChartPresenceResponsePresenceChartsItemWeeksItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    best: int | None
+    status: Literal["observed", "off_chart", "no_chart", "unknown"]
+
+
+class GetPodcastChartPresenceResponsePresenceChartsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    chart_type: Literal["apple", "spotify"] = Field(alias="chartType")
+    country: str
+    category: str
+    state: Literal["on_now", "dropped_30d", "older", "unknown"]
+    latest_capture_date: str = Field(alias="latestCaptureDate")
+    last_seen: GetPodcastChartPresenceResponsePresenceChartsItemLastSeen = Field(alias="lastSeen")
+    previous: GetPodcastChartPresenceResponsePresenceChartsItemPrevious | None
+    change_kind: Literal["moved", "unchanged", "new", "back", "off", "unknown"] = Field(alias="changeKind")
+    change: int | None
+    weeks: list[GetPodcastChartPresenceResponsePresenceChartsItemWeeksItem]
+    weeks_on: int = Field(alias="weeksOn")
+    weeks_captured: int = Field(alias="weeksCaptured")
+    captures_in_window: int = Field(alias="capturesInWindow")
+    days_on_chart_in_window: int = Field(alias="daysOnChartInWindow")
+    best_in_window: float | None = Field(alias="bestInWindow")
+    average_in_window: float | None = Field(alias="averageInWindow")
+    best_all_time: GetPodcastChartPresenceResponsePresenceChartsItemLastSeen = Field(alias="bestAllTime")
+    first_seen_date: str = Field(alias="firstSeenDate")
+
+
+class GetPodcastChartPresenceResponsePresence(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    window: GetPodcastChartPresenceResponsePresenceWindow
+    latest_chart_date: str | None = Field(alias="latestChartDate")
+    home_country: str | None = Field(alias="homeCountry")
+    summary: GetPodcastChartPresenceResponsePresenceSummary
+    charts: list[GetPodcastChartPresenceResponsePresenceChartsItem]
+
+
+class GetPodcastChartPresenceResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    presence: GetPodcastChartPresenceResponsePresence
 
 
 class GetPodcastChartsResponseOptions(BaseModel):

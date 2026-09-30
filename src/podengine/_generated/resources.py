@@ -386,6 +386,14 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         body="none",
         binary=False,
     ),
+    "getPodcastChartPresence": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/podcasts/{podcastIdOrSlug}/charts/presence",
+        path_params=("podcastIdOrSlug",),
+        query_params=("endDate",),
+        body="none",
+        binary=False,
+    ),
     "getPodcastCharts": EndpointDescriptor(
         method="GET",
         path="/api/v1/podcasts/{podcastIdOrSlug}/charts",
@@ -761,6 +769,7 @@ _adapter_getLatestPodcasts: TypeAdapter[Any] = TypeAdapter(models.GetLatestPodca
 _adapter_getMultiplePodcasts: TypeAdapter[Any] = TypeAdapter(models.GetMultiplePodcastsResponse)
 _adapter_getPodcast: TypeAdapter[Any] = TypeAdapter(models.GetPodcastResponse)
 _adapter_getPodcastAllDetails: TypeAdapter[Any] = TypeAdapter(models.GetPodcastAllDetailsResponse)
+_adapter_getPodcastChartPresence: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartPresenceResponse)
 _adapter_getPodcastCharts: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartsResponse)
 _adapter_getPodcastContacts: TypeAdapter[Any] = TypeAdapter(models.GetPodcastContactsResponse)
 _adapter_getPodcastEpisodes: TypeAdapter[Any] = TypeAdapter(models.GetPodcastEpisodesResponse)
@@ -1233,7 +1242,7 @@ class ChartsResource:
         chart_type: Literal["apple", "spotify"] | None = None,
         category: str | None = None,
         country: str | None = None,
-        range: Literal["30d", "90d", "6m", "1y", "all"] | None = None,
+        range: Literal["30d", "90d", "14w", "6m", "1y", "all"] | None = None,
         date: str | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastChartHistoryResponse:
@@ -1714,6 +1723,26 @@ class PodcastsResource:
         return _adapter_getPodcastAllDetails.validate_python(
             self._core.request(
                 _DESCRIPTORS["getPodcastAllDetails"], {"podcastIdOrSlug": podcast_id_or_slug}, request_options
+            )
+        )
+
+    def get_podcast_chart_presence(
+        self,
+        *,
+        podcast_id_or_slug: str,
+        end_date: str | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastChartPresenceResponse:
+        """
+        Podcast Chart Presence
+
+        Current and historical charts for a podcast, with 14 UTC weekly best-rank cells and capture-based coverage.
+        """
+        return _adapter_getPodcastChartPresence.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getPodcastChartPresence"],
+                {"podcastIdOrSlug": podcast_id_or_slug, "endDate": end_date},
+                request_options,
             )
         )
 
@@ -3137,7 +3166,7 @@ class AsyncChartsResource:
         chart_type: Literal["apple", "spotify"] | None = None,
         category: str | None = None,
         country: str | None = None,
-        range: Literal["30d", "90d", "6m", "1y", "all"] | None = None,
+        range: Literal["30d", "90d", "14w", "6m", "1y", "all"] | None = None,
         date: str | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastChartHistoryResponse:
@@ -3628,6 +3657,26 @@ class AsyncPodcastsResource:
         return _adapter_getPodcastAllDetails.validate_python(
             await self._core.request(
                 _DESCRIPTORS["getPodcastAllDetails"], {"podcastIdOrSlug": podcast_id_or_slug}, request_options
+            )
+        )
+
+    async def get_podcast_chart_presence(
+        self,
+        *,
+        podcast_id_or_slug: str,
+        end_date: str | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastChartPresenceResponse:
+        """
+        Podcast Chart Presence
+
+        Current and historical charts for a podcast, with 14 UTC weekly best-rank cells and capture-based coverage.
+        """
+        return _adapter_getPodcastChartPresence.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getPodcastChartPresence"],
+                {"podcastIdOrSlug": podcast_id_or_slug, "endDate": end_date},
+                request_options,
             )
         )
 
