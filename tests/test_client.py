@@ -9,7 +9,11 @@ import httpx
 import respx
 
 from podengine import AsyncPodEngine, PodEngine
-from podengine._generated.models import GetAlternativeSpellingsResponse, GetLatestChartResponse
+from podengine._generated.models import (
+    GetAlternativeSpellingsResponse,
+    GetLatestChartResponse,
+    GetTranscriptPassagesSearchOptions,
+)
 
 BASE = "https://api.podengine.ai"
 
@@ -89,9 +93,18 @@ def test_transcript_passage_count_and_cursor(respx_mock: respx.MockRouter) -> No
     pe = PodEngine("k", http_client=httpx.Client())
     result = pe.search.get_transcript_passages(
         episode_id="ep",
-        search_options={
-            "searchTerms": [{"searchType": "text", "searchTerm": "match", "searchTargets": ["transcript"]}]
-        },
+        search_options=GetTranscriptPassagesSearchOptions.model_validate(
+            {
+                "searchTerms": [
+                    {
+                        "searchType": "text",
+                        "searchTerm": "match",
+                        "searchTargets": ["transcript"],
+                        "searchTermOptions": {"matchMode": "must"},
+                    }
+                ]
+            }
+        ),
         page_size=5,
         cursor="opaque",
     )
