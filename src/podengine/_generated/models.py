@@ -3014,6 +3014,10 @@ class AddPodcastToProjectResponseListedPodcastPodcast(BaseModel):
     title_latest: str = Field(alias="titleLatest")
     slug: str
     image_url: str | None = Field(alias="imageUrl")
+    estimated_monthly_listeners: int | None = Field(alias="estimatedMonthlyListeners")
+    estimated_monthly_listeners_bucket: Literal["0-1K", "1K-10K", "10K-100K", "100K-1M", "1M+"] | None = Field(
+        alias="estimatedMonthlyListenersBucket"
+    )
 
 
 class AddPodcastToProjectResponseListedPodcastAddedByUser(BaseModel):
