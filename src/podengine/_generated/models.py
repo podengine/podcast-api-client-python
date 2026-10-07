@@ -1892,119 +1892,6 @@ class GetPodcastIdLookupResponse(BaseModel):
     podcast: GetChartResponseChartPositionsItemPodenginePodcast | None
 
 
-class GetAppleIdComprehensiveLookupResponsePodcast(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    id: str
-    slug: str
-    title: str
-    image_url: str | None = Field(alias="imageUrl")
-    is_primary_apple_id: bool = Field(alias="isPrimaryAppleId")
-    primary_apple_id: float = Field(alias="primaryAppleId")
-    created_at: Any = Field(alias="createdAt")
-    pod_engine_url: str = Field(alias="podEngineUrl")
-
-
-class GetAppleIdComprehensiveLookupResponseImportRequest(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    id: float
-    apple_title: str = Field(alias="appleTitle")
-    rss_url: str = Field(alias="rssUrl")
-    creation_source: str = Field(alias="creationSource")
-    created_at: Any = Field(alias="createdAt")
-    imported_at: Any | None = Field(alias="importedAt")
-    podcast_id: str | None = Field(alias="podcastId")
-    import_error_at: Any | None = Field(alias="importErrorAt")
-    import_error: str | None = Field(alias="importError")
-    import_error_type: str | None = Field(alias="importErrorType")
-
-
-class GetAppleIdComprehensiveLookupResponseScraperDataEntriesItem(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    id: float
-    country: str
-    podcast_title: str = Field(alias="podcastTitle")
-    created_at: Any = Field(alias="createdAt")
-    last_scraped_at: Any | None = Field(alias="lastScrapedAt")
-    last_success_at: Any | None = Field(alias="lastSuccessAt")
-    last_error_at: Any | None = Field(alias="lastErrorAt")
-    rss_url: str | None = Field(alias="rssUrl")
-    ratings_count: float | None = Field(alias="ratingsCount")
-    average_rating: float | None = Field(alias="averageRating")
-    episodes_count: float | None = Field(alias="episodesCount")
-    last_episode_date: Any | None = Field(alias="lastEpisodeDate")
-    is_likely_non_english_title: bool = Field(alias="isLikelyNonEnglishTitle")
-    skipped_podcast_import_reason: str | None = Field(alias="skippedPodcastImportReason")
-    skipped_podcast_import_at: Any | None = Field(alias="skippedPodcastImportAt")
-
-
-class GetAppleIdComprehensiveLookupResponseScraperDataRecentAttemptsItem(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    id: float
-    created_at: Any = Field(alias="createdAt")
-    type: str
-    url: str
-    apple_id: float | None = Field(alias="appleId")
-    spotify_id: str | None = Field(alias="spotifyId")
-    podcast_id: str | None = Field(alias="podcastId")
-    error_type: str | None = Field(alias="errorType")
-    error_details: str | None = Field(alias="errorDetails")
-    time_taken_ms: float = Field(alias="timeTakenMs")
-
-
-class GetAppleIdComprehensiveLookupResponseScraperData(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    entries: list[GetAppleIdComprehensiveLookupResponseScraperDataEntriesItem]
-    countries: list[str]
-    most_recent_scrape: Any | None = Field(alias="mostRecentScrape")
-    recent_attempts: list[GetAppleIdComprehensiveLookupResponseScraperDataRecentAttemptsItem] = Field(
-        alias="recentAttempts"
-    )
-
-
-class GetAppleIdComprehensiveLookupResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    apple_id: float = Field(alias="appleId")
-    status: Literal[
-        "found",
-        "linked",
-        "apple_details_not_found",
-        "apple_not_scraped",
-        "create_podcast_failed",
-        "duplicate_apple_id",
-        "duplicate_podcast_guid",
-        "duplicate_rss_url",
-        "malformed_apple_url",
-        "no_episodes_count",
-        "no_podcast_image",
-        "non_us_apple_url",
-        "podcast_blocked",
-        "not_active",
-        "request_not_found",
-        "rss_download_failed",
-        "rss_parsing_failed",
-        "rss_url_not_found",
-        "import_error_unknown",
-        "pending_import",
-        "scraped_not_imported_non_english",
-        "scraped_not_imported_no_rss_url",
-        "scraped_not_imported_not_fully_scraped",
-        "scraped_not_imported_too_few_episodes",
-        "scraped_not_imported_inactive",
-        "scraped_not_imported_low_engagement",
-        "scraped_not_imported_unknown",
-        "not_found",
-    ]
-    podcast: GetAppleIdComprehensiveLookupResponsePodcast | None
-    import_request: GetAppleIdComprehensiveLookupResponseImportRequest | None = Field(alias="importRequest")
-    scraper_data: GetAppleIdComprehensiveLookupResponseScraperData | None = Field(alias="scraperData")
-
-
 class GetPodcastAllDetailsResponsePodcastContactsEmailsItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -2434,10 +2321,50 @@ class GetPodcastAllDetailsResponse(BaseModel):
     podcast: GetPodcastAllDetailsResponsePodcast
 
 
+class GetPodcastResponsePlatformsApple(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: float
+    url: str
+
+
+class GetPodcastResponsePlatformsSpotify(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    url: str
+
+
+class GetPodcastResponsePlatformsYoutube(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    channel_id: str = Field(alias="channelId")
+    url: str
+    tier: Literal["associated", "candidate"]
+
+
+class GetPodcastResponsePlatformsDerived(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    overcast: str
+    pocket_casts: str = Field(alias="pocketCasts")
+    castro: str
+
+
+class GetPodcastResponsePlatforms(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    apple: GetPodcastResponsePlatformsApple
+    spotify: GetPodcastResponsePlatformsSpotify | None
+    youtube: GetPodcastResponsePlatformsYoutube | None
+    derived: GetPodcastResponsePlatformsDerived
+
+
 class GetPodcastResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     podcast: GetMultiplePodcastsResponsePodcastsItemVariant2
+    platforms: GetPodcastResponsePlatforms | None = None
 
 
 class GetPodcastEpisodesResponseOptions(BaseModel):

@@ -343,14 +343,6 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         body="none",
         binary=False,
     ),
-    "getAppleIdComprehensiveLookup": EndpointDescriptor(
-        method="GET",
-        path="/api/v1/podcasts/apple-id/lookup",
-        path_params=(),
-        query_params=("id",),
-        body="none",
-        binary=False,
-    ),
     "getLatestPodcasts": EndpointDescriptor(
         method="GET",
         path="/api/v1/podcasts/latest",
@@ -383,6 +375,14 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         path="/api/v1/podcasts/{podcastIdOrSlug}/all-details",
         path_params=("podcastIdOrSlug",),
         query_params=(),
+        body="none",
+        binary=False,
+    ),
+    "getPodcastByFeedUrl": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/podcasts/by-feed-url",
+        path_params=(),
+        query_params=("rssFeedUrl",),
         body="none",
         binary=False,
     ),
@@ -450,6 +450,8 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
             "spotifyId",
             "slug",
             "podEngineId",
+            "rssFeedUrl",
+            "podcastGuid",
         ),
         body="none",
         binary=False,
@@ -764,11 +766,11 @@ _adapter_updateGuestProfileSocialMediaLinks: TypeAdapter[Any] = TypeAdapter(
     models.UpdateGuestProfileSocialMediaLinksResponse
 )
 _adapter_uploadDocuments: TypeAdapter[Any] = TypeAdapter(models.UploadDocumentsResponse)
-_adapter_getAppleIdComprehensiveLookup: TypeAdapter[Any] = TypeAdapter(models.GetAppleIdComprehensiveLookupResponse)
 _adapter_getLatestPodcasts: TypeAdapter[Any] = TypeAdapter(models.GetLatestPodcastsResponse)
 _adapter_getMultiplePodcasts: TypeAdapter[Any] = TypeAdapter(models.GetMultiplePodcastsResponse)
 _adapter_getPodcast: TypeAdapter[Any] = TypeAdapter(models.GetPodcastResponse)
 _adapter_getPodcastAllDetails: TypeAdapter[Any] = TypeAdapter(models.GetPodcastAllDetailsResponse)
+_adapter_getPodcastByFeedUrl: TypeAdapter[Any] = TypeAdapter(models.GetPodcastResponse)
 _adapter_getPodcastChartPresence: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartPresenceResponse)
 _adapter_getPodcastCharts: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartsResponse)
 _adapter_getPodcastContacts: TypeAdapter[Any] = TypeAdapter(models.GetPodcastContactsResponse)
@@ -1646,21 +1648,6 @@ class PodcastsResource:
     def __init__(self, core: PodEngineCore) -> None:
         self._core = core
 
-    def get_apple_id_comprehensive_lookup(
-        self,
-        *,
-        id: int,
-        request_options: RequestOptions | None = None,
-    ) -> models.GetAppleIdComprehensiveLookupResponse:
-        """
-        Apple ID Comprehensive Lookup
-
-        Comprehensive lookup by Apple ID - checks Podcast, PodcastAppleId, PodcastNewRequest, and scraper database
-        """
-        return _adapter_getAppleIdComprehensiveLookup.validate_python(
-            self._core.request(_DESCRIPTORS["getAppleIdComprehensiveLookup"], {"id": id}, request_options)
-        )
-
     def get_latest_podcasts(
         self,
         *,
@@ -1703,7 +1690,7 @@ class PodcastsResource:
         """
         Podcast Details
 
-        Get a podcast by ID or slug
+        Get a podcast by its Pod Engine ID or slug, Apple Podcasts ID, Spotify show ID or podcast:guid. The response includes `platforms`: where the show is listed on Apple Podcasts, Spotify and YouTube, plus Overcast, Pocket Casts and Castro links built from the Apple ID. To look a podcast up by its RSS feed URL, use Podcast Details by Feed URL.
         """
         return _adapter_getPodcast.validate_python(
             self._core.request(_DESCRIPTORS["getPodcast"], {"podcastIdOrSlug": podcast_id_or_slug}, request_options)
@@ -1724,6 +1711,21 @@ class PodcastsResource:
             self._core.request(
                 _DESCRIPTORS["getPodcastAllDetails"], {"podcastIdOrSlug": podcast_id_or_slug}, request_options
             )
+        )
+
+    def get_podcast_by_feed_url(
+        self,
+        *,
+        rss_feed_url: str,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastResponse:
+        """
+        Podcast Details by Feed URL
+
+        Get a podcast, and where it is listed, from its RSS feed URL. http and https, a trailing slash and the case of the host are ignored, and a feed that has moved host still matches the URL we first tracked it under. Returns the same response as Podcast Details, and counts as a podcast lookup in the same way. Returns 404 when we do not track the feed.
+        """
+        return _adapter_getPodcastByFeedUrl.validate_python(
+            self._core.request(_DESCRIPTORS["getPodcastByFeedUrl"], {"rssFeedUrl": rss_feed_url}, request_options)
         )
 
     def get_podcast_chart_presence(
@@ -1848,17 +1850,26 @@ class PodcastsResource:
         spotify_id: str | None = None,
         slug: str | None = None,
         pod_engine_id: str | None = None,
+        rss_feed_url: str | None = None,
+        podcast_guid: str | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastIdLookupResponse:
         """
         Podcast ID Lookup
 
-        Lookup a podcast by ID
+        Find the Pod Engine podcast for an ID you already have: an Apple Podcasts ID, a Spotify show ID, an RSS feed URL, a podcast:guid, or a Pod Engine slug or ID. Pass exactly one. Returns basic details, or null when we do not track the podcast. Does not count towards your podcast lookups.
         """
         return _adapter_getPodcastIdLookup.validate_python(
             self._core.request(
                 _DESCRIPTORS["getPodcastIdLookup"],
-                {"appleId": apple_id, "spotifyId": spotify_id, "slug": slug, "podEngineId": pod_engine_id},
+                {
+                    "appleId": apple_id,
+                    "spotifyId": spotify_id,
+                    "slug": slug,
+                    "podEngineId": pod_engine_id,
+                    "rssFeedUrl": rss_feed_url,
+                    "podcastGuid": podcast_guid,
+                },
                 request_options,
             )
         )
@@ -3576,21 +3587,6 @@ class AsyncPodcastsResource:
     def __init__(self, core: AsyncPodEngineCore) -> None:
         self._core = core
 
-    async def get_apple_id_comprehensive_lookup(
-        self,
-        *,
-        id: int,
-        request_options: RequestOptions | None = None,
-    ) -> models.GetAppleIdComprehensiveLookupResponse:
-        """
-        Apple ID Comprehensive Lookup
-
-        Comprehensive lookup by Apple ID - checks Podcast, PodcastAppleId, PodcastNewRequest, and scraper database
-        """
-        return _adapter_getAppleIdComprehensiveLookup.validate_python(
-            await self._core.request(_DESCRIPTORS["getAppleIdComprehensiveLookup"], {"id": id}, request_options)
-        )
-
     async def get_latest_podcasts(
         self,
         *,
@@ -3635,7 +3631,7 @@ class AsyncPodcastsResource:
         """
         Podcast Details
 
-        Get a podcast by ID or slug
+        Get a podcast by its Pod Engine ID or slug, Apple Podcasts ID, Spotify show ID or podcast:guid. The response includes `platforms`: where the show is listed on Apple Podcasts, Spotify and YouTube, plus Overcast, Pocket Casts and Castro links built from the Apple ID. To look a podcast up by its RSS feed URL, use Podcast Details by Feed URL.
         """
         return _adapter_getPodcast.validate_python(
             await self._core.request(
@@ -3658,6 +3654,21 @@ class AsyncPodcastsResource:
             await self._core.request(
                 _DESCRIPTORS["getPodcastAllDetails"], {"podcastIdOrSlug": podcast_id_or_slug}, request_options
             )
+        )
+
+    async def get_podcast_by_feed_url(
+        self,
+        *,
+        rss_feed_url: str,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastResponse:
+        """
+        Podcast Details by Feed URL
+
+        Get a podcast, and where it is listed, from its RSS feed URL. http and https, a trailing slash and the case of the host are ignored, and a feed that has moved host still matches the URL we first tracked it under. Returns the same response as Podcast Details, and counts as a podcast lookup in the same way. Returns 404 when we do not track the feed.
+        """
+        return _adapter_getPodcastByFeedUrl.validate_python(
+            await self._core.request(_DESCRIPTORS["getPodcastByFeedUrl"], {"rssFeedUrl": rss_feed_url}, request_options)
         )
 
     async def get_podcast_chart_presence(
@@ -3782,17 +3793,26 @@ class AsyncPodcastsResource:
         spotify_id: str | None = None,
         slug: str | None = None,
         pod_engine_id: str | None = None,
+        rss_feed_url: str | None = None,
+        podcast_guid: str | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastIdLookupResponse:
         """
         Podcast ID Lookup
 
-        Lookup a podcast by ID
+        Find the Pod Engine podcast for an ID you already have: an Apple Podcasts ID, a Spotify show ID, an RSS feed URL, a podcast:guid, or a Pod Engine slug or ID. Pass exactly one. Returns basic details, or null when we do not track the podcast. Does not count towards your podcast lookups.
         """
         return _adapter_getPodcastIdLookup.validate_python(
             await self._core.request(
                 _DESCRIPTORS["getPodcastIdLookup"],
-                {"appleId": apple_id, "spotifyId": spotify_id, "slug": slug, "podEngineId": pod_engine_id},
+                {
+                    "appleId": apple_id,
+                    "spotifyId": spotify_id,
+                    "slug": slug,
+                    "podEngineId": pod_engine_id,
+                    "rssFeedUrl": rss_feed_url,
+                    "podcastGuid": podcast_guid,
+                },
                 request_options,
             )
         )
