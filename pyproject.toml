@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "podengine"
-version = "0.1.0"
+version = "0.2.0"
 description = "Official Python SDK for the Pod Engine podcast intelligence API — search 4M+ podcasts, fetch metadata, transcripts, charts and more."
 readme = "README.md"
 license = { text = "MIT" }

@@ -22,7 +22,7 @@ from podengine._core.errors import (
 from podengine._generated import models
 from podengine._generated.resources import AsyncPodEngine, PodEngine
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "PodEngine",
