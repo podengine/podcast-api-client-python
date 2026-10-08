@@ -2343,21 +2343,12 @@ class GetPodcastResponsePlatformsYoutube(BaseModel):
     tier: Literal["associated", "candidate"]
 
 
-class GetPodcastResponsePlatformsDerived(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    overcast: str
-    pocket_casts: str = Field(alias="pocketCasts")
-    castro: str
-
-
 class GetPodcastResponsePlatforms(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     apple: GetPodcastResponsePlatformsApple
     spotify: GetPodcastResponsePlatformsSpotify | None
     youtube: GetPodcastResponsePlatformsYoutube | None
-    derived: GetPodcastResponsePlatformsDerived
 
 
 class GetPodcastResponse(BaseModel):
