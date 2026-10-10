@@ -2580,6 +2580,70 @@ class GetPodcastChartsResponse(BaseModel):
     positions: list[GetPodcastChartAppearancesResponseAppearancesAppearancesItem]
 
 
+class GetPodcastEpisodeCatalogueResponseCatalogueEpisodesItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    slug: str
+    title: str
+    published_at: datetime = Field(alias="publishedAt")
+    duration_seconds: float | None = Field(alias="durationSeconds")
+    image_url: str | None = Field(alias="imageUrl")
+    people: list[GetLatestEpisodesResponseLatestPodcastsItemEpisodesItemEpisodeGuestsAndHostsItem] | None
+    sponsors: list[str] | None
+    has_transcript: bool = Field(alias="hasTranscript")
+    release_type: Literal["new", "rerun"] | None = Field(alias="releaseType")
+    apple_podcasts_url: str | None = Field(alias="applePodcastsUrl")
+    youtube_url: str | None = Field(alias="youtubeUrl")
+    spotify_url: str | None = Field(alias="spotifyUrl")
+
+
+class GetPodcastEpisodeCatalogueResponseCatalogueRhythmDaysItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: str
+    count: int
+    runtime_seconds: float | None = Field(alias="runtimeSeconds")
+    future: bool
+
+
+class GetPodcastEpisodeCatalogueResponseCatalogueRhythmWeekdayShift(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    from_day: int = Field(alias="fromDay")
+    to_day: int = Field(alias="toDay")
+    since: str
+
+
+class GetPodcastEpisodeCatalogueResponseCatalogueRhythm(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    start: datetime
+    end: datetime
+    days: list[GetPodcastEpisodeCatalogueResponseCatalogueRhythmDaysItem]
+    episode_count: int = Field(alias="episodeCount")
+    truncated: bool
+    median_runtime_seconds: float | None = Field(alias="medianRuntimeSeconds")
+    median_interval_days: float | None = Field(alias="medianIntervalDays")
+    empty_weeks: list[str] = Field(alias="emptyWeeks")
+    weekday_shift: GetPodcastEpisodeCatalogueResponseCatalogueRhythmWeekdayShift | None = Field(alias="weekdayShift")
+
+
+class GetPodcastEpisodeCatalogueResponseCatalogue(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    episodes: list[GetPodcastEpisodeCatalogueResponseCatalogueEpisodesItem]
+    truncated: bool
+    classification_available: bool = Field(alias="classificationAvailable")
+    rhythm: GetPodcastEpisodeCatalogueResponseCatalogueRhythm
+
+
+class GetPodcastEpisodeCatalogueResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    catalogue: GetPodcastEpisodeCatalogueResponseCatalogue
+
+
 class GetPodcastSocialMediaDetailsResponseSocialMediaData(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 

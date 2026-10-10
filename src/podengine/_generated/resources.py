@@ -418,6 +418,14 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         body="none",
         binary=False,
     ),
+    "getPodcastEpisodeCatalogue": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/podcasts/{podcastIdOrSlug}/episode-catalogue",
+        path_params=("podcastIdOrSlug",),
+        query_params=("view",),
+        body="none",
+        binary=False,
+    ),
     "getPodcastEpisodes": EndpointDescriptor(
         method="GET",
         path="/api/v1/podcasts/{podcastIdOrSlug}/episodes",
@@ -774,6 +782,7 @@ _adapter_getPodcastByFeedUrl: TypeAdapter[Any] = TypeAdapter(models.GetPodcastRe
 _adapter_getPodcastChartPresence: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartPresenceResponse)
 _adapter_getPodcastCharts: TypeAdapter[Any] = TypeAdapter(models.GetPodcastChartsResponse)
 _adapter_getPodcastContacts: TypeAdapter[Any] = TypeAdapter(models.GetPodcastContactsResponse)
+_adapter_getPodcastEpisodeCatalogue: TypeAdapter[Any] = TypeAdapter(models.GetPodcastEpisodeCatalogueResponse)
 _adapter_getPodcastEpisodes: TypeAdapter[Any] = TypeAdapter(models.GetPodcastEpisodesResponse)
 _adapter_getPodcastGuests: TypeAdapter[Any] = TypeAdapter(models.GetPodcastGuestsResponse)
 _adapter_getPodcastIdLookup: TypeAdapter[Any] = TypeAdapter(models.GetPodcastIdLookupResponse)
@@ -1797,6 +1806,26 @@ class PodcastsResource:
         return _adapter_getPodcastContacts.validate_python(
             self._core.request(
                 _DESCRIPTORS["getPodcastContacts"], {"podcastIdOrSlug": podcast_id_or_slug}, request_options
+            )
+        )
+
+    def get_podcast_episode_catalogue(
+        self,
+        *,
+        podcast_id_or_slug: str,
+        view: Literal["summary", "full"],
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastEpisodeCatalogueResponse:
+        """
+        Podcast Episode Catalogue
+
+        See how often a show publishes and what it has released. Returns its publishing rhythm over the last 26 weeks (episodes per day, median runtime, median gap between episodes, missed weeks, a change of release day) and a compact list of its episodes with runtime, hosts and guests, sponsors, transcript availability, new or rerun, and Apple Podcasts and YouTube links. Does not count towards your podcast lookups.
+        """
+        return _adapter_getPodcastEpisodeCatalogue.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getPodcastEpisodeCatalogue"],
+                {"podcastIdOrSlug": podcast_id_or_slug, "view": view},
+                request_options,
             )
         )
 
@@ -3740,6 +3769,26 @@ class AsyncPodcastsResource:
         return _adapter_getPodcastContacts.validate_python(
             await self._core.request(
                 _DESCRIPTORS["getPodcastContacts"], {"podcastIdOrSlug": podcast_id_or_slug}, request_options
+            )
+        )
+
+    async def get_podcast_episode_catalogue(
+        self,
+        *,
+        podcast_id_or_slug: str,
+        view: Literal["summary", "full"],
+        request_options: RequestOptions | None = None,
+    ) -> models.GetPodcastEpisodeCatalogueResponse:
+        """
+        Podcast Episode Catalogue
+
+        See how often a show publishes and what it has released. Returns its publishing rhythm over the last 26 weeks (episodes per day, median runtime, median gap between episodes, missed weeks, a change of release day) and a compact list of its episodes with runtime, hosts and guests, sponsors, transcript availability, new or rerun, and Apple Podcasts and YouTube links. Does not count towards your podcast lookups.
+        """
+        return _adapter_getPodcastEpisodeCatalogue.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getPodcastEpisodeCatalogue"],
+                {"podcastIdOrSlug": podcast_id_or_slug, "view": view},
+                request_options,
             )
         )
 
