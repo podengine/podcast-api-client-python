@@ -2296,6 +2296,24 @@ class GetPodcastAllDetailsResponsePodcastYoutubeData(BaseModel):
     youtube_data: list[GetPodcastAllDetailsResponsePodcastYoutubeDataYoutubeDataItem] = Field(alias="youtubeData")
 
 
+class GetPodcastAllDetailsResponsePodcastPublishingHistoryMonthlyEpisodeCounts(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    from_month: str = Field(alias="fromMonth")
+    counts: list[int]
+
+
+class GetPodcastAllDetailsResponsePodcastPublishingHistory(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    monthly_episode_counts: GetPodcastAllDetailsResponsePodcastPublishingHistoryMonthlyEpisodeCounts = Field(
+        alias="monthlyEpisodeCounts"
+    )
+    average_episodes_per_month: float | None = Field(alias="averageEpisodesPerMonth")
+    last_episode_at: Any | None = Field(alias="lastEpisodeAt")
+    truncated: bool
+
+
 class GetPodcastAllDetailsResponsePodcast(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -2313,6 +2331,9 @@ class GetPodcastAllDetailsResponsePodcast(BaseModel):
         alias="chartPositions"
     )
     youtube_data: GetPodcastAllDetailsResponsePodcastYoutubeData | None = Field(alias="youtubeData")
+    publishing_history: GetPodcastAllDetailsResponsePodcastPublishingHistory | None = Field(
+        default=None, alias="publishingHistory"
+    )
 
 
 class GetPodcastAllDetailsResponse(BaseModel):

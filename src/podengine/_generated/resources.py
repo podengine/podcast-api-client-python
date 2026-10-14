@@ -374,7 +374,7 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         method="GET",
         path="/api/v1/podcasts/{podcastIdOrSlug}/all-details",
         path_params=("podcastIdOrSlug",),
-        query_params=(),
+        query_params=("includePublishingHistory",),
         body="none",
         binary=False,
     ),
@@ -1709,16 +1709,19 @@ class PodcastsResource:
         self,
         *,
         podcast_id_or_slug: str,
+        include_publishing_history: bool | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastAllDetailsResponse:
         """
         Podcast All Details
 
-        This wraps all the other endpoints for a podcast so you can get all the details in a single request.
+        This wraps all the other endpoints for a podcast so you can get all the details in a single request. Set includePublishingHistory=true to include compact monthly counts for the last 24 UTC months, average per complete month, latest episode date, and truncation status. Existing episode and transcript counts are always available.
         """
         return _adapter_getPodcastAllDetails.validate_python(
             self._core.request(
-                _DESCRIPTORS["getPodcastAllDetails"], {"podcastIdOrSlug": podcast_id_or_slug}, request_options
+                _DESCRIPTORS["getPodcastAllDetails"],
+                {"podcastIdOrSlug": podcast_id_or_slug, "includePublishingHistory": include_publishing_history},
+                request_options,
             )
         )
 
@@ -3672,16 +3675,19 @@ class AsyncPodcastsResource:
         self,
         *,
         podcast_id_or_slug: str,
+        include_publishing_history: bool | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetPodcastAllDetailsResponse:
         """
         Podcast All Details
 
-        This wraps all the other endpoints for a podcast so you can get all the details in a single request.
+        This wraps all the other endpoints for a podcast so you can get all the details in a single request. Set includePublishingHistory=true to include compact monthly counts for the last 24 UTC months, average per complete month, latest episode date, and truncation status. Existing episode and transcript counts are always available.
         """
         return _adapter_getPodcastAllDetails.validate_python(
             await self._core.request(
-                _DESCRIPTORS["getPodcastAllDetails"], {"podcastIdOrSlug": podcast_id_or_slug}, request_options
+                _DESCRIPTORS["getPodcastAllDetails"],
+                {"podcastIdOrSlug": podcast_id_or_slug, "includePublishingHistory": include_publishing_history},
+                request_options,
             )
         )
 
