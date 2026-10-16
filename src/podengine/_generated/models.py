@@ -2994,7 +2994,6 @@ class GetProjectStrategiesResponseStrategiesItem(BaseModel):
     strategy_approach: Literal["straightforward", "unconventional", "longshot"] | None = Field(alias="strategyApproach")
     strategy_focus: str | None = Field(alias="strategyFocus")
     priority: Literal["low", "medium", "high", "urgent"] | None
-    auto_search_enabled: bool = Field(alias="autoSearchEnabled")
 
 
 class GetProjectStrategiesResponse(BaseModel):
@@ -4009,7 +4008,6 @@ class GetCurrentResponseFeatureFlags(BaseModel):
 
     s3_integration: bool | None = Field(default=None, alias="s3Integration")
     airtable_integration: bool | None = Field(default=None, alias="airtableIntegration")
-    automated_search: bool | None = Field(default=None, alias="automatedSearch")
     apply_page: bool | None = Field(default=None, alias="applyPage")
 
 
