@@ -52,5 +52,7 @@ def test_datetime_inbound_parsing() -> None:
     dt_field = next(n for n, f in field_model.model_fields.items() if "datetime" in str(f.annotation))
     # Build a payload with only the datetime field populated by alias; tolerate other required
     # fields via construction of a partial dict is not possible, so validate just the type adapter.
-    adapter = pydantic.TypeAdapter(field_model.model_fields[dt_field].annotation)
+    annotation = field_model.model_fields[dt_field].annotation
+    assert annotation is not None
+    adapter = pydantic.TypeAdapter(annotation)
     assert isinstance(adapter.validate_python("2024-01-31T12:00:00.000Z"), datetime.datetime)

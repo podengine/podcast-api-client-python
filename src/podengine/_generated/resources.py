@@ -4774,6 +4774,7 @@ class PodEngine:
         headers: dict[str, str] | None = None,
         max_retries: int = 2,
         timeout: float | None = 60.0,
+        total_timeout: float | None = 60.0,
         http_client: httpx.Client | None = None,
     ) -> None:
         core = PodEngineCore(
@@ -4783,6 +4784,7 @@ class PodEngine:
             headers=headers,
             max_retries=max_retries,
             timeout=timeout,
+            total_timeout=total_timeout,
             http_client=http_client,
         )
         self._core = core
@@ -4843,6 +4845,7 @@ class AsyncPodEngine:
         headers: dict[str, str] | None = None,
         max_retries: int = 2,
         timeout: float | None = 60.0,
+        total_timeout: float | None = 60.0,
         http_client: httpx.AsyncClient | None = None,
     ) -> None:
         core = AsyncPodEngineCore(
@@ -4852,6 +4855,7 @@ class AsyncPodEngine:
             headers=headers,
             max_retries=max_retries,
             timeout=timeout,
+            total_timeout=total_timeout,
             http_client=http_client,
         )
         self._core = core

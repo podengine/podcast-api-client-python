@@ -64,7 +64,8 @@ pe = PodEngine(
     api_key="YOUR_API_KEY",
     base_url="https://api.podengine.ai",  # override for staging; or set PODENGINE_API_URL
     source="my-app",                       # sent as the x-source header
-    timeout=60.0,                          # per-request timeout (seconds)
+    timeout=60.0,                          # HTTPX per-attempt I/O timeout (seconds)
+    total_timeout=60.0,                    # overall request budget (seconds)
     max_retries=2,                         # transient 429/5xx/network retries
 )
 ```
@@ -78,9 +79,15 @@ chart = pe.charts.get_latest_chart(
     chart_type="apple",
     country="us",
     category="top podcasts",
-    request_options=RequestOptions(timeout=10.0, max_retries=0),
+    request_options=RequestOptions(timeout=10.0, total_timeout=15.0, max_retries=0),
 )
 ```
+
+For apps, agents and data pipelines, `total_timeout` sets a budget for attempts, retry waits and response reads. Both clients default to 60 seconds. Set a positive number on the client or a single call to change it. Set `0` to disable it; client-level `None` also disables it. In `RequestOptions`, `None` inherits the client setting. The existing `timeout` option keeps its HTTPX per-attempt I/O behavior.
+
+A valid `Retry-After` sets the minimum retry wait, with 1–251 ms of added jitter. If that wait cannot fit within the remaining budget, the call raises `PodEngineConnectionError` immediately. It does not retry early. Expired budgets also raise `PodEngineConnectionError`.
+
+The async client enforces the deadline across the complete call and propagates task cancellation. The sync client caps each HTTPX timeout to the remaining budget and checks the deadline between streamed response reads. It cannot interrupt synchronous I/O already in progress, so a blocking read or custom transport can return after the deadline. No further retry starts after the budget expires.
 
 ## Error handling
 

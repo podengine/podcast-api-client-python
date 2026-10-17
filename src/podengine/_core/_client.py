@@ -12,10 +12,13 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 import os
 import random
+import re
 import time
 from dataclasses import dataclass
+from email.utils import parsedate_to_datetime
 from typing import Any
 from urllib.parse import quote
 
@@ -54,6 +57,8 @@ class RequestOptions:
     timeout: float | None = None
     max_retries: int | None = None
     headers: dict[str, str] | None = None
+    #: Overall budget in seconds; None inherits the client, 0 disables the deadline.
+    total_timeout: float | None = None
 
 
 @dataclass
@@ -81,21 +86,46 @@ def _retry_after_seconds(response: httpx.Response) -> float | None:
     header = response.headers.get("retry-after")
     if not header:
         return None
+    value = header.strip()
+    if re.fullmatch(r"[+]?(?:\d+\.?\d*|\.\d+)", value):
+        seconds = float(value)
+        return seconds if math.isfinite(seconds) else None
+    if not re.match(r"^[A-Za-z]{3},?\s", value):
+        return None
     try:
-        return float(header)
-    except ValueError:
-        from email.utils import parsedate_to_datetime
+        when = parsedate_to_datetime(value)
+        seconds = max(0.0, when.timestamp() - time.time())
+        return seconds if math.isfinite(seconds) else None
+    except (TypeError, ValueError, OverflowError):
+        return None
 
-        try:
-            when = parsedate_to_datetime(header)
-        except (TypeError, ValueError):
-            return None
-        if when is None:
-            return None
-        import datetime as _dt
 
-        now = _dt.datetime.now(tz=when.tzinfo)
-        return max(0.0, (when - now).total_seconds())
+def _validate_total_timeout(value: float | None) -> None:
+    if value is not None and (not math.isfinite(value) or value < 0):
+        raise ValueError("total_timeout must be a finite nonnegative number or None.")
+
+
+class _DeadlineStream(httpx.SyncByteStream):
+    """Check the remaining budget between raw reads without background threads."""
+
+    def __init__(self, stream: httpx.SyncByteStream, check: Any) -> None:
+        self._stream = stream
+        self._check = check
+
+    def __iter__(self):
+        iterator = iter(self._stream)
+        while True:
+            self._check()
+            try:
+                chunk = next(iterator)
+            except StopIteration:
+                self._check()
+                return
+            self._check()
+            yield chunk
+
+    def close(self) -> None:
+        self._stream.close()
 
 
 class _BaseCore:
@@ -110,6 +140,7 @@ class _BaseCore:
         headers: dict[str, str] | None = None,
         max_retries: int = DEFAULT_MAX_RETRIES,
         timeout: float | None = DEFAULT_TIMEOUT,
+        total_timeout: float | None = 60.0,
     ) -> None:
         if not api_key:
             raise PodEngineAPIError(
@@ -125,6 +156,42 @@ class _BaseCore:
         self._headers = dict(headers or {})
         self._max_retries = max_retries
         self._timeout = timeout
+        _validate_total_timeout(total_timeout)
+        self._total_timeout = total_timeout
+
+    def _deadline(self, options: RequestOptions | None) -> float:
+        total = options.total_timeout if options and options.total_timeout is not None else self._total_timeout
+        _validate_total_timeout(total)
+        return time.monotonic() + total if total else math.inf
+
+    def _remaining(self, deadline: float, prepared: _Prepared) -> float:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise self._deadline_error(prepared)
+        return remaining
+
+    def _deadline_error(self, prepared: _Prepared) -> PodEngineConnectionError:
+        return PodEngineConnectionError(
+            message=f"Overall request deadline exceeded for {prepared.url}.",
+            method=prepared.method,
+            url=prepared.url,
+        )
+
+    def _retry_delay(
+        self, response: httpx.Response | None, attempt: int, deadline: float, prepared: _Prepared
+    ) -> float:
+        retry_after = _retry_after_seconds(response) if response is not None else None
+        delay = _backoff_seconds(attempt) if retry_after is None else retry_after + 0.001 + random.random() * 0.25
+        if delay >= self._remaining(deadline, prepared):
+            raise PodEngineConnectionError(
+                message=(
+                    f"Retry delay of {delay}s cannot fit within the remaining "
+                    f"overall request deadline for {prepared.url}."
+                ),
+                method=prepared.method,
+                url=prepared.url,
+            )
+        return delay
 
     def _prepare(
         self,
@@ -259,30 +326,46 @@ class PodEngineCore(_BaseCore):
         max_retries = options.max_retries if options and options.max_retries is not None else self._max_retries
         timeout = options.timeout if options and options.timeout is not None else self._timeout
 
+        deadline = self._deadline(options)
         attempt = 0
         while True:
+            remaining = self._remaining(deadline, prepared)
+            attempt_timeout = (
+                min(timeout, remaining) if timeout is not None else (remaining if math.isfinite(remaining) else None)
+            )
             try:
-                response = self._client.request(**self._request_kwargs(prepared, timeout))
+                with self._client.stream(**self._request_kwargs(prepared, attempt_timeout)) as response:
+                    self._remaining(deadline, prepared)
+                    if not response.is_success and _is_retriable_status(response.status_code) and attempt < max_retries:
+                        attempt += 1
+                        delay = self._retry_delay(response, attempt, deadline, prepared)
+                    else:
+                        if isinstance(response.stream, httpx.SyncByteStream):
+                            response.stream = _DeadlineStream(
+                                response.stream, lambda: self._remaining(deadline, prepared)
+                            )
+                        response.read()
+                        self._remaining(deadline, prepared)
+                        if not response.is_success:
+                            raise self._api_error(response, prepared)
+                        result = self._decode_success(response, prepared)
+                        self._remaining(deadline, prepared)
+                        return result
             except httpx.TransportError as err:
-                if attempt < max_retries:
-                    attempt += 1
-                    time.sleep(_backoff_seconds(attempt))
-                    continue
-                raise PodEngineConnectionError(
-                    message=f"Unable to reach the Pod Engine API at {prepared.url}. {err}",
-                    method=prepared.method,
-                    url=prepared.url,
-                    cause=err,
-                ) from err
-
-            if not response.is_success:
-                if _is_retriable_status(response.status_code) and attempt < max_retries:
-                    attempt += 1
-                    time.sleep(_retry_after_seconds(response) or _backoff_seconds(attempt))
-                    continue
-                raise self._api_error(response, prepared)
-
-            return self._decode_success(response, prepared)
+                self._remaining(deadline, prepared)
+                if attempt >= max_retries:
+                    raise PodEngineConnectionError(
+                        message=f"Unable to reach the Pod Engine API at {prepared.url}. {err}",
+                        method=prepared.method,
+                        url=prepared.url,
+                        cause=err,
+                    ) from err
+                attempt += 1
+                delay = self._retry_delay(None, attempt, deadline, prepared)
+            # Chunk large server delays to avoid platform time.sleep overflow.
+            wake_at = time.monotonic() + delay
+            while (wait := wake_at - time.monotonic()) > 0:
+                time.sleep(min(wait, 86_400.0))
 
     def close(self) -> None:
         if self._owns_client:
@@ -309,34 +392,58 @@ class AsyncPodEngineCore(_BaseCore):
         params: dict[str, Any] | None = None,
         options: RequestOptions | None = None,
     ) -> Any:
+        deadline = self._deadline(options)
+        total = deadline - time.monotonic()
+        try:
+            return await asyncio.wait_for(
+                self._request(descriptor, params, options, deadline), timeout=total if math.isfinite(total) else None
+            )
+        except asyncio.TimeoutError as err:
+            raise self._deadline_error(self._prepare(descriptor, params, options)) from err
+
+    async def _request(
+        self,
+        descriptor: EndpointDescriptor,
+        params: dict[str, Any] | None,
+        options: RequestOptions | None,
+        deadline: float,
+    ) -> Any:
         prepared = self._prepare(descriptor, params, options)
         max_retries = options.max_retries if options and options.max_retries is not None else self._max_retries
         timeout = options.timeout if options and options.timeout is not None else self._timeout
 
         attempt = 0
         while True:
+            remaining = self._remaining(deadline, prepared)
+            attempt_timeout = (
+                min(timeout, remaining) if timeout is not None else (remaining if math.isfinite(remaining) else None)
+            )
             try:
-                response = await self._client.request(**self._request_kwargs(prepared, timeout))
+                async with self._client.stream(**self._request_kwargs(prepared, attempt_timeout)) as response:
+                    self._remaining(deadline, prepared)
+                    if not response.is_success and _is_retriable_status(response.status_code) and attempt < max_retries:
+                        attempt += 1
+                        delay = self._retry_delay(response, attempt, deadline, prepared)
+                    else:
+                        await response.aread()
+                        self._remaining(deadline, prepared)
+                        if not response.is_success:
+                            raise self._api_error(response, prepared)
+                        result = self._decode_success(response, prepared)
+                        self._remaining(deadline, prepared)
+                        return result
             except httpx.TransportError as err:
-                if attempt < max_retries:
-                    attempt += 1
-                    await asyncio.sleep(_backoff_seconds(attempt))
-                    continue
-                raise PodEngineConnectionError(
-                    message=f"Unable to reach the Pod Engine API at {prepared.url}. {err}",
-                    method=prepared.method,
-                    url=prepared.url,
-                    cause=err,
-                ) from err
-
-            if not response.is_success:
-                if _is_retriable_status(response.status_code) and attempt < max_retries:
-                    attempt += 1
-                    await asyncio.sleep(_retry_after_seconds(response) or _backoff_seconds(attempt))
-                    continue
-                raise self._api_error(response, prepared)
-
-            return self._decode_success(response, prepared)
+                self._remaining(deadline, prepared)
+                if attempt >= max_retries:
+                    raise PodEngineConnectionError(
+                        message=f"Unable to reach the Pod Engine API at {prepared.url}. {err}",
+                        method=prepared.method,
+                        url=prepared.url,
+                        cause=err,
+                    ) from err
+                attempt += 1
+                delay = self._retry_delay(None, attempt, deadline, prepared)
+            await asyncio.sleep(delay)
 
     async def aclose(self) -> None:
         if self._owns_client:
