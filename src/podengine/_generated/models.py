@@ -359,11 +359,20 @@ class CreateAlertConfigEmailSettings(BaseModel):
     frequency: Literal["hourly", "daily", "weekly"]
 
 
+class CreateAlertConfigAdditionalAlertSettingsFilters(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    exclude_ads: bool | None = Field(default=None, alias="excludeAds")
+    require_subject: bool | None = Field(default=None, alias="requireSubject")
+
+
 class CreateAlertConfigAdditionalAlertSettings(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     other_emails: list[str] | None = Field(default=None, alias="otherEmails")
     other_spellings: list[str] | None = Field(default=None, alias="otherSpellings")
+    filters: CreateAlertConfigAdditionalAlertSettingsFilters | None = None
+    subject_note: str | None = Field(default=None, alias="subjectNote")
 
 
 class CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1ContextAwareDetails(BaseModel):
@@ -372,6 +381,13 @@ class CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1ContextAwa
     what: str | None = None
     relevant_clues: str | None = Field(default=None, alias="relevantClues")
     common_false_positives: str | None = Field(default=None, alias="commonFalsePositives")
+
+
+class CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1Filters(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    exclude_ads: bool | None = Field(default=None, alias="excludeAds")
+    require_subject: bool | None = Field(default=None, alias="requireSubject")
 
 
 class CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1(BaseModel):
@@ -386,6 +402,8 @@ class CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1(BaseModel
         CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1ContextAwareDetails | None
     ) = Field(default=None, alias="contextAwareDetails")
     filter_advertisements: bool | None = Field(default=None, alias="filterAdvertisements")
+    filters: CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1Filters | None = None
+    subject_note: str | None = Field(default=None, alias="subjectNote")
     type: Literal["person"]
     value: str
     track_guest_appearances: bool | None = Field(default=None, alias="trackGuestAppearances")
@@ -405,6 +423,8 @@ class CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant2(BaseModel
         CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1ContextAwareDetails | None
     ) = Field(default=None, alias="contextAwareDetails")
     filter_advertisements: bool | None = Field(default=None, alias="filterAdvertisements")
+    filters: CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1Filters | None = None
+    subject_note: str | None = Field(default=None, alias="subjectNote")
     type: Literal["company"]
     value: str
 
@@ -421,6 +441,8 @@ class CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant3(BaseModel
         CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1ContextAwareDetails | None
     ) = Field(default=None, alias="contextAwareDetails")
     filter_advertisements: bool | None = Field(default=None, alias="filterAdvertisements")
+    filters: CreateAlertConfigResponseCreatedAlertConfigAlertSettingsVariant1Filters | None = None
+    subject_note: str | None = Field(default=None, alias="subjectNote")
     type: Literal["custom-keyword"]
     value: str
 
