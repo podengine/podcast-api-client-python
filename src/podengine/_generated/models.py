@@ -2376,6 +2376,7 @@ class GetPodcastResponsePlatformsSpotify(BaseModel):
 
     id: str
     url: str
+    verified_at: datetime | None = Field(alias="verifiedAt")
 
 
 class GetPodcastResponsePlatformsYoutube(BaseModel):
@@ -2384,6 +2385,8 @@ class GetPodcastResponsePlatformsYoutube(BaseModel):
     channel_id: str = Field(alias="channelId")
     url: str
     tier: Literal["associated", "candidate"]
+    role: Literal["primary", "valid_secondary"] | None
+    associated_at: datetime | None = Field(alias="associatedAt")
 
 
 class GetPodcastResponsePlatforms(BaseModel):
