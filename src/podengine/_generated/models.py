@@ -597,7 +597,7 @@ class GetAlertMatchHistoryResponseAlertMatchesItemVariant2(BaseModel):
     type: Literal["TRANSCRIPT"]
     end_second: float = Field(alias="endSecond")
     start_second: float = Field(alias="startSecond")
-    transcript_embedding_id: str = Field(alias="transcriptEmbeddingId")
+    transcript_embedding_id: str | None = Field(alias="transcriptEmbeddingId")
     transcript_id: str = Field(alias="transcriptId")
     transcription_date: Any = Field(alias="transcriptionDate")
 
@@ -610,6 +610,94 @@ class GetAlertMatchHistoryResponse(BaseModel):
     alert_matches: list[
         GetAlertMatchHistoryResponseAlertMatchesItemVariant1 | GetAlertMatchHistoryResponseAlertMatchesItemVariant2
     ] = Field(alias="alertMatches")
+
+
+class GetAlertEpisodeMatchesResponseOptions(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    alert_config_id: str | None = Field(default=None, alias="alertConfigId")
+    include_filtered: bool | None = Field(default=None, alias="includeFiltered")
+    page: int | None = None
+    page_size: int | None = Field(default=None, alias="pageSize")
+
+
+class GetAlertEpisodeMatchesResponseMatchesItemAlertConfig(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    name: str
+    type: Literal["person", "company", "custom-keyword"]
+
+
+class GetAlertEpisodeMatchesResponseMatchesItemEpisode(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    slug: str
+    title: str
+    published_at: Any = Field(alias="publishedAt")
+    image_url: str | None = Field(alias="imageUrl")
+
+
+class GetAlertEpisodeMatchesResponseMatchesItemPodcast(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    slug: str
+    title: str
+
+
+class GetAlertEpisodeMatchesResponseMatchesItemAppearance(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    role: Literal["guest", "host", "mentioned", "unknown"] | None
+    source: Literal["people_data", "title_description"]
+
+
+class GetAlertEpisodeMatchesResponseMatchesItemMentionsItemLabelsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    classifier: Literal["isAd", "isSubject"]
+    label: str
+    probability: float
+    filtered_out: bool = Field(alias="filteredOut")
+
+
+class GetAlertEpisodeMatchesResponseMatchesItemMentionsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    start_second: float | None = Field(alias="startSecond")
+    snippet: str
+    passes_filters: bool = Field(alias="passesFilters")
+    filter_reasons: list[Literal["ad", "not_subject", "unchecked"]] = Field(alias="filterReasons")
+    labels: list[GetAlertEpisodeMatchesResponseMatchesItemMentionsItemLabelsItem]
+    play_url: str = Field(alias="playUrl")
+
+
+class GetAlertEpisodeMatchesResponseMatchesItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str
+    alert_config: GetAlertEpisodeMatchesResponseMatchesItemAlertConfig = Field(alias="alertConfig")
+    status: Literal["kept", "filtered"]
+    filter_reasons: list[Literal["ad", "not_subject", "unchecked"]] = Field(alias="filterReasons")
+    episode: GetAlertEpisodeMatchesResponseMatchesItemEpisode
+    podcast: GetAlertEpisodeMatchesResponseMatchesItemPodcast
+    appearance: GetAlertEpisodeMatchesResponseMatchesItemAppearance | None
+    mention_count: float = Field(alias="mentionCount")
+    kept_mention_count: float = Field(alias="keptMentionCount")
+    syndicated_episode_ids: list[str] = Field(alias="syndicatedEpisodeIds")
+    first_matched_at: Any = Field(alias="firstMatchedAt")
+    mentions: list[GetAlertEpisodeMatchesResponseMatchesItemMentionsItem]
+
+
+class GetAlertEpisodeMatchesResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    options: GetAlertEpisodeMatchesResponseOptions
+    total: float
+    matches: list[GetAlertEpisodeMatchesResponseMatchesItem]
 
 
 class GetChartResponseOptions(BaseModel):

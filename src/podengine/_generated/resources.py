@@ -67,6 +67,19 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
         body="none",
         binary=False,
     ),
+    "getAlertEpisodeMatches": EndpointDescriptor(
+        method="GET",
+        path="/api/v1/alerts/matches",
+        path_params=(),
+        query_params=(
+            "alertConfigId",
+            "includeFiltered",
+            "page",
+            "pageSize",
+        ),
+        body="none",
+        binary=False,
+    ),
     "getAlertMatchHistory": EndpointDescriptor(
         method="GET",
         path="/api/v1/alerts/history",
@@ -742,6 +755,7 @@ _adapter_createAlertConfig: TypeAdapter[Any] = TypeAdapter(models.CreateAlertCon
 _adapter_deleteAlertConfig: TypeAdapter[Any] = TypeAdapter(models.DeleteAlertConfigResponse)
 _adapter_getAlertConfig: TypeAdapter[Any] = TypeAdapter(models.GetAlertConfigResponse)
 _adapter_getAlertConfigs: TypeAdapter[Any] = TypeAdapter(models.GetAlertConfigsResponse)
+_adapter_getAlertEpisodeMatches: TypeAdapter[Any] = TypeAdapter(models.GetAlertEpisodeMatchesResponse)
 _adapter_getAlertMatchHistory: TypeAdapter[Any] = TypeAdapter(models.GetAlertMatchHistoryResponse)
 _adapter_updateAlertConfig: TypeAdapter[Any] = TypeAdapter(models.UpdateAlertConfigResponse)
 _adapter_searchAutocompletePodcasts: TypeAdapter[Any] = TypeAdapter(models.SearchAutocompletePodcastsResponse)
@@ -967,6 +981,33 @@ class AlertsResource:
             )
         )
 
+    def get_alert_episode_matches(
+        self,
+        *,
+        alert_config_id: str | None = None,
+        include_filtered: bool | None = None,
+        page: int | None = None,
+        page_size: int | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetAlertEpisodeMatchesResponse:
+        """
+        Alert Matches
+
+        Get your team's alert matches, one per episode, newest first. Each match lists its mentions with the time, a snippet, the ad and wrong-person check labels, and a link that plays from that moment. Set includeFiltered to also see the episodes and mentions your alert filters removed, and why.
+        """
+        return _adapter_getAlertEpisodeMatches.validate_python(
+            self._core.request(
+                _DESCRIPTORS["getAlertEpisodeMatches"],
+                {
+                    "alertConfigId": alert_config_id,
+                    "includeFiltered": include_filtered,
+                    "page": page,
+                    "pageSize": page_size,
+                },
+                request_options,
+            )
+        )
+
     def get_alert_match_history(
         self,
         *,
@@ -978,7 +1019,9 @@ class AlertsResource:
         """
         Alert Match History
 
-        Get the paginated history of alert matches for the team, optionally scoped to a single alert config.
+        Get the team's alert matches, one item per mention, 50 per page, optionally for a single alert config. Items found from the alerts switch onwards have no transcriptEmbeddingId.
+
+        **Deprecated.** Use GET /api/v1/alerts/matches instead.
         """
         return _adapter_getAlertMatchHistory.validate_python(
             self._core.request(
@@ -2921,6 +2964,33 @@ class AsyncAlertsResource:
             )
         )
 
+    async def get_alert_episode_matches(
+        self,
+        *,
+        alert_config_id: str | None = None,
+        include_filtered: bool | None = None,
+        page: int | None = None,
+        page_size: int | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> models.GetAlertEpisodeMatchesResponse:
+        """
+        Alert Matches
+
+        Get your team's alert matches, one per episode, newest first. Each match lists its mentions with the time, a snippet, the ad and wrong-person check labels, and a link that plays from that moment. Set includeFiltered to also see the episodes and mentions your alert filters removed, and why.
+        """
+        return _adapter_getAlertEpisodeMatches.validate_python(
+            await self._core.request(
+                _DESCRIPTORS["getAlertEpisodeMatches"],
+                {
+                    "alertConfigId": alert_config_id,
+                    "includeFiltered": include_filtered,
+                    "page": page,
+                    "pageSize": page_size,
+                },
+                request_options,
+            )
+        )
+
     async def get_alert_match_history(
         self,
         *,
@@ -2932,7 +3002,9 @@ class AsyncAlertsResource:
         """
         Alert Match History
 
-        Get the paginated history of alert matches for the team, optionally scoped to a single alert config.
+        Get the team's alert matches, one item per mention, 50 per page, optionally for a single alert config. Items found from the alerts switch onwards have no transcriptEmbeddingId.
+
+        **Deprecated.** Use GET /api/v1/alerts/matches instead.
         """
         return _adapter_getAlertMatchHistory.validate_python(
             await self._core.request(
