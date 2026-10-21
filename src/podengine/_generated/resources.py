@@ -272,6 +272,8 @@ _DESCRIPTORS: dict[str, EndpointDescriptor] = {
             "podcastImageRequired",
             "hasTranscript",
             "language",
+            "excludeExplicit",
+            "limit",
         ),
         body="none",
         binary=False,
@@ -1390,12 +1392,14 @@ class EpisodesResource:
         categories: list[str] | None = None,
         podcast_image_required: bool | None = None,
         has_transcript: bool | None = None,
+        exclude_explicit: bool | None = None,
+        limit: int | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetLatestEpisodesResponse:
         """
         Latest Episodes
 
-        Get the latest 150 episodes
+        Get the most recently published episodes, newest first: up to 150, or fewer with limit. Set excludeExplicit=true to leave out podcasts that are explicit or do not say.
         """
         return _adapter_getLatestEpisodes.validate_python(
             self._core.request(
@@ -1405,6 +1409,8 @@ class EpisodesResource:
                     "podcastImageRequired": podcast_image_required,
                     "hasTranscript": has_transcript,
                     "language": language,
+                    "excludeExplicit": exclude_explicit,
+                    "limit": limit,
                 },
                 request_options,
             )
@@ -3348,12 +3354,14 @@ class AsyncEpisodesResource:
         categories: list[str] | None = None,
         podcast_image_required: bool | None = None,
         has_transcript: bool | None = None,
+        exclude_explicit: bool | None = None,
+        limit: int | None = None,
         request_options: RequestOptions | None = None,
     ) -> models.GetLatestEpisodesResponse:
         """
         Latest Episodes
 
-        Get the latest 150 episodes
+        Get the most recently published episodes, newest first: up to 150, or fewer with limit. Set excludeExplicit=true to leave out podcasts that are explicit or do not say.
         """
         return _adapter_getLatestEpisodes.validate_python(
             await self._core.request(
@@ -3363,6 +3371,8 @@ class AsyncEpisodesResource:
                     "podcastImageRequired": podcast_image_required,
                     "hasTranscript": has_transcript,
                     "language": language,
+                    "excludeExplicit": exclude_explicit,
+                    "limit": limit,
                 },
                 request_options,
             )
