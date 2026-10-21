@@ -1879,6 +1879,15 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimateOp3Download
     reason: Literal["no_measurement", "invalid_measurement", "history_mismatch"]
 
 
+class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimateHostReported(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    downloads_per_episode30d: float = Field(alias="downloadsPerEpisode30d")
+    source: str
+    source_detail: str | None = Field(alias="sourceDetail")
+    reported_at: Any = Field(alias="reportedAt")
+
+
 class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimate(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -1898,6 +1907,9 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimate(BaseModel)
         | GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimateOp3DownloadsVariant2
         | None
     ) = Field(default=None, alias="op3Downloads")
+    host_reported: GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimateHostReported | None = Field(
+        default=None, alias="hostReported"
+    )
 
 
 class GetMultiplePodcastsResponsePodcastsItemVariant2(BaseModel):
