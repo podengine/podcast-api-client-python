@@ -41,6 +41,35 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant1SearchTermsItem(BaseMo
     )
 
 
+class AskAgentProjectPodcastRelevancySearchOptionsVariant1SearchTermGroupsItemSearchTermsItemSearchTermOptions(
+    BaseModel
+):
+    model_config = ConfigDict(populate_by_name=True)
+
+    phrase_match: bool | None = Field(default=None, alias="phraseMatch")
+    slop: float | None = None
+    fuzzy: bool | None = None
+
+
+class AskAgentProjectPodcastRelevancySearchOptionsVariant1SearchTermGroupsItemSearchTermsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    search_term: str = Field(alias="searchTerm")
+    search_type: Literal["text"] = Field(alias="searchType")
+    search_targets: list[Literal["podcast-title", "podcast-description"]] = Field(alias="searchTargets")
+    search_term_options: (
+        AskAgentProjectPodcastRelevancySearchOptionsVariant1SearchTermGroupsItemSearchTermsItemSearchTermOptions | None
+    ) = Field(default=None, alias="searchTermOptions")
+
+
+class AskAgentProjectPodcastRelevancySearchOptionsVariant1SearchTermGroupsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    search_terms: list[AskAgentProjectPodcastRelevancySearchOptionsVariant1SearchTermGroupsItemSearchTermsItem] = Field(
+        alias="searchTerms"
+    )
+
+
 class AskAgentProjectPodcastRelevancySearchOptionsVariant1PodcastAuthorityScoreAuthorityScore(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -132,6 +161,9 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant1(BaseModel):
     search_terms: list[AskAgentProjectPodcastRelevancySearchOptionsVariant1SearchTermsItem] | None = Field(
         default=None, alias="searchTerms"
     )
+    search_term_groups: list[AskAgentProjectPodcastRelevancySearchOptionsVariant1SearchTermGroupsItem] | None = Field(
+        default=None, alias="searchTermGroups"
+    )
     exclude_itunes_genres: list[str] | None = Field(default=None, alias="excludeItunesGenres")
     exclude_podcast_ids: list[str] | None = Field(default=None, alias="excludePodcastIds")
     exclude_episode_ids: list[str] | None = Field(default=None, alias="excludeEpisodeIds")
@@ -208,6 +240,27 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant2SearchTermsItem(BaseMo
     )
 
 
+class AskAgentProjectPodcastRelevancySearchOptionsVariant2SearchTermGroupsItemSearchTermsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    search_term: str = Field(alias="searchTerm")
+    search_type: Literal["text"] = Field(alias="searchType")
+    search_targets: list[
+        Literal["podcast-title", "podcast-description", "episode-title", "episode-description", "transcript"]
+    ] = Field(alias="searchTargets")
+    search_term_options: (
+        AskAgentProjectPodcastRelevancySearchOptionsVariant1SearchTermGroupsItemSearchTermsItemSearchTermOptions | None
+    ) = Field(default=None, alias="searchTermOptions")
+
+
+class AskAgentProjectPodcastRelevancySearchOptionsVariant2SearchTermGroupsItem(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    search_terms: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2SearchTermGroupsItemSearchTermsItem] = Field(
+        alias="searchTerms"
+    )
+
+
 class AskAgentProjectPodcastRelevancySearchOptionsVariant2SortOrderItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -246,6 +299,9 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant2(BaseModel):
     project_id: str | None = Field(default=None, alias="projectId")
     search_terms: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2SearchTermsItem] | None = Field(
         default=None, alias="searchTerms"
+    )
+    search_term_groups: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2SearchTermGroupsItem] | None = Field(
+        default=None, alias="searchTermGroups"
     )
     exclude_itunes_genres: list[str] | None = Field(default=None, alias="excludeItunesGenres")
     exclude_podcast_ids: list[str] | None = Field(default=None, alias="excludePodcastIds")
@@ -3133,6 +3189,9 @@ class GetTranscriptPassagesSearchOptions(BaseModel):
     project_id: str | None = Field(default=None, alias="projectId")
     search_terms: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2SearchTermsItem] | None = Field(
         default=None, alias="searchTerms"
+    )
+    search_term_groups: list[AskAgentProjectPodcastRelevancySearchOptionsVariant2SearchTermGroupsItem] | None = Field(
+        default=None, alias="searchTermGroups"
     )
     exclude_itunes_genres: list[str] | None = Field(default=None, alias="excludeItunesGenres")
     exclude_podcast_ids: list[str] | None = Field(default=None, alias="excludePodcastIds")
