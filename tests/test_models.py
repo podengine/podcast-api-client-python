@@ -76,7 +76,9 @@ def test_search_hit_apple_id_stays_an_int() -> None:
     hit_models = [model for model in _all_models() if {"apple_id", "episode_id", "score"} <= set(model.model_fields)]
     assert hit_models
     for model in hit_models:
-        adapter = pydantic.TypeAdapter(model.model_fields["apple_id"].annotation)
+        annotation = model.model_fields["apple_id"].annotation
+        assert annotation is not None
+        adapter = pydantic.TypeAdapter(annotation)
         for wire in (315114957, "315114957"):  # a number now; older API builds sent a string
             value = adapter.validate_json(json.dumps(wire))
             assert isinstance(value, int) and value == 315114957
