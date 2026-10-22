@@ -25,7 +25,7 @@ from urllib.parse import quote
 import httpx
 
 from .errors import PodEngineAPIError, PodEngineConnectionError
-from .transform import build_query_params, extract_error_message, to_jsonable
+from .transform import build_json_body, build_query_params, extract_error_message, to_jsonable
 
 DEFAULT_BASE_URL = "https://api.podengine.ai"
 DEFAULT_SOURCE = "api"
@@ -224,13 +224,7 @@ class _BaseCore:
         has_body = descriptor.body != "none"
         json_body: Any = None
         if descriptor.body == "merge":
-            json_body = to_jsonable(
-                {
-                    key: value
-                    for key, value in all_params.items()
-                    if key not in path_param_set and key not in query_param_set
-                }
-            )
+            json_body = build_json_body(all_params, path_param_set | query_param_set)
         elif descriptor.body == "field":
             json_body = to_jsonable(all_params.get("body"))
 

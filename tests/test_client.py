@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import asyncio
 import json
+from typing import Any
 
 import httpx
+import pytest
 import respx
 
-from podengine import AsyncPodEngine, PodEngine
+from podengine import NULL, AsyncPodEngine, PodEngine, PodEngineAPIError
 from podengine._generated.models import (
     GetAlternativeSpellingsResponse,
     GetLatestChartResponse,
@@ -47,6 +49,36 @@ def test_post_body_method(respx_mock: respx.MockRouter) -> None:
     assert isinstance(res, GetAlternativeSpellingsResponse)
     assert res.spellings == ["color", "colour"]
     assert json.loads(route.calls.last.request.content) == {"value": "color"}
+
+
+@respx.mock
+def test_unset_body_arguments_are_left_out(respx_mock: respx.MockRouter) -> None:
+    # PE-5027: unset arguments went on the wire as null, and the API rejects null on optional fields.
+    route = respx_mock.post(f"{BASE}/api/v1/search/episodes").mock(
+        return_value=httpx.Response(400, json={"status": "error", "message": "rejected"})
+    )
+    pe = PodEngine("k", http_client=httpx.Client(), max_retries=0)
+    # Plain dicts work on the wire; the generated hints only name the models.
+    term: Any = {"searchTerm": '"postpartum depression"', "searchType": "text", "searchTargets": ["transcript"]}
+    with pytest.raises(PodEngineAPIError):  # the body is what's under test, not the response
+        pe.search.search_episodes(page_size=10, search_terms=[term], published_since="2026-10-21")
+    assert json.loads(route.calls.last.request.content) == {
+        "pageSize": 10,
+        "searchTerms": [term],
+        "publishedSince": "2026-10-21",
+    }
+
+
+@respx.mock
+def test_null_sentinel_sends_explicit_null(respx_mock: respx.MockRouter) -> None:
+    route = respx_mock.patch(f"{BASE}/api/v1/projects/my-project/podcasts/lp1").mock(
+        return_value=httpx.Response(400, json={"status": "error", "message": "rejected"})
+    )
+    pe = PodEngine("k", http_client=httpx.Client(), max_retries=0)
+    with pytest.raises(PodEngineAPIError):  # the body is what's under test, not the response
+        pe.projects.update_project_listed_podcast(project_slug="my-project", listed_podcast_id="lp1", priority=NULL)
+    # `state` was not passed, so it is not sent (and not cleared); `priority` is cleared.
+    assert json.loads(route.calls.last.request.content) == {"priority": None}
 
 
 @respx.mock

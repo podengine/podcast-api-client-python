@@ -5,6 +5,8 @@ from __future__ import annotations
 import datetime
 
 from podengine._core.transform import (
+    NULL,
+    build_json_body,
     build_query_params,
     extract_error_message,
     to_jsonable,
@@ -50,3 +52,8 @@ def test_extract_error_message_prefers_nested_data_message() -> None:
     assert extract_error_message("raw text", "fallback") == "raw text"
     assert extract_error_message({}, "fallback") == "fallback"
     assert extract_error_message(None, "fallback") == "fallback"
+
+
+def test_build_json_body_drops_unset_and_skipped_keys() -> None:
+    params = {"slug": "p", "q": "x", "a": 1, "b": None, "c": NULL, "d": {"nested": None}, "e": [None]}
+    assert build_json_body(params, {"slug", "q"}) == {"a": 1, "c": None, "d": {"nested": None}, "e": [None]}

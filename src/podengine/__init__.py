@@ -19,15 +19,17 @@ from podengine._core.errors import (
     PodEngineConnectionError,
     PodEngineError,
 )
+from podengine._core.transform import NULL
 from podengine._generated import models
 from podengine._generated.resources import AsyncPodEngine, PodEngine
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 __all__ = [
     "PodEngine",
     "AsyncPodEngine",
     "RequestOptions",
+    "NULL",
     "PodEngineError",
     "PodEngineAPIError",
     "PodEngineConnectionError",

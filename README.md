@@ -89,6 +89,16 @@ A valid `Retry-After` sets the minimum retry wait, with 1–251 ms of added jitt
 
 The async client enforces the deadline across the complete call and propagates task cancellation. The sync client caps each HTTPX timeout to the remaining budget and checks the deadline between streamed response reads. It cannot interrupt synchronous I/O already in progress, so a blocking read or custom transport can return after the deadline. No further retry starts after the budget expires.
 
+## Leaving out and clearing fields
+
+Arguments you don't pass are left out of the request. To set a field to `null` on purpose, such as clearing a listed podcast's priority, pass `NULL`:
+
+```python
+from podengine import NULL
+
+pe.projects.update_project_listed_podcast(project_slug="my-project", listed_podcast_id="lp_123", priority=NULL)
+```
+
 ## Error handling
 
 Every failure is a `PodEngineError` subclass:

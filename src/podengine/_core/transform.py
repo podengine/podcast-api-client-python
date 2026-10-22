@@ -13,6 +13,27 @@ from typing import Any
 from pydantic_core import to_jsonable_python
 
 
+class _Null:
+    """Type of :data:`NULL`."""
+
+    def __repr__(self) -> str:
+        return "NULL"
+
+
+#: Pass as a body argument to send JSON ``null``, e.g. to clear a nullable field. Arguments left
+#: at their ``None`` default are omitted from the request instead, because the API rejects
+#: ``null`` on optional fields (PE-5027). Typed ``Any`` so it fits any parameter annotation.
+NULL: Any = _Null()
+
+
+def build_json_body(params: dict[str, Any], skip: set[str]) -> dict[str, Any]:
+    """Build an object body from call arguments: drop ``skip`` keys and unset (``None``)
+    arguments, and turn :data:`NULL` into an explicit ``null``. Values nested inside a dict or
+    list are sent as given."""
+    body = {key: value for key, value in params.items() if key not in skip and value is not None}
+    return to_jsonable({key: None if value is NULL else value for key, value in body.items()})
+
+
 def to_jsonable(value: Any) -> Any:
     """Convert an arbitrary call value (pydantic model, datetime, dict, ...) to a
     JSON-serializable structure, emitting model fields under their wire aliases."""
