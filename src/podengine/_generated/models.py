@@ -1927,7 +1927,7 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2(BaseModel):
     slug: str
     title: str
     title_latest: str = Field(alias="titleLatest")
-    apple_id: float = Field(alias="appleId")
+    apple_id: int = Field(alias="appleId")
     blocked: GetMultiplePodcastsResponsePodcastsItemVariant2Blocked | None = None
     description: str | None
     emails: list[str]
@@ -2042,7 +2042,7 @@ class GetPodcastAllDetailsResponsePodcastGuests(BaseModel):
 class GetPodcastAllDetailsResponsePodcastReviewsApplePodcastsReview(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    apple_id: float = Field(alias="appleId")
+    apple_id: int = Field(alias="appleId")
     scraped_at: Any = Field(alias="scrapedAt")
     country: str
     reviews_count: float = Field(alias="reviewsCount")
@@ -2057,7 +2057,7 @@ class GetPodcastAllDetailsResponsePodcastReviewsApplePodcastsReview(BaseModel):
 class GetPodcastAllDetailsResponsePodcastReviewsApplePodcastsReviewsByCountryItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    apple_id: float = Field(alias="appleId")
+    apple_id: int = Field(alias="appleId")
     scraped_at: Any = Field(alias="scrapedAt")
     country: str
     reviews_count: float = Field(alias="reviewsCount")
@@ -2112,7 +2112,7 @@ class GetPodcastAllDetailsResponsePodcastReviews(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     podcast_id: str = Field(alias="podcastId")
-    apple_id: float = Field(alias="appleId")
+    apple_id: int = Field(alias="appleId")
     spotify_id: str | None = Field(alias="spotifyId")
     apple_podcasts_review: GetPodcastAllDetailsResponsePodcastReviewsApplePodcastsReview | None = Field(
         alias="applePodcastsReview"
@@ -2438,7 +2438,7 @@ class GetPodcastAllDetailsResponse(BaseModel):
 class GetPodcastResponsePlatformsApple(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    id: float
+    id: int
     url: str
 
 
@@ -2510,7 +2510,7 @@ class GetPodcastReviewsResponsePodcastReviews(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     podcast_id: str = Field(alias="podcastId")
-    apple_id: float = Field(alias="appleId")
+    apple_id: int = Field(alias="appleId")
     spotify_id: str | None = Field(alias="spotifyId")
     apple_podcasts_review: GetPodcastAllDetailsResponsePodcastReviewsApplePodcastsReview | None = Field(
         alias="applePodcastsReview"
@@ -3527,7 +3527,7 @@ class SearchPodcastsResponseResultHitsItemYoutubeChannelsItem(BaseModel):
 class SearchPodcastsResponseResultHitsItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    apple_id: float | None = Field(default=None, alias="appleId")
+    apple_id: int | None = Field(default=None, alias="appleId")
     apple_podcasts_content_rating: str | None = Field(default=None, alias="applePodcastsContentRating")
     apple_podcasts_rating: float | None = Field(default=None, alias="applePodcastsRating")
     apple_podcasts_ratings_count: float | None = Field(default=None, alias="applePodcastsRatingsCount")
@@ -3780,7 +3780,7 @@ class SearchEpisodesResponseResultHitsItem(BaseModel):
     youtube_video_data_date: datetime | None = Field(default=None, alias="youtubeVideoDataDate")
     youtube_video_url: str | None = Field(default=None, alias="youtubeVideoUrl")
     youtube_video_view_count: float | None = Field(default=None, alias="youtubeVideoViewCount")
-    apple_id: float | None = Field(default=None, alias="appleId")
+    apple_id: int | None = Field(default=None, alias="appleId")
     apple_podcasts_content_rating: str | None = Field(default=None, alias="applePodcastsContentRating")
     apple_podcasts_rating: float | None = Field(default=None, alias="applePodcastsRating")
     apple_podcasts_ratings_count: float | None = Field(default=None, alias="applePodcastsRatingsCount")
@@ -4096,7 +4096,7 @@ class AddPodcastToTeamResponse(BaseModel):
 class RemoveMultiplePodcastsFromTeamResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    not_found_apple_ids: list[float] = Field(alias="notFoundAppleIds")
+    not_found_apple_ids: list[int] = Field(alias="notFoundAppleIds")
     errors: float
     removed_podcasts: float = Field(alias="removedPodcasts")
     not_on_list: float = Field(alias="notOnList")

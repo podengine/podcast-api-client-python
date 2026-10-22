@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime
+import json
 
 import pydantic
 
@@ -56,3 +57,28 @@ def test_datetime_inbound_parsing() -> None:
     assert annotation is not None
     adapter = pydantic.TypeAdapter(annotation)
     assert isinstance(adapter.validate_python("2024-01-31T12:00:00.000Z"), datetime.datetime)
+
+
+def test_apple_ids_are_int_not_float() -> None:
+    # PE-5008: the spec typed appleId as `number`, so these were floats and Apple links ended in `id315114957.0`.
+    apple_id_fields = [
+        (model.__name__, name, str(field.annotation))
+        for model in _all_models()
+        for name, field in model.model_fields.items()
+        if field.alias in ("appleId", "notFoundAppleIds")
+    ]
+    assert apple_id_fields
+    assert [f for f in apple_id_fields if "float" in f[2] or "int" not in f[2]] == []
+
+
+def test_search_hit_apple_id_stays_an_int() -> None:
+    # Search hits carry `episode_id`/`score` alongside the parent podcast's `apple_id`.
+    hit_models = [model for model in _all_models() if {"apple_id", "episode_id", "score"} <= set(model.model_fields)]
+    assert hit_models
+    for model in hit_models:
+        adapter = pydantic.TypeAdapter(model.model_fields["apple_id"].annotation)
+        for wire in (315114957, "315114957"):  # a number now; older API builds sent a string
+            value = adapter.validate_json(json.dumps(wire))
+            assert isinstance(value, int) and value == 315114957
+            assert f"https://podcasts.apple.com/podcast/id{value}" == "https://podcasts.apple.com/podcast/id315114957"
+        assert adapter.validate_json("null") is None

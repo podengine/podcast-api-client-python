@@ -1884,7 +1884,7 @@ class PodcastsResource:
     def get_podcast_id_lookup(
         self,
         *,
-        apple_id: float | None = None,
+        apple_id: int | None = None,
         spotify_id: str | None = None,
         slug: str | None = None,
         pod_engine_id: str | None = None,
@@ -3860,7 +3860,7 @@ class AsyncPodcastsResource:
     async def get_podcast_id_lookup(
         self,
         *,
-        apple_id: float | None = None,
+        apple_id: int | None = None,
         spotify_id: str | None = None,
         slug: str | None = None,
         pod_engine_id: str | None = None,
