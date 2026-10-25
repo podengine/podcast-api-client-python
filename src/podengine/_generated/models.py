@@ -366,6 +366,7 @@ class AskAgentProjectPodcastRelevancySearchOptionsVariant2(BaseModel):
     )
     include_match_snippet: bool | None = Field(default=None, alias="includeMatchSnippet")
     include_transcript_snippet: bool | None = Field(default=None, alias="includeTranscriptSnippet")
+    include_transcript_text: bool | None = Field(default=None, alias="includeTranscriptText")
     transcript_snippet_length: int | None = Field(default=None, alias="transcriptSnippetLength")
     transcript_highlight_length: int | None = Field(default=None, alias="transcriptHighlightLength")
     include_episode_ids: list[str] | None = Field(default=None, alias="includeEpisodeIds")
@@ -3360,6 +3361,7 @@ class GetTranscriptPassagesSearchOptions(BaseModel):
     )
     include_match_snippet: bool | None = Field(default=None, alias="includeMatchSnippet")
     include_transcript_snippet: bool | None = Field(default=None, alias="includeTranscriptSnippet")
+    include_transcript_text: bool | None = Field(default=None, alias="includeTranscriptText")
     transcript_snippet_length: int | None = Field(default=None, alias="transcriptSnippetLength")
     transcript_highlight_length: int | None = Field(default=None, alias="transcriptHighlightLength")
     include_episode_ids: list[str] | None = Field(default=None, alias="includeEpisodeIds")
@@ -4169,6 +4171,7 @@ class GetTeamPodcastsResponseTeamPodcastsItem(BaseModel):
     last_airtable_sync: Any | None = Field(default=None, alias="lastAirtableSync")
     last_airtable_error_sync_date: Any | None = Field(default=None, alias="lastAirtableErrorSyncDate")
     airtable_record_id: str | None = Field(default=None, alias="airtableRecordId")
+    airtable_refresh_queued_at: Any | None = Field(default=None, alias="airtableRefreshQueuedAt")
 
 
 class GetTeamPodcastsResponse(BaseModel):
