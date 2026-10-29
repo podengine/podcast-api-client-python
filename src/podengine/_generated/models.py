@@ -510,6 +510,13 @@ class CreateAlertConfigResponseCreatedAlertConfigEmailSettings(BaseModel):
     frequency: Literal["hourly", "daily", "weekly"]
 
 
+class CreateAlertConfigResponseCreatedAlertConfigSubjectNoteCheck(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    status: Literal["passed", "failed", "pending"]
+    missing: str | None
+
+
 class CreateAlertConfigResponseCreatedAlertConfig(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -528,6 +535,9 @@ class CreateAlertConfigResponseCreatedAlertConfig(BaseModel):
     ) = Field(alias="alertSettings")
     email_settings: CreateAlertConfigResponseCreatedAlertConfigEmailSettings = Field(alias="emailSettings")
     last_run_date: Any | None = Field(alias="lastRunDate")
+    subject_note_check: CreateAlertConfigResponseCreatedAlertConfigSubjectNoteCheck | None = Field(
+        default=None, alias="subjectNoteCheck"
+    )
 
 
 class CreateAlertConfigResponse(BaseModel):
@@ -746,6 +756,7 @@ class GetAlertEpisodeMatchesResponseMatchesItem(BaseModel):
     episode: GetAlertEpisodeMatchesResponseMatchesItemEpisode
     podcast: GetAlertEpisodeMatchesResponseMatchesItemPodcast
     appearance: GetAlertEpisodeMatchesResponseMatchesItemAppearance | None
+    subject_check: Literal["checked", "unverified"] | None = Field(alias="subjectCheck")
     mention_count: float = Field(alias="mentionCount")
     kept_mention_count: float = Field(alias="keptMentionCount")
     syndicated_episode_ids: list[str] = Field(alias="syndicatedEpisodeIds")
