@@ -2005,6 +2005,8 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimate(BaseModel)
     estimated_monthy_listeners_calculated_at: Any | None = Field(alias="estimatedMonthyListenersCalculatedAt")
     confidence: Literal["high", "medium", "low"] | None = None
     is_dormant: bool | None = Field(default=None, alias="isDormant")
+    estimated_monthly_audio_listeners: float | None = Field(default=None, alias="estimatedMonthlyAudioListeners")
+    estimated_monthly_youtube_views: float | None = Field(default=None, alias="estimatedMonthlyYoutubeViews")
     has_op3_analytics: bool | None = Field(default=None, alias="hasOp3Analytics")
     op3_downloads: (
         GetMultiplePodcastsResponsePodcastsItemVariant2AudienceEstimateOp3DownloadsVariant1
