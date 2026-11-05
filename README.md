@@ -1,7 +1,7 @@
 # Pod Engine Python SDK
 
 Official Python client for the [Pod Engine](https://www.podengine.ai) podcast intelligence
-API — search 4M+ podcasts, fetch metadata, transcripts, charts, guest profiles and more.
+API — search 2.6M+ podcasts, fetch metadata, transcripts, charts, guest profiles and more.
 
 The client is **fully generated** from Pod Engine's published OpenAPI specification, so it
 stays in lockstep with the API and ships typed [pydantic](https://docs.pydantic.dev) models
