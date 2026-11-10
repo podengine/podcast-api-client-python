@@ -4234,6 +4234,8 @@ class GetCurrentResponseAliasesItem(BaseModel):
     label: str
     used: float
     limit: float | None
+    base_limit: float | None = Field(alias="baseLimit")
+    purchased_units: float = Field(alias="purchasedUnits")
 
 
 class GetCurrentResponseProjectUsageProjects(BaseModel):
