@@ -2105,6 +2105,7 @@ class GetPodcastAllDetailsResponsePodcastContactsEmailsItem(BaseModel):
     deliverability_reason: str | None = Field(alias="deliverabilityReason")
     is_free_email_provider: bool | None = Field(alias="isFreeEmailProvider")
     suggested_correction: str | None = Field(alias="suggestedCorrection")
+    is_relay_address: bool = Field(alias="isRelayAddress")
 
 
 class GetPodcastAllDetailsResponsePodcastContactsWebsitesItem(BaseModel):
