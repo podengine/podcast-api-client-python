@@ -1976,7 +1976,8 @@ class PodcastsResource:
         self,
         *,
         podcast_id_or_slug: str,
-        country: Literal["us", "gb", "au", "ca"] | None = None,
+        country: Literal["us", "gb", "ca", "au", "in", "de", "fr", "ie", "nz", "nl", "se", "br", "mx", "es", "it", "jp"]
+        | None = None,
         limit: float | None = None,
         offset: float | None = None,
         min_rating: int | None = None,
@@ -3983,7 +3984,8 @@ class AsyncPodcastsResource:
         self,
         *,
         podcast_id_or_slug: str,
-        country: Literal["us", "gb", "au", "ca"] | None = None,
+        country: Literal["us", "gb", "ca", "au", "in", "de", "fr", "ie", "nz", "nl", "se", "br", "mx", "es", "it", "jp"]
+        | None = None,
         limit: float | None = None,
         offset: float | None = None,
         min_rating: int | None = None,
