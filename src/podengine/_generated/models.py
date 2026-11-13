@@ -2180,6 +2180,7 @@ class GetPodcastAllDetailsResponsePodcastReviewsApplePodcastsReviewTextReviewsIt
     model_config = ConfigDict(populate_by_name=True)
 
     country: str
+    language: str | None
     rating: float
     title: str
     body: str
