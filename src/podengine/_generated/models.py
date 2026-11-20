@@ -845,7 +845,7 @@ class GetChartResponseChartPositionsItemPodenginePodcast(BaseModel):
     id: str
     image_url: str | None = Field(alias="imageUrl")
     language: str
-    last_episode_published_at: Any = Field(alias="lastEpisodePublishedAt")
+    last_episode_published_at: Any | None = Field(alias="lastEpisodePublishedAt")
     slug: str
     title: str
     title_latest: str = Field(alias="titleLatest")
@@ -1328,7 +1328,7 @@ class GetLatestEpisodesResponseLatestPodcastsItemPodcast(BaseModel):
     id: str
     image_url: str | None = Field(alias="imageUrl")
     language: str
-    last_episode_published_at: Any = Field(alias="lastEpisodePublishedAt")
+    last_episode_published_at: Any | None = Field(alias="lastEpisodePublishedAt")
     slug: str
     title: str
     title_latest: str = Field(alias="titleLatest")
@@ -2029,7 +2029,7 @@ class GetMultiplePodcastsResponsePodcastsItemVariant2(BaseModel):
     id: str
     image_url: str | None = Field(alias="imageUrl")
     language: str
-    last_episode_published_at: Any = Field(alias="lastEpisodePublishedAt")
+    last_episode_published_at: Any | None = Field(alias="lastEpisodePublishedAt")
     slug: str
     title: str
     title_latest: str = Field(alias="titleLatest")
@@ -3439,7 +3439,7 @@ class SearchAutocompletePodcastsResponsePodcastsItem(BaseModel):
     id: str
     image_url: str | None = Field(alias="imageUrl")
     language: str
-    last_episode_published_at: Any = Field(alias="lastEpisodePublishedAt")
+    last_episode_published_at: Any | None = Field(alias="lastEpisodePublishedAt")
     slug: str
     title: str
     title_latest: str = Field(alias="titleLatest")
