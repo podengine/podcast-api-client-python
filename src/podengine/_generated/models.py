@@ -3824,6 +3824,7 @@ class SearchPodcastsResponse(BaseModel):
     search_results_stats: SearchPodcastsResponseSearchResultsStats = Field(alias="searchResultsStats")
     result: SearchPodcastsResponseResult
     cursor: str | None
+    result_limit_reached: bool = Field(alias="resultLimitReached")
 
 
 class SearchEpisodesResponseResultHitsItemEpisodeSponsorsAndAdvertisersItem(BaseModel):
@@ -4080,6 +4081,7 @@ class SearchEpisodesResponse(BaseModel):
     search_results_stats: SearchPodcastsResponseSearchResultsStats = Field(alias="searchResultsStats")
     result: SearchEpisodesResponseResult
     cursor: str | None
+    result_limit_reached: bool = Field(alias="resultLimitReached")
 
 
 class GetRssStatsPodcast2ResponsePodcast2StatsPodcastLevelStatsFieldFrequencyItem(BaseModel):
